@@ -14,6 +14,18 @@
       "binding": "TAILOR_MEDIA",
       "bucket_name": "fashley-tailor-media"
     }
+  ],
+  "secrets_store_secrets": [
+    {
+      "binding": "CLERK_SECRET_KEY",
+      "store_id": "f1a49cc62eaa46cfa793e4de4ed2ec87",
+      "secret_name": "CLERK_SECRET_KEY"
+    },
+    {
+      "binding": "META_API_KEY",
+      "store_id": "f1a49cc62eaa46cfa793e4de4ed2ec87",
+      "secret_name": "META_API_KEY"
+    }
   ]
   // TAILOR_WORKFLOW binding is added when the companion Workflow Worker exists.
   // Clerk and Meta credentials are Worker secrets (cf secrets), never vars in this file.
