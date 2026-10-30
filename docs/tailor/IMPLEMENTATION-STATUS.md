@@ -6,12 +6,12 @@ This log is the tracked burst handoff. Fixtures and local tests are not live pro
 
 | Gate                           | Owner     | Status               | Evidence                                                                       | Blocker                                                           |
 | ------------------------------ | --------- | -------------------- | ------------------------------------------------------------------------------ | ----------------------------------------------------------------- |
-| G0 Contracts freeze            | C         | In this PR (Burst 1) | `src/lib/tailor/contracts/` Zod schemas, fixtures F01-F16, `contracts.test.ts` | A/B acknowledgement pending                                       |
+| G0 Contracts freeze            | C         | Done (Bursts 1-3)    | `src/lib/tailor/contracts/` Zod schemas, fixtures F01-F16, `contracts.test.ts`; A and B both implemented against v1 with no forked DTOs | None                                                              |
 | G1 Infrastructure proof        | A + C     | Blocked              | None yet                                                                       | No verified Clerk, D1, R2, Workflow, or Meta credentials/bindings |
-| G2 Intake and immutable inputs | A + B     | Not started          | None                                                                           | Depends on G0, then G1 for live proof                             |
-| G3 Generation and safety       | A + B     | Not started          | None                                                                           | Meta model access unverified                                      |
-| G4 Handoff and review          | A + B + C | Not started          | None                                                                           | Depends on G2/G3                                                  |
-| G5 Release evidence            | C         | Not started          | None                                                                           | Depends on G1-G4                                                  |
+| G2 Intake and immutable inputs | A + B     | Local slice done     | Burst 2 migrations/services + Burst 3 workspace UI; server tests prove revision conflict, idempotent replay, two-user isolation, consent withdrawal. Fixture evidence only | Live proof depends on G1; upload sanitizer/SAM/crop not implemented, routes fail closed |
+| G3 Generation and safety       | A + B     | Blocked              | Meta/Workflow adapters exist as interfaces returning `PROVIDER_UNAVAILABLE`/`FEATURE_UNAVAILABLE`; job routes fail closed | Meta model access unverified                                      |
+| G4 Handoff and review          | A + B + C | Local slice done     | Deterministic brief assembly/finalize/supersede, hashed share grants, allowlisted `RedactedBrief`, exact-version review actions proven by server tests; P06/P08/P09 UI built | Live proof depends on G1; `POST /projects/:id/briefs` (assemble_brief job) stays disabled until Workflow lands |
+| G5 Release evidence            | C         | In progress          | Burst 4: full test/typecheck/build pass (below)                                | Depends on G1-G4 live proof                                      |
 
 ## Contract changelog
 
@@ -26,6 +26,24 @@ This log is the tracked burst handoff. Fixtures and local tests are not live pro
 - B: `src/components/tailor/`, `src/lib/tailor/client/`, `src/routes/tailor*`, `src/routes/review*`
 
 Out-of-ownership edits require a boundary-change request in PR #1.
+
+## Burst 4 integration decisions (Agent C)
+
+- Brief creation job: keep `POST /projects/:id/briefs` disabled (`FEATURE_UNAVAILABLE`) until Workflow/Meta exist. No contract change; deterministic local brief assembly in services claims no model provenance (`deterministic-assembly-v1`).
+- `reviewStatus` on project/brief summaries: server-derived aggregation accepted. No contract change.
+- `src/routeTree.gen.ts` is build-generated; C verified it after `bun run build` includes the `/api/tailor/*` and tailor/review routes. Never hand-edited.
+- Geist fonts: Geist Sans/Mono are not loaded in this app. Existing Karla/Cormorant theme tokens were used for Burst 3 UI. This is a recorded deviation, not literal Geist typography; root font loading needs a separate owner-approved change.
+- `FabricSelectionCanvas` (SAM regions/manual crop coordinates) deferred until real SAM payloads exist (G3). Workspace currently supports consent, upload, and manual whole-photo swatch selection with an explicit explanation.
+- Clerk account profile/security entry deferred to G1; account page has no fake identity controls.
+- Not implemented and honestly absent: upload sanitizer/quarantine, SAM/crop jobs, concept generation, history "Use as new draft", project delete confirmation UI, person-photo upload.
+
+## Burst 4 verification (2026-10-30, local)
+
+- `bun run test`: 56/56 pass (10 files), including contracts 10, server 9, client/components 17+ (fixture-labelled where applicable).
+- `bun run typecheck`: pass. `bun run build`: pass (route tree regenerated by the router plugin).
+- `eslint` on all new Tailor files (server, client, components, tailor/review/account/api routes): clean after scoped Prettier fixes and one `no-this-alias` fix in `src/lib/tailor/server/db.ts:197`. Repo-wide lint debt (4,168 errors at Burst 1 baseline) is unchanged and not suppressed.
+- Security spot checks: no `localStorage`/`sessionStorage`/`indexedDB` in `src/lib/tailor/`; share tokens/PINs stored only as SHA-256 hashes (`src/lib/tailor/server/shares.ts:87`); fixture adapter gated to `DEV && VITE_TAILOR_FIXTURES=1` (`src/lib/tailor/client/index.ts:16`), production resolves to the HTTP adapter.
+- Burst 1 CI run `41100433641` was still `queued` at Burst 4 start; CI status must be read from the PR checks, not assumed.
 
 ## Baseline recorded at Burst 1 start
 

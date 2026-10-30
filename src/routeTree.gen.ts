@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AboutRouteImport } from './routes/about'
+import { Route as AccountRouteImport } from './routes/account'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as BagDesignRouteImport } from './routes/bag-design'
 import { Route as CoinsRouteImport } from './routes/coins'
@@ -18,14 +19,43 @@ import { Route as ContactRouteImport } from './routes/contact'
 import { Route as DiscoverRouteImport } from './routes/discover'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
+import { Route as ReviewRouteImport } from './routes/review'
 import { Route as ShoeDesignRouteImport } from './routes/shoe-design'
 import { Route as ShopRouteImport } from './routes/shop'
 import { Route as StudioRouteImport } from './routes/studio'
+import { Route as TailorRouteImport } from './routes/tailor'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as WardrobeRouteImport } from './routes/wardrobe'
 import { Route as ApiEditImageRouteImport } from './routes/api/edit-image'
 import { Route as ProductHandleRouteImport } from './routes/product.$handle'
+import { Route as ReviewTokenRouteImport } from './routes/review.$token'
+import { Route as TailorNewRouteImport } from './routes/tailor.new'
 import { Route as ApiPublicPaystackRouteImport } from './routes/api/public/paystack'
+import { Route as ApiTailorConsentsRouteImport } from './routes/api/tailor/consents'
+import { Route as ApiTailorMeRouteImport } from './routes/api/tailor/me'
+import { Route as ApiTailorProjectsRouteImport } from './routes/api/tailor/projects'
+import { Route as ApiTailorTemplatesRouteImport } from './routes/api/tailor/templates'
+import { Route as TailorProjectsProjectIdRouteImport } from './routes/tailor.projects.$projectId'
+import { Route as ApiTailorBriefsIdRouteImport } from './routes/api/tailor/briefs/$id'
+import { Route as ApiTailorMePreferencesRouteImport } from './routes/api/tailor/me/preferences'
+import { Route as ApiTailorProjectsIdRouteImport } from './routes/api/tailor/projects/$id'
+import { Route as ApiTailorReviewActionsRouteImport } from './routes/api/tailor/review/actions'
+import { Route as ApiTailorReviewExchangeRouteImport } from './routes/api/tailor/review/exchange'
+import { Route as ApiTailorReviewLogoutRouteImport } from './routes/api/tailor/review/logout'
+import { Route as ApiTailorReviewSessionRouteImport } from './routes/api/tailor/review/session'
+import { Route as ApiTailorTemplatesIdRouteImport } from './routes/api/tailor/templates/$id'
+import { Route as TailorProjectsProjectIdBriefRouteImport } from './routes/tailor.projects.$projectId.brief'
+import { Route as TailorProjectsProjectIdHistoryRouteImport } from './routes/tailor.projects.$projectId.history'
+import { Route as ApiTailorBriefsIdFinalizeRouteImport } from './routes/api/tailor/briefs/$id/finalize'
+import { Route as ApiTailorBriefsIdSharesRouteImport } from './routes/api/tailor/briefs/$id/shares'
+import { Route as ApiTailorConsentsIdWithdrawRouteImport } from './routes/api/tailor/consents/$id/withdraw'
+import { Route as ApiTailorProjectsIdArchiveRouteImport } from './routes/api/tailor/projects/$id/archive'
+import { Route as ApiTailorProjectsIdBriefsRouteImport } from './routes/api/tailor/projects/$id/briefs'
+import { Route as ApiTailorProjectsIdChecksRouteImport } from './routes/api/tailor/projects/$id/checks'
+import { Route as ApiTailorProjectsIdDraftRouteImport } from './routes/api/tailor/projects/$id/draft'
+import { Route as ApiTailorProjectsIdJobsRouteImport } from './routes/api/tailor/projects/$id/jobs'
+import { Route as ApiTailorProjectsIdRevisionsRouteImport } from './routes/api/tailor/projects/$id/revisions'
+import { Route as ApiTailorSharesIdRevokeRouteImport } from './routes/api/tailor/shares/$id/revoke'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -35,6 +65,11 @@ const IndexRoute = IndexRouteImport.update({
 const AboutRoute = AboutRouteImport.update({
   id: '/about',
   path: '/about',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AccountRoute = AccountRouteImport.update({
+  id: '/account',
+  path: '/account',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRoute = AuthRouteImport.update({
@@ -72,6 +107,11 @@ const ResetPasswordRoute = ResetPasswordRouteImport.update({
   path: '/reset-password',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ReviewRoute = ReviewRouteImport.update({
+  id: '/review',
+  path: '/review',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ShoeDesignRoute = ShoeDesignRouteImport.update({
   id: '/shoe-design',
   path: '/shoe-design',
@@ -85,6 +125,11 @@ const ShopRoute = ShopRouteImport.update({
 const StudioRoute = StudioRouteImport.update({
   id: '/studio',
   path: '/studio',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TailorRoute = TailorRouteImport.update({
+  id: '/tailor',
+  path: '/tailor',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TermsRoute = TermsRouteImport.update({
@@ -107,15 +152,160 @@ const ProductHandleRoute = ProductHandleRouteImport.update({
   path: '/product/$handle',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ReviewTokenRoute = ReviewTokenRouteImport.update({
+  id: '/$token',
+  path: '/$token',
+  getParentRoute: () => ReviewRoute,
+} as any)
+const TailorNewRoute = TailorNewRouteImport.update({
+  id: '/new',
+  path: '/new',
+  getParentRoute: () => TailorRoute,
+} as any)
 const ApiPublicPaystackRoute = ApiPublicPaystackRouteImport.update({
   id: '/api/public/paystack',
   path: '/api/public/paystack',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiTailorConsentsRoute = ApiTailorConsentsRouteImport.update({
+  id: '/api/tailor/consents',
+  path: '/api/tailor/consents',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiTailorMeRoute = ApiTailorMeRouteImport.update({
+  id: '/api/tailor/me',
+  path: '/api/tailor/me',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiTailorProjectsRoute = ApiTailorProjectsRouteImport.update({
+  id: '/api/tailor/projects',
+  path: '/api/tailor/projects',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiTailorTemplatesRoute = ApiTailorTemplatesRouteImport.update({
+  id: '/api/tailor/templates',
+  path: '/api/tailor/templates',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TailorProjectsProjectIdRoute = TailorProjectsProjectIdRouteImport.update({
+  id: '/projects/$projectId',
+  path: '/projects/$projectId',
+  getParentRoute: () => TailorRoute,
+} as any)
+const ApiTailorBriefsIdRoute = ApiTailorBriefsIdRouteImport.update({
+  id: '/api/tailor/briefs/$id',
+  path: '/api/tailor/briefs/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiTailorMePreferencesRoute = ApiTailorMePreferencesRouteImport.update({
+  id: '/preferences',
+  path: '/preferences',
+  getParentRoute: () => ApiTailorMeRoute,
+} as any)
+const ApiTailorProjectsIdRoute = ApiTailorProjectsIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => ApiTailorProjectsRoute,
+} as any)
+const ApiTailorReviewActionsRoute = ApiTailorReviewActionsRouteImport.update({
+  id: '/api/tailor/review/actions',
+  path: '/api/tailor/review/actions',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiTailorReviewExchangeRoute = ApiTailorReviewExchangeRouteImport.update({
+  id: '/api/tailor/review/exchange',
+  path: '/api/tailor/review/exchange',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiTailorReviewLogoutRoute = ApiTailorReviewLogoutRouteImport.update({
+  id: '/api/tailor/review/logout',
+  path: '/api/tailor/review/logout',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiTailorReviewSessionRoute = ApiTailorReviewSessionRouteImport.update({
+  id: '/api/tailor/review/session',
+  path: '/api/tailor/review/session',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiTailorTemplatesIdRoute = ApiTailorTemplatesIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => ApiTailorTemplatesRoute,
+} as any)
+const TailorProjectsProjectIdBriefRoute =
+  TailorProjectsProjectIdBriefRouteImport.update({
+    id: '/brief',
+    path: '/brief',
+    getParentRoute: () => TailorProjectsProjectIdRoute,
+  } as any)
+const TailorProjectsProjectIdHistoryRoute =
+  TailorProjectsProjectIdHistoryRouteImport.update({
+    id: '/history',
+    path: '/history',
+    getParentRoute: () => TailorProjectsProjectIdRoute,
+  } as any)
+const ApiTailorBriefsIdFinalizeRoute =
+  ApiTailorBriefsIdFinalizeRouteImport.update({
+    id: '/finalize',
+    path: '/finalize',
+    getParentRoute: () => ApiTailorBriefsIdRoute,
+  } as any)
+const ApiTailorBriefsIdSharesRoute = ApiTailorBriefsIdSharesRouteImport.update({
+  id: '/shares',
+  path: '/shares',
+  getParentRoute: () => ApiTailorBriefsIdRoute,
+} as any)
+const ApiTailorConsentsIdWithdrawRoute =
+  ApiTailorConsentsIdWithdrawRouteImport.update({
+    id: '/$id/withdraw',
+    path: '/$id/withdraw',
+    getParentRoute: () => ApiTailorConsentsRoute,
+  } as any)
+const ApiTailorProjectsIdArchiveRoute =
+  ApiTailorProjectsIdArchiveRouteImport.update({
+    id: '/archive',
+    path: '/archive',
+    getParentRoute: () => ApiTailorProjectsIdRoute,
+  } as any)
+const ApiTailorProjectsIdBriefsRoute =
+  ApiTailorProjectsIdBriefsRouteImport.update({
+    id: '/briefs',
+    path: '/briefs',
+    getParentRoute: () => ApiTailorProjectsIdRoute,
+  } as any)
+const ApiTailorProjectsIdChecksRoute =
+  ApiTailorProjectsIdChecksRouteImport.update({
+    id: '/checks',
+    path: '/checks',
+    getParentRoute: () => ApiTailorProjectsIdRoute,
+  } as any)
+const ApiTailorProjectsIdDraftRoute =
+  ApiTailorProjectsIdDraftRouteImport.update({
+    id: '/draft',
+    path: '/draft',
+    getParentRoute: () => ApiTailorProjectsIdRoute,
+  } as any)
+const ApiTailorProjectsIdJobsRoute = ApiTailorProjectsIdJobsRouteImport.update({
+  id: '/jobs',
+  path: '/jobs',
+  getParentRoute: () => ApiTailorProjectsIdRoute,
+} as any)
+const ApiTailorProjectsIdRevisionsRoute =
+  ApiTailorProjectsIdRevisionsRouteImport.update({
+    id: '/revisions',
+    path: '/revisions',
+    getParentRoute: () => ApiTailorProjectsIdRoute,
+  } as any)
+const ApiTailorSharesIdRevokeRoute = ApiTailorSharesIdRevokeRouteImport.update({
+  id: '/api/tailor/shares/$id/revoke',
+  path: '/api/tailor/shares/$id/revoke',
   getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/account': typeof AccountRoute
   '/auth': typeof AuthRoute
   '/bag-design': typeof BagDesignRoute
   '/coins': typeof CoinsRoute
@@ -123,18 +313,48 @@ export interface FileRoutesByFullPath {
   '/discover': typeof DiscoverRoute
   '/privacy': typeof PrivacyRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/review': typeof ReviewRouteWithChildren
   '/shoe-design': typeof ShoeDesignRoute
   '/shop': typeof ShopRoute
   '/studio': typeof StudioRoute
+  '/tailor': typeof TailorRouteWithChildren
   '/terms': typeof TermsRoute
   '/wardrobe': typeof WardrobeRoute
   '/api/edit-image': typeof ApiEditImageRoute
   '/product/$handle': typeof ProductHandleRoute
+  '/review/$token': typeof ReviewTokenRoute
+  '/tailor/new': typeof TailorNewRoute
   '/api/public/paystack': typeof ApiPublicPaystackRoute
+  '/api/tailor/consents': typeof ApiTailorConsentsRouteWithChildren
+  '/api/tailor/me': typeof ApiTailorMeRouteWithChildren
+  '/api/tailor/projects': typeof ApiTailorProjectsRouteWithChildren
+  '/api/tailor/templates': typeof ApiTailorTemplatesRouteWithChildren
+  '/tailor/projects/$projectId': typeof TailorProjectsProjectIdRouteWithChildren
+  '/api/tailor/briefs/$id': typeof ApiTailorBriefsIdRouteWithChildren
+  '/api/tailor/me/preferences': typeof ApiTailorMePreferencesRoute
+  '/api/tailor/projects/$id': typeof ApiTailorProjectsIdRouteWithChildren
+  '/api/tailor/review/actions': typeof ApiTailorReviewActionsRoute
+  '/api/tailor/review/exchange': typeof ApiTailorReviewExchangeRoute
+  '/api/tailor/review/logout': typeof ApiTailorReviewLogoutRoute
+  '/api/tailor/review/session': typeof ApiTailorReviewSessionRoute
+  '/api/tailor/templates/$id': typeof ApiTailorTemplatesIdRoute
+  '/tailor/projects/$projectId/brief': typeof TailorProjectsProjectIdBriefRoute
+  '/tailor/projects/$projectId/history': typeof TailorProjectsProjectIdHistoryRoute
+  '/api/tailor/briefs/$id/finalize': typeof ApiTailorBriefsIdFinalizeRoute
+  '/api/tailor/briefs/$id/shares': typeof ApiTailorBriefsIdSharesRoute
+  '/api/tailor/consents/$id/withdraw': typeof ApiTailorConsentsIdWithdrawRoute
+  '/api/tailor/projects/$id/archive': typeof ApiTailorProjectsIdArchiveRoute
+  '/api/tailor/projects/$id/briefs': typeof ApiTailorProjectsIdBriefsRoute
+  '/api/tailor/projects/$id/checks': typeof ApiTailorProjectsIdChecksRoute
+  '/api/tailor/projects/$id/draft': typeof ApiTailorProjectsIdDraftRoute
+  '/api/tailor/projects/$id/jobs': typeof ApiTailorProjectsIdJobsRoute
+  '/api/tailor/projects/$id/revisions': typeof ApiTailorProjectsIdRevisionsRoute
+  '/api/tailor/shares/$id/revoke': typeof ApiTailorSharesIdRevokeRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/account': typeof AccountRoute
   '/auth': typeof AuthRoute
   '/bag-design': typeof BagDesignRoute
   '/coins': typeof CoinsRoute
@@ -142,19 +362,49 @@ export interface FileRoutesByTo {
   '/discover': typeof DiscoverRoute
   '/privacy': typeof PrivacyRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/review': typeof ReviewRouteWithChildren
   '/shoe-design': typeof ShoeDesignRoute
   '/shop': typeof ShopRoute
   '/studio': typeof StudioRoute
+  '/tailor': typeof TailorRouteWithChildren
   '/terms': typeof TermsRoute
   '/wardrobe': typeof WardrobeRoute
   '/api/edit-image': typeof ApiEditImageRoute
   '/product/$handle': typeof ProductHandleRoute
+  '/review/$token': typeof ReviewTokenRoute
+  '/tailor/new': typeof TailorNewRoute
   '/api/public/paystack': typeof ApiPublicPaystackRoute
+  '/api/tailor/consents': typeof ApiTailorConsentsRouteWithChildren
+  '/api/tailor/me': typeof ApiTailorMeRouteWithChildren
+  '/api/tailor/projects': typeof ApiTailorProjectsRouteWithChildren
+  '/api/tailor/templates': typeof ApiTailorTemplatesRouteWithChildren
+  '/tailor/projects/$projectId': typeof TailorProjectsProjectIdRouteWithChildren
+  '/api/tailor/briefs/$id': typeof ApiTailorBriefsIdRouteWithChildren
+  '/api/tailor/me/preferences': typeof ApiTailorMePreferencesRoute
+  '/api/tailor/projects/$id': typeof ApiTailorProjectsIdRouteWithChildren
+  '/api/tailor/review/actions': typeof ApiTailorReviewActionsRoute
+  '/api/tailor/review/exchange': typeof ApiTailorReviewExchangeRoute
+  '/api/tailor/review/logout': typeof ApiTailorReviewLogoutRoute
+  '/api/tailor/review/session': typeof ApiTailorReviewSessionRoute
+  '/api/tailor/templates/$id': typeof ApiTailorTemplatesIdRoute
+  '/tailor/projects/$projectId/brief': typeof TailorProjectsProjectIdBriefRoute
+  '/tailor/projects/$projectId/history': typeof TailorProjectsProjectIdHistoryRoute
+  '/api/tailor/briefs/$id/finalize': typeof ApiTailorBriefsIdFinalizeRoute
+  '/api/tailor/briefs/$id/shares': typeof ApiTailorBriefsIdSharesRoute
+  '/api/tailor/consents/$id/withdraw': typeof ApiTailorConsentsIdWithdrawRoute
+  '/api/tailor/projects/$id/archive': typeof ApiTailorProjectsIdArchiveRoute
+  '/api/tailor/projects/$id/briefs': typeof ApiTailorProjectsIdBriefsRoute
+  '/api/tailor/projects/$id/checks': typeof ApiTailorProjectsIdChecksRoute
+  '/api/tailor/projects/$id/draft': typeof ApiTailorProjectsIdDraftRoute
+  '/api/tailor/projects/$id/jobs': typeof ApiTailorProjectsIdJobsRoute
+  '/api/tailor/projects/$id/revisions': typeof ApiTailorProjectsIdRevisionsRoute
+  '/api/tailor/shares/$id/revoke': typeof ApiTailorSharesIdRevokeRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/account': typeof AccountRoute
   '/auth': typeof AuthRoute
   '/bag-design': typeof BagDesignRoute
   '/coins': typeof CoinsRoute
@@ -162,20 +412,50 @@ export interface FileRoutesById {
   '/discover': typeof DiscoverRoute
   '/privacy': typeof PrivacyRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/review': typeof ReviewRouteWithChildren
   '/shoe-design': typeof ShoeDesignRoute
   '/shop': typeof ShopRoute
   '/studio': typeof StudioRoute
+  '/tailor': typeof TailorRouteWithChildren
   '/terms': typeof TermsRoute
   '/wardrobe': typeof WardrobeRoute
   '/api/edit-image': typeof ApiEditImageRoute
   '/product/$handle': typeof ProductHandleRoute
+  '/review/$token': typeof ReviewTokenRoute
+  '/tailor/new': typeof TailorNewRoute
   '/api/public/paystack': typeof ApiPublicPaystackRoute
+  '/api/tailor/consents': typeof ApiTailorConsentsRouteWithChildren
+  '/api/tailor/me': typeof ApiTailorMeRouteWithChildren
+  '/api/tailor/projects': typeof ApiTailorProjectsRouteWithChildren
+  '/api/tailor/templates': typeof ApiTailorTemplatesRouteWithChildren
+  '/tailor/projects/$projectId': typeof TailorProjectsProjectIdRouteWithChildren
+  '/api/tailor/briefs/$id': typeof ApiTailorBriefsIdRouteWithChildren
+  '/api/tailor/me/preferences': typeof ApiTailorMePreferencesRoute
+  '/api/tailor/projects/$id': typeof ApiTailorProjectsIdRouteWithChildren
+  '/api/tailor/review/actions': typeof ApiTailorReviewActionsRoute
+  '/api/tailor/review/exchange': typeof ApiTailorReviewExchangeRoute
+  '/api/tailor/review/logout': typeof ApiTailorReviewLogoutRoute
+  '/api/tailor/review/session': typeof ApiTailorReviewSessionRoute
+  '/api/tailor/templates/$id': typeof ApiTailorTemplatesIdRoute
+  '/tailor/projects/$projectId/brief': typeof TailorProjectsProjectIdBriefRoute
+  '/tailor/projects/$projectId/history': typeof TailorProjectsProjectIdHistoryRoute
+  '/api/tailor/briefs/$id/finalize': typeof ApiTailorBriefsIdFinalizeRoute
+  '/api/tailor/briefs/$id/shares': typeof ApiTailorBriefsIdSharesRoute
+  '/api/tailor/consents/$id/withdraw': typeof ApiTailorConsentsIdWithdrawRoute
+  '/api/tailor/projects/$id/archive': typeof ApiTailorProjectsIdArchiveRoute
+  '/api/tailor/projects/$id/briefs': typeof ApiTailorProjectsIdBriefsRoute
+  '/api/tailor/projects/$id/checks': typeof ApiTailorProjectsIdChecksRoute
+  '/api/tailor/projects/$id/draft': typeof ApiTailorProjectsIdDraftRoute
+  '/api/tailor/projects/$id/jobs': typeof ApiTailorProjectsIdJobsRoute
+  '/api/tailor/projects/$id/revisions': typeof ApiTailorProjectsIdRevisionsRoute
+  '/api/tailor/shares/$id/revoke': typeof ApiTailorSharesIdRevokeRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
     | '/about'
+    | '/account'
     | '/auth'
     | '/bag-design'
     | '/coins'
@@ -183,18 +463,48 @@ export interface FileRouteTypes {
     | '/discover'
     | '/privacy'
     | '/reset-password'
+    | '/review'
     | '/shoe-design'
     | '/shop'
     | '/studio'
+    | '/tailor'
     | '/terms'
     | '/wardrobe'
     | '/api/edit-image'
     | '/product/$handle'
+    | '/review/$token'
+    | '/tailor/new'
     | '/api/public/paystack'
+    | '/api/tailor/consents'
+    | '/api/tailor/me'
+    | '/api/tailor/projects'
+    | '/api/tailor/templates'
+    | '/tailor/projects/$projectId'
+    | '/api/tailor/briefs/$id'
+    | '/api/tailor/me/preferences'
+    | '/api/tailor/projects/$id'
+    | '/api/tailor/review/actions'
+    | '/api/tailor/review/exchange'
+    | '/api/tailor/review/logout'
+    | '/api/tailor/review/session'
+    | '/api/tailor/templates/$id'
+    | '/tailor/projects/$projectId/brief'
+    | '/tailor/projects/$projectId/history'
+    | '/api/tailor/briefs/$id/finalize'
+    | '/api/tailor/briefs/$id/shares'
+    | '/api/tailor/consents/$id/withdraw'
+    | '/api/tailor/projects/$id/archive'
+    | '/api/tailor/projects/$id/briefs'
+    | '/api/tailor/projects/$id/checks'
+    | '/api/tailor/projects/$id/draft'
+    | '/api/tailor/projects/$id/jobs'
+    | '/api/tailor/projects/$id/revisions'
+    | '/api/tailor/shares/$id/revoke'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/about'
+    | '/account'
     | '/auth'
     | '/bag-design'
     | '/coins'
@@ -202,18 +512,48 @@ export interface FileRouteTypes {
     | '/discover'
     | '/privacy'
     | '/reset-password'
+    | '/review'
     | '/shoe-design'
     | '/shop'
     | '/studio'
+    | '/tailor'
     | '/terms'
     | '/wardrobe'
     | '/api/edit-image'
     | '/product/$handle'
+    | '/review/$token'
+    | '/tailor/new'
     | '/api/public/paystack'
+    | '/api/tailor/consents'
+    | '/api/tailor/me'
+    | '/api/tailor/projects'
+    | '/api/tailor/templates'
+    | '/tailor/projects/$projectId'
+    | '/api/tailor/briefs/$id'
+    | '/api/tailor/me/preferences'
+    | '/api/tailor/projects/$id'
+    | '/api/tailor/review/actions'
+    | '/api/tailor/review/exchange'
+    | '/api/tailor/review/logout'
+    | '/api/tailor/review/session'
+    | '/api/tailor/templates/$id'
+    | '/tailor/projects/$projectId/brief'
+    | '/tailor/projects/$projectId/history'
+    | '/api/tailor/briefs/$id/finalize'
+    | '/api/tailor/briefs/$id/shares'
+    | '/api/tailor/consents/$id/withdraw'
+    | '/api/tailor/projects/$id/archive'
+    | '/api/tailor/projects/$id/briefs'
+    | '/api/tailor/projects/$id/checks'
+    | '/api/tailor/projects/$id/draft'
+    | '/api/tailor/projects/$id/jobs'
+    | '/api/tailor/projects/$id/revisions'
+    | '/api/tailor/shares/$id/revoke'
   id:
     | '__root__'
     | '/'
     | '/about'
+    | '/account'
     | '/auth'
     | '/bag-design'
     | '/coins'
@@ -221,19 +561,49 @@ export interface FileRouteTypes {
     | '/discover'
     | '/privacy'
     | '/reset-password'
+    | '/review'
     | '/shoe-design'
     | '/shop'
     | '/studio'
+    | '/tailor'
     | '/terms'
     | '/wardrobe'
     | '/api/edit-image'
     | '/product/$handle'
+    | '/review/$token'
+    | '/tailor/new'
     | '/api/public/paystack'
+    | '/api/tailor/consents'
+    | '/api/tailor/me'
+    | '/api/tailor/projects'
+    | '/api/tailor/templates'
+    | '/tailor/projects/$projectId'
+    | '/api/tailor/briefs/$id'
+    | '/api/tailor/me/preferences'
+    | '/api/tailor/projects/$id'
+    | '/api/tailor/review/actions'
+    | '/api/tailor/review/exchange'
+    | '/api/tailor/review/logout'
+    | '/api/tailor/review/session'
+    | '/api/tailor/templates/$id'
+    | '/tailor/projects/$projectId/brief'
+    | '/tailor/projects/$projectId/history'
+    | '/api/tailor/briefs/$id/finalize'
+    | '/api/tailor/briefs/$id/shares'
+    | '/api/tailor/consents/$id/withdraw'
+    | '/api/tailor/projects/$id/archive'
+    | '/api/tailor/projects/$id/briefs'
+    | '/api/tailor/projects/$id/checks'
+    | '/api/tailor/projects/$id/draft'
+    | '/api/tailor/projects/$id/jobs'
+    | '/api/tailor/projects/$id/revisions'
+    | '/api/tailor/shares/$id/revoke'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
+  AccountRoute: typeof AccountRoute
   AuthRoute: typeof AuthRoute
   BagDesignRoute: typeof BagDesignRoute
   CoinsRoute: typeof CoinsRoute
@@ -241,14 +611,26 @@ export interface RootRouteChildren {
   DiscoverRoute: typeof DiscoverRoute
   PrivacyRoute: typeof PrivacyRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
+  ReviewRoute: typeof ReviewRouteWithChildren
   ShoeDesignRoute: typeof ShoeDesignRoute
   ShopRoute: typeof ShopRoute
   StudioRoute: typeof StudioRoute
+  TailorRoute: typeof TailorRouteWithChildren
   TermsRoute: typeof TermsRoute
   WardrobeRoute: typeof WardrobeRoute
   ApiEditImageRoute: typeof ApiEditImageRoute
   ProductHandleRoute: typeof ProductHandleRoute
   ApiPublicPaystackRoute: typeof ApiPublicPaystackRoute
+  ApiTailorConsentsRoute: typeof ApiTailorConsentsRouteWithChildren
+  ApiTailorMeRoute: typeof ApiTailorMeRouteWithChildren
+  ApiTailorProjectsRoute: typeof ApiTailorProjectsRouteWithChildren
+  ApiTailorTemplatesRoute: typeof ApiTailorTemplatesRouteWithChildren
+  ApiTailorBriefsIdRoute: typeof ApiTailorBriefsIdRouteWithChildren
+  ApiTailorReviewActionsRoute: typeof ApiTailorReviewActionsRoute
+  ApiTailorReviewExchangeRoute: typeof ApiTailorReviewExchangeRoute
+  ApiTailorReviewLogoutRoute: typeof ApiTailorReviewLogoutRoute
+  ApiTailorReviewSessionRoute: typeof ApiTailorReviewSessionRoute
+  ApiTailorSharesIdRevokeRoute: typeof ApiTailorSharesIdRevokeRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -265,6 +647,13 @@ declare module '@tanstack/react-router' {
       path: '/about'
       fullPath: '/about'
       preLoaderRoute: typeof AboutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/account': {
+      id: '/account'
+      path: '/account'
+      fullPath: '/account'
+      preLoaderRoute: typeof AccountRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth': {
@@ -316,6 +705,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ResetPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/review': {
+      id: '/review'
+      path: '/review'
+      fullPath: '/review'
+      preLoaderRoute: typeof ReviewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/shoe-design': {
       id: '/shoe-design'
       path: '/shoe-design'
@@ -335,6 +731,13 @@ declare module '@tanstack/react-router' {
       path: '/studio'
       fullPath: '/studio'
       preLoaderRoute: typeof StudioRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/tailor': {
+      id: '/tailor'
+      path: '/tailor'
+      fullPath: '/tailor'
+      preLoaderRoute: typeof TailorRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/terms': {
@@ -365,6 +768,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProductHandleRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/review/$token': {
+      id: '/review/$token'
+      path: '/$token'
+      fullPath: '/review/$token'
+      preLoaderRoute: typeof ReviewTokenRouteImport
+      parentRoute: typeof ReviewRoute
+    }
+    '/tailor/new': {
+      id: '/tailor/new'
+      path: '/new'
+      fullPath: '/tailor/new'
+      preLoaderRoute: typeof TailorNewRouteImport
+      parentRoute: typeof TailorRoute
+    }
     '/api/public/paystack': {
       id: '/api/public/paystack'
       path: '/api/public/paystack'
@@ -372,12 +789,307 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicPaystackRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/tailor/consents': {
+      id: '/api/tailor/consents'
+      path: '/api/tailor/consents'
+      fullPath: '/api/tailor/consents'
+      preLoaderRoute: typeof ApiTailorConsentsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/tailor/me': {
+      id: '/api/tailor/me'
+      path: '/api/tailor/me'
+      fullPath: '/api/tailor/me'
+      preLoaderRoute: typeof ApiTailorMeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/tailor/projects': {
+      id: '/api/tailor/projects'
+      path: '/api/tailor/projects'
+      fullPath: '/api/tailor/projects'
+      preLoaderRoute: typeof ApiTailorProjectsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/tailor/templates': {
+      id: '/api/tailor/templates'
+      path: '/api/tailor/templates'
+      fullPath: '/api/tailor/templates'
+      preLoaderRoute: typeof ApiTailorTemplatesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/tailor/projects/$projectId': {
+      id: '/tailor/projects/$projectId'
+      path: '/projects/$projectId'
+      fullPath: '/tailor/projects/$projectId'
+      preLoaderRoute: typeof TailorProjectsProjectIdRouteImport
+      parentRoute: typeof TailorRoute
+    }
+    '/api/tailor/briefs/$id': {
+      id: '/api/tailor/briefs/$id'
+      path: '/api/tailor/briefs/$id'
+      fullPath: '/api/tailor/briefs/$id'
+      preLoaderRoute: typeof ApiTailorBriefsIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/tailor/me/preferences': {
+      id: '/api/tailor/me/preferences'
+      path: '/preferences'
+      fullPath: '/api/tailor/me/preferences'
+      preLoaderRoute: typeof ApiTailorMePreferencesRouteImport
+      parentRoute: typeof ApiTailorMeRoute
+    }
+    '/api/tailor/projects/$id': {
+      id: '/api/tailor/projects/$id'
+      path: '/$id'
+      fullPath: '/api/tailor/projects/$id'
+      preLoaderRoute: typeof ApiTailorProjectsIdRouteImport
+      parentRoute: typeof ApiTailorProjectsRoute
+    }
+    '/api/tailor/review/actions': {
+      id: '/api/tailor/review/actions'
+      path: '/api/tailor/review/actions'
+      fullPath: '/api/tailor/review/actions'
+      preLoaderRoute: typeof ApiTailorReviewActionsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/tailor/review/exchange': {
+      id: '/api/tailor/review/exchange'
+      path: '/api/tailor/review/exchange'
+      fullPath: '/api/tailor/review/exchange'
+      preLoaderRoute: typeof ApiTailorReviewExchangeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/tailor/review/logout': {
+      id: '/api/tailor/review/logout'
+      path: '/api/tailor/review/logout'
+      fullPath: '/api/tailor/review/logout'
+      preLoaderRoute: typeof ApiTailorReviewLogoutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/tailor/review/session': {
+      id: '/api/tailor/review/session'
+      path: '/api/tailor/review/session'
+      fullPath: '/api/tailor/review/session'
+      preLoaderRoute: typeof ApiTailorReviewSessionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/tailor/templates/$id': {
+      id: '/api/tailor/templates/$id'
+      path: '/$id'
+      fullPath: '/api/tailor/templates/$id'
+      preLoaderRoute: typeof ApiTailorTemplatesIdRouteImport
+      parentRoute: typeof ApiTailorTemplatesRoute
+    }
+    '/tailor/projects/$projectId/brief': {
+      id: '/tailor/projects/$projectId/brief'
+      path: '/brief'
+      fullPath: '/tailor/projects/$projectId/brief'
+      preLoaderRoute: typeof TailorProjectsProjectIdBriefRouteImport
+      parentRoute: typeof TailorProjectsProjectIdRoute
+    }
+    '/tailor/projects/$projectId/history': {
+      id: '/tailor/projects/$projectId/history'
+      path: '/history'
+      fullPath: '/tailor/projects/$projectId/history'
+      preLoaderRoute: typeof TailorProjectsProjectIdHistoryRouteImport
+      parentRoute: typeof TailorProjectsProjectIdRoute
+    }
+    '/api/tailor/briefs/$id/finalize': {
+      id: '/api/tailor/briefs/$id/finalize'
+      path: '/finalize'
+      fullPath: '/api/tailor/briefs/$id/finalize'
+      preLoaderRoute: typeof ApiTailorBriefsIdFinalizeRouteImport
+      parentRoute: typeof ApiTailorBriefsIdRoute
+    }
+    '/api/tailor/briefs/$id/shares': {
+      id: '/api/tailor/briefs/$id/shares'
+      path: '/shares'
+      fullPath: '/api/tailor/briefs/$id/shares'
+      preLoaderRoute: typeof ApiTailorBriefsIdSharesRouteImport
+      parentRoute: typeof ApiTailorBriefsIdRoute
+    }
+    '/api/tailor/consents/$id/withdraw': {
+      id: '/api/tailor/consents/$id/withdraw'
+      path: '/$id/withdraw'
+      fullPath: '/api/tailor/consents/$id/withdraw'
+      preLoaderRoute: typeof ApiTailorConsentsIdWithdrawRouteImport
+      parentRoute: typeof ApiTailorConsentsRoute
+    }
+    '/api/tailor/projects/$id/archive': {
+      id: '/api/tailor/projects/$id/archive'
+      path: '/archive'
+      fullPath: '/api/tailor/projects/$id/archive'
+      preLoaderRoute: typeof ApiTailorProjectsIdArchiveRouteImport
+      parentRoute: typeof ApiTailorProjectsIdRoute
+    }
+    '/api/tailor/projects/$id/briefs': {
+      id: '/api/tailor/projects/$id/briefs'
+      path: '/briefs'
+      fullPath: '/api/tailor/projects/$id/briefs'
+      preLoaderRoute: typeof ApiTailorProjectsIdBriefsRouteImport
+      parentRoute: typeof ApiTailorProjectsIdRoute
+    }
+    '/api/tailor/projects/$id/checks': {
+      id: '/api/tailor/projects/$id/checks'
+      path: '/checks'
+      fullPath: '/api/tailor/projects/$id/checks'
+      preLoaderRoute: typeof ApiTailorProjectsIdChecksRouteImport
+      parentRoute: typeof ApiTailorProjectsIdRoute
+    }
+    '/api/tailor/projects/$id/draft': {
+      id: '/api/tailor/projects/$id/draft'
+      path: '/draft'
+      fullPath: '/api/tailor/projects/$id/draft'
+      preLoaderRoute: typeof ApiTailorProjectsIdDraftRouteImport
+      parentRoute: typeof ApiTailorProjectsIdRoute
+    }
+    '/api/tailor/projects/$id/jobs': {
+      id: '/api/tailor/projects/$id/jobs'
+      path: '/jobs'
+      fullPath: '/api/tailor/projects/$id/jobs'
+      preLoaderRoute: typeof ApiTailorProjectsIdJobsRouteImport
+      parentRoute: typeof ApiTailorProjectsIdRoute
+    }
+    '/api/tailor/projects/$id/revisions': {
+      id: '/api/tailor/projects/$id/revisions'
+      path: '/revisions'
+      fullPath: '/api/tailor/projects/$id/revisions'
+      preLoaderRoute: typeof ApiTailorProjectsIdRevisionsRouteImport
+      parentRoute: typeof ApiTailorProjectsIdRoute
+    }
+    '/api/tailor/shares/$id/revoke': {
+      id: '/api/tailor/shares/$id/revoke'
+      path: '/api/tailor/shares/$id/revoke'
+      fullPath: '/api/tailor/shares/$id/revoke'
+      preLoaderRoute: typeof ApiTailorSharesIdRevokeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
+
+interface ReviewRouteChildren {
+  ReviewTokenRoute: typeof ReviewTokenRoute
+}
+
+const ReviewRouteChildren: ReviewRouteChildren = {
+  ReviewTokenRoute: ReviewTokenRoute,
+}
+
+const ReviewRouteWithChildren =
+  ReviewRoute._addFileChildren(ReviewRouteChildren)
+
+interface TailorProjectsProjectIdRouteChildren {
+  TailorProjectsProjectIdBriefRoute: typeof TailorProjectsProjectIdBriefRoute
+  TailorProjectsProjectIdHistoryRoute: typeof TailorProjectsProjectIdHistoryRoute
+}
+
+const TailorProjectsProjectIdRouteChildren: TailorProjectsProjectIdRouteChildren =
+  {
+    TailorProjectsProjectIdBriefRoute: TailorProjectsProjectIdBriefRoute,
+    TailorProjectsProjectIdHistoryRoute: TailorProjectsProjectIdHistoryRoute,
+  }
+
+const TailorProjectsProjectIdRouteWithChildren =
+  TailorProjectsProjectIdRoute._addFileChildren(
+    TailorProjectsProjectIdRouteChildren,
+  )
+
+interface TailorRouteChildren {
+  TailorNewRoute: typeof TailorNewRoute
+  TailorProjectsProjectIdRoute: typeof TailorProjectsProjectIdRouteWithChildren
+}
+
+const TailorRouteChildren: TailorRouteChildren = {
+  TailorNewRoute: TailorNewRoute,
+  TailorProjectsProjectIdRoute: TailorProjectsProjectIdRouteWithChildren,
+}
+
+const TailorRouteWithChildren =
+  TailorRoute._addFileChildren(TailorRouteChildren)
+
+interface ApiTailorConsentsRouteChildren {
+  ApiTailorConsentsIdWithdrawRoute: typeof ApiTailorConsentsIdWithdrawRoute
+}
+
+const ApiTailorConsentsRouteChildren: ApiTailorConsentsRouteChildren = {
+  ApiTailorConsentsIdWithdrawRoute: ApiTailorConsentsIdWithdrawRoute,
+}
+
+const ApiTailorConsentsRouteWithChildren =
+  ApiTailorConsentsRoute._addFileChildren(ApiTailorConsentsRouteChildren)
+
+interface ApiTailorMeRouteChildren {
+  ApiTailorMePreferencesRoute: typeof ApiTailorMePreferencesRoute
+}
+
+const ApiTailorMeRouteChildren: ApiTailorMeRouteChildren = {
+  ApiTailorMePreferencesRoute: ApiTailorMePreferencesRoute,
+}
+
+const ApiTailorMeRouteWithChildren = ApiTailorMeRoute._addFileChildren(
+  ApiTailorMeRouteChildren,
+)
+
+interface ApiTailorProjectsIdRouteChildren {
+  ApiTailorProjectsIdArchiveRoute: typeof ApiTailorProjectsIdArchiveRoute
+  ApiTailorProjectsIdBriefsRoute: typeof ApiTailorProjectsIdBriefsRoute
+  ApiTailorProjectsIdChecksRoute: typeof ApiTailorProjectsIdChecksRoute
+  ApiTailorProjectsIdDraftRoute: typeof ApiTailorProjectsIdDraftRoute
+  ApiTailorProjectsIdJobsRoute: typeof ApiTailorProjectsIdJobsRoute
+  ApiTailorProjectsIdRevisionsRoute: typeof ApiTailorProjectsIdRevisionsRoute
+}
+
+const ApiTailorProjectsIdRouteChildren: ApiTailorProjectsIdRouteChildren = {
+  ApiTailorProjectsIdArchiveRoute: ApiTailorProjectsIdArchiveRoute,
+  ApiTailorProjectsIdBriefsRoute: ApiTailorProjectsIdBriefsRoute,
+  ApiTailorProjectsIdChecksRoute: ApiTailorProjectsIdChecksRoute,
+  ApiTailorProjectsIdDraftRoute: ApiTailorProjectsIdDraftRoute,
+  ApiTailorProjectsIdJobsRoute: ApiTailorProjectsIdJobsRoute,
+  ApiTailorProjectsIdRevisionsRoute: ApiTailorProjectsIdRevisionsRoute,
+}
+
+const ApiTailorProjectsIdRouteWithChildren =
+  ApiTailorProjectsIdRoute._addFileChildren(ApiTailorProjectsIdRouteChildren)
+
+interface ApiTailorProjectsRouteChildren {
+  ApiTailorProjectsIdRoute: typeof ApiTailorProjectsIdRouteWithChildren
+}
+
+const ApiTailorProjectsRouteChildren: ApiTailorProjectsRouteChildren = {
+  ApiTailorProjectsIdRoute: ApiTailorProjectsIdRouteWithChildren,
+}
+
+const ApiTailorProjectsRouteWithChildren =
+  ApiTailorProjectsRoute._addFileChildren(ApiTailorProjectsRouteChildren)
+
+interface ApiTailorTemplatesRouteChildren {
+  ApiTailorTemplatesIdRoute: typeof ApiTailorTemplatesIdRoute
+}
+
+const ApiTailorTemplatesRouteChildren: ApiTailorTemplatesRouteChildren = {
+  ApiTailorTemplatesIdRoute: ApiTailorTemplatesIdRoute,
+}
+
+const ApiTailorTemplatesRouteWithChildren =
+  ApiTailorTemplatesRoute._addFileChildren(ApiTailorTemplatesRouteChildren)
+
+interface ApiTailorBriefsIdRouteChildren {
+  ApiTailorBriefsIdFinalizeRoute: typeof ApiTailorBriefsIdFinalizeRoute
+  ApiTailorBriefsIdSharesRoute: typeof ApiTailorBriefsIdSharesRoute
+}
+
+const ApiTailorBriefsIdRouteChildren: ApiTailorBriefsIdRouteChildren = {
+  ApiTailorBriefsIdFinalizeRoute: ApiTailorBriefsIdFinalizeRoute,
+  ApiTailorBriefsIdSharesRoute: ApiTailorBriefsIdSharesRoute,
+}
+
+const ApiTailorBriefsIdRouteWithChildren =
+  ApiTailorBriefsIdRoute._addFileChildren(ApiTailorBriefsIdRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
+  AccountRoute: AccountRoute,
   AuthRoute: AuthRoute,
   BagDesignRoute: BagDesignRoute,
   CoinsRoute: CoinsRoute,
@@ -385,14 +1097,26 @@ const rootRouteChildren: RootRouteChildren = {
   DiscoverRoute: DiscoverRoute,
   PrivacyRoute: PrivacyRoute,
   ResetPasswordRoute: ResetPasswordRoute,
+  ReviewRoute: ReviewRouteWithChildren,
   ShoeDesignRoute: ShoeDesignRoute,
   ShopRoute: ShopRoute,
   StudioRoute: StudioRoute,
+  TailorRoute: TailorRouteWithChildren,
   TermsRoute: TermsRoute,
   WardrobeRoute: WardrobeRoute,
   ApiEditImageRoute: ApiEditImageRoute,
   ProductHandleRoute: ProductHandleRoute,
   ApiPublicPaystackRoute: ApiPublicPaystackRoute,
+  ApiTailorConsentsRoute: ApiTailorConsentsRouteWithChildren,
+  ApiTailorMeRoute: ApiTailorMeRouteWithChildren,
+  ApiTailorProjectsRoute: ApiTailorProjectsRouteWithChildren,
+  ApiTailorTemplatesRoute: ApiTailorTemplatesRouteWithChildren,
+  ApiTailorBriefsIdRoute: ApiTailorBriefsIdRouteWithChildren,
+  ApiTailorReviewActionsRoute: ApiTailorReviewActionsRoute,
+  ApiTailorReviewExchangeRoute: ApiTailorReviewExchangeRoute,
+  ApiTailorReviewLogoutRoute: ApiTailorReviewLogoutRoute,
+  ApiTailorReviewSessionRoute: ApiTailorReviewSessionRoute,
+  ApiTailorSharesIdRevokeRoute: ApiTailorSharesIdRevokeRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
