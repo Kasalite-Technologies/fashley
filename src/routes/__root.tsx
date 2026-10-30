@@ -17,6 +17,7 @@ import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
 import { Button } from "@/components/ui/button";
 import logoAsset from "@/assets/logo.png.asset.json";
+import { TailorClerkProvider } from "@/components/tailor/TailorClerk";
 import { useCartSync } from "@/hooks/useCartSync";
 import { registerPwa } from "@/lib/pwa-register";
 
@@ -120,9 +121,11 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-      <div className="flex min-h-dvh flex-col"><div className="flex-1"><Outlet /></div><SiteFooter /></div>
-      <Toaster position="top-center" />
+      <TailorClerkProvider>
+        {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+        <div className="flex min-h-dvh flex-col"><div className="flex-1"><Outlet /></div><SiteFooter /></div>
+        <Toaster position="top-center" />
+      </TailorClerkProvider>
     </QueryClientProvider>
   );
 }

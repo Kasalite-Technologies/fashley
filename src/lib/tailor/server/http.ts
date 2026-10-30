@@ -56,6 +56,10 @@ export interface TailorHttpDeps {
 let registered: TailorHttpDeps | undefined;
 export function setTailorHttpDeps(deps: TailorHttpDeps | undefined) {
   registered = deps;
+  // Dev servers can load this module more than once (entry wrapper vs route
+  // handlers); the global fallback in resolveTailorHttpDeps bridges instances.
+  (globalThis as unknown as { __tailorHttpDeps?: TailorHttpDeps | undefined }).__tailorHttpDeps =
+    deps;
 }
 export function resolveTailorHttpDeps(): TailorHttpDeps {
   if (registered) return registered;

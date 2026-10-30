@@ -2,6 +2,20 @@ import "./lib/error-capture";
 
 import { consumeLastCapturedError } from "./lib/error-capture";
 import { renderErrorPage } from "./lib/error-page";
+import { tailorDepsFromEnv, type TailorWorkerEnv } from "./lib/tailor/server/cloudflare";
+import { setTailorHttpDeps, type TailorHttpDeps } from "./lib/tailor/server/http";
+
+const depsByEnv = new WeakMap<object, TailorHttpDeps>();
+
+function registerTailorDeps(env: unknown) {
+  if (typeof env !== "object" || env === null) return;
+  let deps = depsByEnv.get(env);
+  if (!deps) {
+    deps = tailorDepsFromEnv(env as TailorWorkerEnv);
+    depsByEnv.set(env, deps);
+  }
+  setTailorHttpDeps(deps);
+}
 
 type ServerEntry = {
   fetch: (request: Request, env: unknown, ctx: unknown) => Promise<Response> | Response;
@@ -47,6 +61,7 @@ function isH3SwallowedErrorBody(body: string): boolean {
 export default {
   async fetch(request: Request, env: unknown, ctx: unknown) {
     try {
+      registerTailorDeps(env);
       const handler = await getServerEntry();
       const response = await handler.fetch(request, env, ctx);
       return await normalizeCatastrophicSsrResponse(response);

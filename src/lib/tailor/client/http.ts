@@ -39,6 +39,13 @@ import { featureUnavailable, toTailorApiError } from "./errors";
 
 type FetchFn = typeof fetch;
 
+/** Supplies the current Clerk session token, or null when signed out. */
+export type TailorTokenProvider = () => Promise<string | null>;
+let tokenProvider: TailorTokenProvider | null = null;
+export function setTailorTokenProvider(provider: TailorTokenProvider | null) {
+  tokenProvider = provider;
+}
+
 const shareListSchema = zod.object({ items: zod.array(shareGrantSummarySchema) }).strict();
 const okSchema = zod.object({ ok: zod.literal(true) }).strict();
 
@@ -48,6 +55,14 @@ export function createHttpTailorApi(fetchFn: FetchFn = fetch): TailorApi {
     schema: T,
     init: { method?: string; body?: unknown; idempotencyKey?: string } = {},
   ): Promise<z.infer<T>> {
+    let token: string | null = null;
+    if (tokenProvider) {
+      try {
+        token = await tokenProvider();
+      } catch {
+        token = null;
+      }
+    }
     let response: Response;
     try {
       response = await fetchFn(path, {
@@ -55,6 +70,7 @@ export function createHttpTailorApi(fetchFn: FetchFn = fetch): TailorApi {
         credentials: "same-origin",
         headers: {
           "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
           ...(init.idempotencyKey ? { "Idempotency-Key": init.idempotencyKey } : {}),
         },
         body: init.body === undefined ? undefined : JSON.stringify(init.body),

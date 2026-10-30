@@ -1,5 +1,10 @@
 import { bindings, defineConfig } from "cf/config";
 
+// Publishable key is read from the deploy shell environment, never committed.
+// Set VITE_CLERK_PUBLISHABLE_KEY when running `cf deploy`; when unset, the
+// binding is omitted and the frontend reports sign-in as not configured.
+const clerkPublishableKey = process.env.VITE_CLERK_PUBLISHABLE_KEY;
+
 export default defineConfig({
   worker: {
     name: "kasalite-technologies-fashley",
@@ -22,6 +27,9 @@ export default defineConfig({
         storeId: "f1a49cc62eaa46cfa793e4de4ed2ec87",
         secretName: "META_API_KEY",
       }),
+      VITE_CLERK_PUBLISHABLE_KEY: clerkPublishableKey
+        ? bindings.text(clerkPublishableKey)
+        : undefined,
     },
   },
 });

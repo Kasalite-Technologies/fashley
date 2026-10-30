@@ -6,7 +6,7 @@ export * from "./api";
 export * from "./errors";
 export * from "./keys";
 export { createFixtureTailorApi } from "./fixtures";
-export { createHttpTailorApi } from "./http";
+export { createHttpTailorApi, setTailorTokenProvider, type TailorTokenProvider } from "./http";
 
 /**
  * Fixture mode is explicit and development/test only. Production always uses
