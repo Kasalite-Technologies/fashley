@@ -8,7 +8,12 @@ import { VitePWA } from "vite-plugin-pwa";
 
 export default defineConfig({
   plugins: [
-    cloudflare({ viteEnvironment: { name: "ssr" } }),
+    cloudflare({
+      viteEnvironment: { name: "ssr" },
+      // Opt-in only: CF_REMOTE_BINDINGS=1 runs dev against live Cloudflare
+      // bindings (D1/R2/Secrets Store). Default dev stays local.
+      remoteBindings: process.env["CF_REMOTE_BINDINGS"] === "1",
+    }),
     tsConfigPaths(),
     tanstackStart({
       // Redirect TanStack Start's bundled server entry to src/server.ts (our SSR error wrapper).

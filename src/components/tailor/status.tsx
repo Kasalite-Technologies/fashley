@@ -10,7 +10,8 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { safeErrorMessage } from "@/lib/tailor/client";
+import { isTailorApiError, safeErrorMessage } from "@/lib/tailor/client";
+import { TailorSignInPanel } from "./TailorClerk";
 import type { ReviewStatus } from "./types";
 
 const STATUS: Record<string, { label: string; icon: typeof Clock3 }> = {
@@ -64,12 +65,14 @@ export function EmptyState({
 
 export function PageError({ error, onRetry }: { error: unknown; onRetry?: () => void }) {
   const safe = safeErrorMessage(error);
+  const unauthenticated = isTailorApiError(error) && error.code === "UNAUTHENTICATED";
   return (
     <Alert variant="destructive" role="alert">
       <AlertCircle className="h-4 w-4" aria-hidden="true" />
-      <AlertTitle>Could not load this page</AlertTitle>
+      <AlertTitle>{unauthenticated ? "Sign in required" : "Could not load this page"}</AlertTitle>
       <AlertDescription className="space-y-3">
         <p>{safe.message}</p>
+        {unauthenticated ? <TailorSignInPanel /> : null}
         {safe.requestId ? <p className="font-mono text-xs">Request ID: {safe.requestId}</p> : null}
         {onRetry ? (
           <Button type="button" variant="outline" size="sm" className="min-h-11" onClick={onRetry}>
