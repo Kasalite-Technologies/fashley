@@ -1,6 +1,20 @@
 import type { Db } from "./db";
 import { TailorError, errorEnvelope, err, newRequestId } from "./errors";
-import { defaultConfig, type TailorConfig } from "./config";
+import {
+  defaultConfig,
+  type MediaStore,
+  type MetaAdapter,
+  type TailorConfig,
+  type WorkflowAdapter,
+} from "./config";
+import {
+  completeUpload,
+  createUploadIntent,
+  getOwnedAssetRow,
+  getUploadStatus,
+  receiveUploadContent,
+} from "./uploads";
+import { cancelJob, createBriefJob, createJob, getJobForUser, retryJob } from "./jobs";
 import {
   ensureLocalUser,
   getMe,
@@ -20,7 +34,7 @@ import {
   archiveProject,
   deleteProject,
 } from "./projects";
-import { assembleBrief, finalizeBrief, getOwnedBrief, runChecks } from "./briefs";
+import { finalizeBrief, getOwnedBrief, runChecks } from "./briefs";
 import {
   createShare,
   listShares,
@@ -40,6 +54,10 @@ import {
   archiveProjectRequestSchema,
   deleteProjectRequestSchema,
   checksRequestSchema,
+  createUploadRequestSchema,
+  startJobRequestSchema,
+  createBriefRequestSchema,
+  retryJobRequestSchema,
   finalizeBriefRequestSchema,
   createShareRequestSchema,
   reviewExchangeRequestSchema,
@@ -52,6 +70,9 @@ export interface TailorHttpDeps {
   verifier?: (request: Request) => Promise<VerifiedActor | null>;
   config?: TailorConfig;
   jobsEnabled?: boolean;
+  media?: MediaStore;
+  meta?: MetaAdapter;
+  workflow?: WorkflowAdapter;
 }
 let registered: TailorHttpDeps | undefined;
 export function setTailorHttpDeps(deps: TailorHttpDeps | undefined) {
@@ -140,6 +161,16 @@ export function createTailorHandlers(deps: TailorHttpDeps) {
       "Durable jobs are not configured (Workflow/Meta unavailable).",
     );
   };
+  function requireMedia(): MediaStore {
+    if (!deps.media) throw err("FEATURE_UNAVAILABLE", "Tailor media binding is not configured.");
+    return deps.media;
+  }
+  const jobDeps = () => ({
+    ...(deps.workflow ? { workflow: deps.workflow } : {}),
+    ...(deps.meta ? { meta: deps.meta } : {}),
+    ...(deps.media ? { media: deps.media } : {}),
+    config,
+  });
 
   return {
     me: (request: Request) =>
@@ -252,18 +283,100 @@ export function createTailorHandlers(deps: TailorHttpDeps) {
         const req = await body(request, checksRequestSchema);
         return { status: 200, data: await runChecks(db, userId, id, req.revisionId) };
       }),
-    startJob: (request: Request) =>
+    createUploadIntent: (request: Request, id: string) =>
       wrap(async () => {
-        await owner(request);
-        if (!deps.jobsEnabled) unavailableJob();
-        throw err("FEATURE_UNAVAILABLE", "Durable jobs are not configured.");
+        const { db, userId } = await owner(request);
+        requireMedia();
+        const req = await body(request, createUploadRequestSchema);
+        const data = await createUploadIntent(db, userId, id, await key(request), req, config);
+        return { status: 201, data };
+      }),
+    uploadContent: (request: Request, id: string, uploadId: string) =>
+      wrap(async () => {
+        const { db, userId } = await owner(request);
+        const media = requireMedia();
+        const bytes = new Uint8Array(await request.arrayBuffer());
+        const data = await receiveUploadContent(db, media, userId, id, uploadId, bytes);
+        return { status: 200, data };
+      }),
+    completeUpload: (request: Request, id: string, uploadId: string) =>
+      wrap(async () => {
+        const { db, userId } = await owner(request);
+        const media = requireMedia();
+        await body(request, {
+          safeParse: (v: unknown) => ({ success: typeof v === "object" && v !== null, data: v }),
+        });
+        const data = await completeUpload(db, media, userId, id, uploadId, await key(request));
+        return { status: 200, data };
+      }),
+    getUpload: (request: Request, id: string, uploadId: string) =>
+      wrap(async () => {
+        const { db, userId } = await owner(request);
+        return { status: 200, data: await getUploadStatus(db, userId, id, uploadId) };
+      }),
+    assetContent: async (request: Request, id: string): Promise<Response> => {
+      const requestId = newRequestId();
+      try {
+        const { db, userId } = await owner(request);
+        const media = requireMedia();
+        const row = await getOwnedAssetRow(db, userId, id);
+        const bytes = await media.getPrivate(row.object_key);
+        return new Response(bytes as BodyInit, {
+          status: 200,
+          headers: {
+            "Content-Type": row.mime,
+            "Content-Length": String(bytes.byteLength),
+            "Cache-Control": "private, no-store",
+            "X-Content-Type-Options": "nosniff",
+          },
+        });
+      } catch (e) {
+        const { body: b, status } = errorEnvelope(e, requestId);
+        return json(status, b);
+      }
+    },
+    startJob: (request: Request, id: string) =>
+      wrap(async () => {
+        const { db, userId } = await owner(request);
+        if (!deps.workflow && !deps.jobsEnabled) unavailableJob();
+        const req = await body(request, startJobRequestSchema);
+        const data = await createJob(db, jobDeps(), userId, id, await key(request), req);
+        return { status: 201, data };
+      }),
+    getJob: (request: Request, jobId: string) =>
+      wrap(async () => {
+        const { db, userId } = await owner(request);
+        return { status: 200, data: await getJobForUser(db, userId, jobId) };
+      }),
+    cancelJob: (request: Request, jobId: string) =>
+      wrap(async () => {
+        const { db, userId } = await owner(request);
+        await key(request);
+        return { status: 200, data: await cancelJob(db, userId, jobId) };
+      }),
+    retryJob: (request: Request, jobId: string) =>
+      wrap(async () => {
+        const { db, userId } = await owner(request);
+        if (!deps.workflow && !deps.jobsEnabled) unavailableJob();
+        await body(request, retryJobRequestSchema);
+        await key(request);
+        const data = await retryJob(db, jobDeps(), userId, jobId);
+        return { status: 200, data };
       }),
     createBriefJob: (request: Request, id: string) =>
       wrap(async () => {
         const { db, userId } = await owner(request);
-        if (!deps.jobsEnabled) unavailableJob();
-        const req = await body(request, checksRequestSchema);
-        return { status: 200, data: await assembleBrief(db, userId, id, req.revisionId) };
+        if (!deps.workflow && !deps.jobsEnabled) unavailableJob();
+        const req = await body(request, createBriefRequestSchema);
+        const data = await createBriefJob(
+          db,
+          jobDeps(),
+          userId,
+          id,
+          await key(request),
+          req.revisionId,
+        );
+        return { status: 201, data };
       }),
     brief: (request: Request, id: string) =>
       wrap(async () => {

@@ -27,6 +27,13 @@ export default defineConfig({
         storeId: "f1a49cc62eaa46cfa793e4de4ed2ec87",
         secretName: "META_API_KEY",
       }),
+      // Companion Workflow Worker (workers/tailor-workflow) must be deployed
+      // before dispatch succeeds; until then job creation fails closed.
+      TAILOR_WORKFLOW: bindings.workflow({
+        name: "fashley-tailor-jobs",
+        worker: "fashley-tailor-workflow",
+        exportName: "TailorWorkflow",
+      }),
       VITE_CLERK_PUBLISHABLE_KEY: clerkPublishableKey
         ? bindings.text(clerkPublishableKey)
         : undefined,

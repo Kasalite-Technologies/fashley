@@ -2,6 +2,9 @@ import { createClerkClient, verifyToken } from "@clerk/backend";
 import type { Db, DbPrepared, DbRunResult } from "./db";
 import type { TailorHttpDeps } from "./http";
 import type { VerifiedActor } from "./identity";
+import { err } from "./errors";
+import { createR2MediaStore, type R2BucketLike } from "./media";
+import { createMetaAdapter } from "./meta";
 
 /**
  * Cloudflare runtime wiring: adapts the real D1 binding to the server Db
@@ -161,7 +164,37 @@ export function createClerkVerifier(
 export interface TailorWorkerEnv {
   DB?: unknown;
   CLERK_SECRET_KEY?: SecretBindingLike;
+  META_API_KEY?: SecretBindingLike;
+  TAILOR_MEDIA?: unknown;
+  TAILOR_WORKFLOW?: unknown;
   [key: string]: unknown;
+}
+
+interface R2BucketFullLike extends R2BucketLike {
+  head?: unknown;
+}
+interface WorkflowBindingLike {
+  create(options: {
+    id: string;
+    params?: Record<string, unknown>;
+  }): Promise<{ id: string } | unknown>;
+}
+
+function isR2Like(value: unknown): value is R2BucketFullLike {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    typeof (value as { put?: unknown }).put === "function" &&
+    typeof (value as { get?: unknown }).get === "function" &&
+    typeof (value as { delete?: unknown }).delete === "function"
+  );
+}
+function isWorkflowLike(value: unknown): value is WorkflowBindingLike {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    typeof (value as { create?: unknown }).create === "function"
+  );
 }
 
 function isD1Like(value: unknown): value is D1Like {
@@ -178,6 +211,26 @@ export function tailorDepsFromEnv(env: TailorWorkerEnv): TailorHttpDeps {
   if (isD1Like(env.DB)) deps.db = adaptD1(env.DB);
   if (env.CLERK_SECRET_KEY) {
     deps.verifier = createClerkVerifier(secretResolver(env.CLERK_SECRET_KEY));
+  }
+  if (isR2Like(env.TAILOR_MEDIA)) deps.media = createR2MediaStore(env.TAILOR_MEDIA);
+  if (env.META_API_KEY) {
+    deps.meta = createMetaAdapter(secretResolver(env.META_API_KEY));
+  }
+  if (isWorkflowLike(env.TAILOR_WORKFLOW)) {
+    const binding = env.TAILOR_WORKFLOW;
+    deps.workflow = {
+      async dispatch(jobId: string) {
+        try {
+          await binding.create({ id: jobId, params: { jobId } });
+        } catch {
+          throw err(
+            "FEATURE_UNAVAILABLE",
+            "Workflow dispatch failed (companion Workflow Worker unavailable).",
+          );
+        }
+        return { workflowId: jobId };
+      },
+    };
   }
   return deps;
 }

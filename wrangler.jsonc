@@ -28,7 +28,16 @@
       "store_id": "f1a49cc62eaa46cfa793e4de4ed2ec87",
       "secret_name": "META_API_KEY"
     }
+  ],
+  "workflows": [
+    {
+      "name": "fashley-tailor-jobs",
+      "binding": "TAILOR_WORKFLOW",
+      "class_name": "TailorWorkflow",
+      "script_name": "fashley-tailor-workflow"
+    }
   ]
-  // TAILOR_WORKFLOW binding is added when the companion Workflow Worker exists.
-  // Clerk and Meta credentials are Worker secrets (cf secrets), never vars in this file.
+  // The companion Workflow Worker (workers/tailor-workflow) must be deployed
+  // before dispatch succeeds. Clerk and Meta credentials are Worker secrets
+  // (cf secrets), never vars in this file.
 }
