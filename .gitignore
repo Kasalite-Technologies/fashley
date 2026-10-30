@@ -39,6 +39,14 @@ hackathon/
 .lovable/
 AGENTS.md
 
+# Local agent skills, configuration and install metadata
+.agents/
+.opencode/
+.claude/
+opencode.json
+opencode.jsonc
+skills-lock.json
+
 # Wrangler / Cloudflare
 .wrangler/
 .dev.vars

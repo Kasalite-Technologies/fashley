@@ -1,37 +1,37 @@
 # Fashley
 
-Fabric-based outfit concepts built with React, TanStack Start and Supabase.
+Turn fabric into garment concepts, capture measurements, and prepare a versioned brief for tailor review.
 
-This project was built with [Lovable](https://lovable.dev).
+## Target stack
 
-**Live app**: https://fashley.lovable.app
+- React and TanStack Start for the application.
+- Cloudflare Workers for hosting and APIs.
+- Cloudflare D1 for application data.
+- Clerk for authentication.
+- Private Cloudflare R2 storage for media.
+- Cloudflare Workflows for durable jobs.
+- Meta Model API for model inference.
+- Vercel Geist as the strict design system.
 
-## Build with Lovable
+Supabase is not the target stack. This repository currently contains an imported application with legacy Supabase integrations, PostgreSQL Drizzle schemas/migrations, and Lovable tooling. Their replacement has not been implemented yet. Do not treat those integrations as the new setup or run the old migrations against D1.
 
-Continue developing this project in the [Lovable editor](https://lovable.dev/projects/dd47c729-9f6f-4fb0-8073-c5c54e249b8d).
-
-- **Ship faster**: describe what you want to build and Lovable handles the code.
-- This repository starts from a local source export. Its connection to Lovable must be configured separately; creating the repository does not automatically connect it to the editor or deploy it.
-- Preserve published history when working with Lovable; do not force-push or rewrite pushed commits.
+The new Clerk/D1/R2 workflow is not yet runnable. Historical accounts, private designs, credits, and payments require an explicit, verified migration; they must not be silently moved or discarded.
 
 ## Development
 
-Use Node.js 24 and Bun 1.3.14. Keep the existing `bun.lock` and `bunfig.toml` dependency and supply-chain settings.
+Use Node.js 24 and Bun 1.3.14.
 
 ```sh
 git clone https://github.com/Kasalite-Technologies/fashley.git
 cd fashley
 bun install --frozen-lockfile
-cp .env.example .env
-# Fill in the existing Supabase project's public configuration.
-bun run dev
 ```
 
-Never commit `.env`, service-role keys, provider credentials or customer data. The example contains placeholders only; server-side integrations require their own securely configured credentials.
+`.env.example` records the target configuration boundaries, not a working runtime configuration. Clerk, Worker bindings, model credentials, and local development wiring will be documented when implemented. The existing `bun run dev` command still starts the legacy application and does not prove the target stack works.
 
-## Continuous integration
+Never commit credentials, local environment files, or customer data. Local skills, agent configuration, editor metadata, and planning documents are ignored.
 
-GitHub Actions runs the following independent checks on pushes to `main`, pull requests and manual dispatches:
+## Checks
 
 ```sh
 bun run test
@@ -40,8 +40,4 @@ bun run lint
 bun run build
 ```
 
-The workflow uses a frozen Bun lockfile, SHA-pinned actions and read-only repository permissions. It does not deploy, provision Cloudflare resources, run remote database migrations or require production credentials. Failed checks are reported, not suppressed; existing lint debt may need a separate cleanup.
-
-## Planning documents
-
-`hackathon/` contains future product plans and agent task sheets. They are not a description of the currently deployed infrastructure. The existing Supabase/Lovable application is retained by this repository setup.
+GitHub Actions runs these independently on pushes to `main`, pull requests, and manual dispatches. It currently checks the imported source, not a completed migration. It does not deploy, provision resources, or run remote migrations. Existing lint failures remain visible. See [CI notes](.github/CI.md).

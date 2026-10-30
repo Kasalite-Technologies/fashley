@@ -1,6 +1,6 @@
 # Continuous integration
 
-This workflow checks the existing Supabase/Lovable application. It does not implement the future architecture in the hackathon plans.
+This workflow currently checks the imported legacy source. The approved target is Cloudflare Workers, D1, R2, Workflows, Clerk, and Meta Model API; the migration is not implemented or verified by this workflow. Supabase and PostgreSQL Drizzle files are legacy, not the target setup.
 
 - Events: push to `main`, pull request, manual dispatch.
 - Runtime: Ubuntu 24.04, Node.js 24, Bun 1.3.14.
@@ -14,4 +14,4 @@ Before CI setup, a local ESLint check found 1,145 errors: 1,143 formatting error
 
 Initial tests and TypeScript checks passed locally after resolving the manifest with pnpm during investigation. The project remains Bun-managed: that temporary pnpm lockfile was removed, and CI uses the committed Bun lockfile. Those investigation results are not a substitute for the actual GitHub Actions results with Bun.
 
-No original Git history was present in the supplied folder. The initial commit records a source import, not the app's original creation date. Connecting this new repository back to Lovable requires separate configuration.
+No original Git history was present in the supplied folder. The initial commit records a source import, not the app's original creation date. The imported Lovable tooling is not a requirement to reconnect this repository to Lovable.
