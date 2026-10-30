@@ -1,0 +1,20 @@
+{
+  // Fashley Tailor bindings (G1). Resource IDs are identifiers, not secrets.
+  // No Worker is deployed by this file alone; deployment needs separate owner approval.
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "fashley-tailor",
+      "database_id": "70249e86-5820-4270-8fe1-27b91983185a",
+      "migrations_dir": "migrations/tailor"
+    }
+  ],
+  "r2_buckets": [
+    {
+      "binding": "TAILOR_MEDIA",
+      "bucket_name": "fashley-tailor-media"
+    }
+  ]
+  // TAILOR_WORKFLOW binding is added when the companion Workflow Worker exists.
+  // Clerk and Meta credentials are Worker secrets (cf secrets), never vars in this file.
+}

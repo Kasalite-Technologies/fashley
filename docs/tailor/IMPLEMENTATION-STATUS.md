@@ -1,0 +1,50 @@
+# Fashley Tailor implementation status
+
+This log is the tracked burst handoff. Fixtures and local tests are not live provider, deployment, or production evidence.
+
+## Gates
+
+| Gate                           | Owner     | Status               | Evidence                                                                       | Blocker                                                           |
+| ------------------------------ | --------- | -------------------- | ------------------------------------------------------------------------------ | ----------------------------------------------------------------- |
+| G0 Contracts freeze            | C         | Done (Bursts 1-3)    | `src/lib/tailor/contracts/` Zod schemas, fixtures F01-F16, `contracts.test.ts`; A and B both implemented against v1 with no forked DTOs | None                                                              |
+| G1 Infrastructure proof        | A + C     | Partial (2026-10-30) | D1 `fashley-tailor` created and migrations 0001-0004 applied via `cf d1 migrations apply` (29 tables verified by query); private R2 bucket `fashley-tailor-media` created; bindings declared in `wrangler.jsonc` (DB, TAILOR_MEDIA). Geist Sans/Mono self-hosted via Fontsource and bundled in build output | Clerk publishable/secret keys and Meta Model API credentials still required from owner; Workflow binding pending companion Worker; no Worker deployed |
+| G2 Intake and immutable inputs | A + B     | Local slice done     | Burst 2 migrations/services + Burst 3 workspace UI; server tests prove revision conflict, idempotent replay, two-user isolation, consent withdrawal. Fixture evidence only | Live proof depends on G1; upload sanitizer/SAM/crop not implemented, routes fail closed |
+| G3 Generation and safety       | A + B     | Blocked              | Meta/Workflow adapters exist as interfaces returning `PROVIDER_UNAVAILABLE`/`FEATURE_UNAVAILABLE`; job routes fail closed | Meta model access unverified                                      |
+| G4 Handoff and review          | A + B + C | Local slice done     | Deterministic brief assembly/finalize/supersede, hashed share grants, allowlisted `RedactedBrief`, exact-version review actions proven by server tests; P06/P08/P09 UI built | Live proof depends on G1; `POST /projects/:id/briefs` (assemble_brief job) stays disabled until Workflow lands |
+| G5 Release evidence            | C         | In progress          | Burst 4: full test/typecheck/build pass (below)                                | Depends on G1-G4 live proof                                      |
+
+## Contract changelog
+
+| Version | Change                                                                                                                                                                | Burst |
+| ------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----- |
+| 1       | Initial freeze: common envelope/errors, ProjectInput, DTOs, job result discriminators, endpoint request schemas, separate allowlisted RedactedBrief, fixtures F01-F16 | 1     |
+
+## Ownership (agreed in `.github/PR-MANAGEMENT.md`)
+
+- C: `src/lib/tailor/contracts/`, fixtures, integration tests, `package.json`/lockfile, Vite/PWA/root config
+- A: `migrations/tailor/`, `src/lib/tailor/server/`, `src/routes/api/tailor/`
+- B: `src/components/tailor/`, `src/lib/tailor/client/`, `src/routes/tailor*`, `src/routes/review*`
+
+Out-of-ownership edits require a boundary-change request in PR #1.
+
+## Burst 4 integration decisions (Agent C)
+
+- Brief creation job: keep `POST /projects/:id/briefs` disabled (`FEATURE_UNAVAILABLE`) until Workflow/Meta exist. No contract change; deterministic local brief assembly in services claims no model provenance (`deterministic-assembly-v1`).
+- `reviewStatus` on project/brief summaries: server-derived aggregation accepted. No contract change.
+- `src/routeTree.gen.ts` is build-generated; C verified it after `bun run build` includes the `/api/tailor/*` and tailor/review routes. Never hand-edited.
+- Geist fonts: resolved after Burst 4 with owner approval. `@fontsource/geist-sans` (400-700) and `@fontsource/geist-mono` (400-500) are self-hosted and imported in `src/styles.css`; `--font-sans` is Geist Sans and `--font-mono` is Geist Mono. The `geist` npm package is Next-only, so Fontsource is the Vite path. Cormorant Garamond remains `--font-display` for legacy brand headings; Karla was removed from the Google Fonts URL in `src/routes/__root.tsx`.
+- `FabricSelectionCanvas` (SAM regions/manual crop coordinates) deferred until real SAM payloads exist (G3). Workspace currently supports consent, upload, and manual whole-photo swatch selection with an explicit explanation.
+- Clerk account profile/security entry deferred to G1; account page has no fake identity controls.
+- Not implemented and honestly absent: upload sanitizer/quarantine, SAM/crop jobs, concept generation, history "Use as new draft", project delete confirmation UI, person-photo upload.
+
+## Burst 4 verification (2026-10-30, local)
+
+- `bun run test`: 56/56 pass (10 files), including contracts 10, server 9, client/components 17+ (fixture-labelled where applicable).
+- `bun run typecheck`: pass. `bun run build`: pass (route tree regenerated by the router plugin).
+- `eslint` on all new Tailor files (server, client, components, tailor/review/account/api routes): clean after scoped Prettier fixes and one `no-this-alias` fix in `src/lib/tailor/server/db.ts:197`. Repo-wide lint debt (4,168 errors at Burst 1 baseline) is unchanged and not suppressed.
+- Security spot checks: no `localStorage`/`sessionStorage`/`indexedDB` in `src/lib/tailor/`; share tokens/PINs stored only as SHA-256 hashes (`src/lib/tailor/server/shares.ts:87`); fixture adapter gated to `DEV && VITE_TAILOR_FIXTURES=1` (`src/lib/tailor/client/index.ts:16`), production resolves to the HTTP adapter.
+- Burst 1 CI run `41100433641` was still `queued` at Burst 4 start; CI status must be read from the PR checks, not assumed.
+
+## Baseline recorded at Burst 1 start
+
+- Branch `feat/tailor-p0` at `5f403ec`. Burst 1 local run: `bun run test` 30/30 pass, `bun run typecheck` pass, `bun run build` pass. Lint is pre-existing debt: `bun run lint` (`eslint .`) reports 4,168 errors + 6 warnings; `eslint src` reports 1,142 errors + 6 warnings. The new contracts directory lints clean and adds none. Lint debt is fixed separately and never suppressed.
