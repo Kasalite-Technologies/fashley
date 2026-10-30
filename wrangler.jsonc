@@ -1,6 +1,8 @@
 {
   // Fashley Tailor bindings (G1). Resource IDs are identifiers, not secrets.
-  // No Worker is deployed by this file alone; deployment needs separate owner approval.
+  "name": "kasalite-technologies-fashley",
+  "compatibility_date": "2025-09-02",
+  "compatibility_flags": ["nodejs_compat"],
   "d1_databases": [
     {
       "binding": "DB",
