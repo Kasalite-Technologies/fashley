@@ -10,4 +10,8 @@ export * from "./projects";
 export * from "./credits";
 export * from "./briefs";
 export * from "./shares";
+export * from "./media";
+export * from "./meta";
+export * from "./uploads";
+export * from "./jobs";
 export * from "./http";

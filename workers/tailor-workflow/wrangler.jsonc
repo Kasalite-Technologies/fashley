@@ -1,0 +1,35 @@
+{
+  // Companion Workflow Worker for Fashley Tailor. Reference config only:
+  // not deployed yet, and deploy requires explicit owner approval.
+  // Resource IDs are identifiers, not secrets.
+  "name": "fashley-tailor-workflow",
+  "main": "index.ts",
+  "compatibility_date": "2025-09-02",
+  "compatibility_flags": ["nodejs_compat"],
+  "workflows": [
+    {
+      "name": "fashley-tailor-jobs",
+      "class_name": "TailorWorkflow"
+    }
+  ],
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "fashley-tailor",
+      "database_id": "70249e86-5820-4270-8fe1-27b91983185a"
+    }
+  ],
+  "r2_buckets": [
+    {
+      "binding": "TAILOR_MEDIA",
+      "bucket_name": "fashley-tailor-media"
+    }
+  ],
+  "secrets_store_secrets": [
+    {
+      "binding": "META_API_KEY",
+      "store_id": "f1a49cc62eaa46cfa793e4de4ed2ec87",
+      "secret_name": "META_API_KEY"
+    }
+  ]
+}
