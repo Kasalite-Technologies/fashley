@@ -1,0 +1,6 @@
+import { createFileRoute } from '@tanstack/react-router';
+import { InfoPage } from '@/components/InfoPage';
+export const Route = createFileRoute('/contact')({
+ head: () => ({meta:[{title:'Contact | Fashley'},{name:'description',content:'Need help with a design or your Fashley account? Email us. Include your payment reference if you have a coin purchase question.'},{property:'og:title',content:'Contact | Fashley'},{property:'og:description',content:'Need help with a design or your Fashley account? Email us. Include your payment reference if you have a coin purchase question.'},{property:'og:type',content:'website'},{name:'twitter:card',content:'summary_large_image'}], links:[{rel:'canonical',href:'https://fashley.lovable.app/contact'}]}),
+ component: () => <InfoPage title="Contact"><p>Need help with your fabric design or account? Email us.</p><section><h2>Email us</h2><a href="mailto:hello@fashley.app">hello@fashley.app</a><p className="mt-3">Send us a message about your account, a design or the shop. For coin payment questions, include your payment reference. Never send your password or full card details.</p></section><section><h2>Privacy requests</h2><p>Email us to request a copy of your information or to delete your account. You can also ask us to stop shop availability emails.</p></section></InfoPage>,
+});
