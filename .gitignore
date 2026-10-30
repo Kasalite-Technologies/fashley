@@ -32,8 +32,12 @@ coverage/
 test-results/
 playwright-report/
 
-# Supplied external event materials are not part of the public source upload
-hackathon/*.pdf
+# Local planning, editor metadata and agent instructions
+hackathon/
+.hackathon/
+.hackathong/
+.lovable/
+AGENTS.md
 
 # Wrangler / Cloudflare
 .wrangler/
