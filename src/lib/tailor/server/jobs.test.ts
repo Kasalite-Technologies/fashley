@@ -8,7 +8,7 @@ import { createProject, freezeRevision, insertAsset, saveDraft } from "./project
 import { pilotGrant } from "./credits";
 import { defaultConfig, type MetaAdapter, type TailorConfig, type WorkflowAdapter } from "./config";
 import { createBriefJob, createJob, getJobForUser, runJob } from "./jobs";
-import { base64ToBytes } from "./meta";
+import { base64ToBytes, createMetaAdapter } from "./meta";
 import { emptyProjectInput, type ProjectInput } from "../contracts";
 
 const MIGRATIONS = readdirSync(join(process.cwd(), "migrations/tailor"))
@@ -327,11 +327,162 @@ describe("runJob", () => {
     const done = await getJobForUser(db, ctx.userId, job.id);
     expect(done.state).toBe("failed");
     expect(done.error?.code).toBe("PROVIDER_UNAVAILABLE");
+    const stepRun = await db
+      .prepare("SELECT * FROM ai_step_runs WHERE job_id = ? AND step_key = ?")
+      .bind(job.id, "segment_fabric")
+      .first<{ state: string; output_json: string }>();
+    expect(stepRun!.state).toBe("failed");
+    const stepOutput = JSON.parse(stepRun!.output_json) as {
+      errorCode: string;
+      diagnostic?: Record<string, unknown>;
+    };
+    expect(stepOutput.errorCode).toBe("PROVIDER_UNAVAILABLE");
+    expect(stepOutput.diagnostic).toMatchObject({
+      providerStatus: null,
+      failureKind: "unparseable_output",
+    });
     const reservation = await db
       .prepare("SELECT * FROM credit_reservations WHERE job_id = ?")
       .bind(job.id)
       .first<{ state: string }>();
     expect(reservation!.state).toBe("released");
+  });
+
+  it("persists redacted provider diagnostic on step run for HTTP 401, public error stays PROVIDER_UNAVAILABLE", async () => {
+    const db = await makeDb();
+    const ctx = await seedProject(db);
+    const media = new InMemoryMediaStore();
+    await media.putPrivate(`private/${ctx.projectId}/ast_src`, base64ToBytes(PNG_B64));
+    const providerBody = JSON.stringify({
+      error: {
+        code: "invalid_api_key",
+        message: `Invalid API key test-secret-key ${"word ".repeat(100)}ENDMARKER`,
+      },
+    });
+    const fetchFn = (async () => new Response(providerBody, { status: 401 })) as typeof fetch;
+    const meta = createMetaAdapter(async () => "test-secret-key", fetchFn) as MetaAdapter;
+    const { workflow } = fakeWorkflow();
+    const { job } = await createJob(
+      db,
+      { workflow, config },
+      ctx.userId,
+      ctx.projectId,
+      KEY("provider401"),
+      { type: "analyze_fabric", revisionId: ctx.revisionId },
+    );
+    await runJob(db, { meta, media, config }, job.id);
+    const done = await getJobForUser(db, ctx.userId, job.id);
+    expect(done.state).toBe("failed");
+    expect(done.error?.code).toBe("PROVIDER_UNAVAILABLE");
+    const stepRun = await db
+      .prepare("SELECT * FROM ai_step_runs WHERE job_id = ? AND step_key = ?")
+      .bind(job.id, "segment_fabric")
+      .first<{ state: string; output_json: string }>();
+    expect(stepRun!.state).toBe("failed");
+    expect(stepRun!.output_json).not.toContain("test-secret-key");
+    expect(stepRun!.output_json).not.toContain(providerBody);
+    expect(stepRun!.output_json).not.toContain("ENDMARKER");
+    const stepOutput = JSON.parse(stepRun!.output_json) as {
+      errorCode: string;
+      diagnostic?: {
+        providerStatus: number | null;
+        failureKind: string;
+        providerErrorCode: string | null;
+        providerErrorMessage: string | null;
+      };
+    };
+    expect(stepOutput.errorCode).toBe("PROVIDER_UNAVAILABLE");
+    expect(stepOutput.diagnostic).toMatchObject({
+      providerStatus: 401,
+      failureKind: "http_error",
+      providerErrorCode: "invalid_api_key",
+    });
+    expect(stepOutput.diagnostic!.providerErrorMessage!.length).toBeLessThanOrEqual(200);
+  });
+
+  it("persists diagnostic for provider HTTP 200 with non-JSON output", async () => {
+    const db = await makeDb();
+    const ctx = await seedProject(db);
+    const media = new InMemoryMediaStore();
+    await media.putPrivate(`private/${ctx.projectId}/ast_src`, base64ToBytes(PNG_B64));
+    const fetchFn = (async () =>
+      new Response("prose response, not json", { status: 200 })) as typeof fetch;
+    const meta = createMetaAdapter(async () => "test-secret-key", fetchFn) as MetaAdapter;
+    const { workflow } = fakeWorkflow();
+    const { job } = await createJob(
+      db,
+      { workflow, config },
+      ctx.userId,
+      ctx.projectId,
+      KEY("provider200prose"),
+      { type: "analyze_fabric", revisionId: ctx.revisionId },
+    );
+    await runJob(db, { meta, media, config }, job.id);
+    const done = await getJobForUser(db, ctx.userId, job.id);
+    expect(done.state).toBe("failed");
+    expect(done.error?.code).toBe("PROVIDER_UNAVAILABLE");
+    const stepRun = await db
+      .prepare("SELECT * FROM ai_step_runs WHERE job_id = ? AND step_key = ?")
+      .bind(job.id, "segment_fabric")
+      .first<{ output_json: string }>();
+    const stepOutput = JSON.parse(stepRun!.output_json) as { diagnostic?: unknown };
+    expect(stepOutput.diagnostic).toMatchObject({
+      providerStatus: 200,
+      failureKind: "non_json_response",
+    });
+  });
+
+  it("sends segmentation request asking for the contracted JSON shape", async () => {
+    const db = await makeDb();
+    const ctx = await seedProject(db);
+    const media = new InMemoryMediaStore();
+    await media.putPrivate(`private/${ctx.projectId}/ast_src`, base64ToBytes(PNG_B64));
+    const requestBodies: Record<string, unknown>[] = [];
+    const fetchFn = (async (_url: string | URL | Request, init?: RequestInit) => {
+      const sent = JSON.parse(String(init!.body)) as Record<string, unknown>;
+      requestBodies.push(sent);
+      if (sent["model"] === "sam-3.1") {
+        return new Response(
+          JSON.stringify({
+            id: "seg_1",
+            output_text: JSON.stringify({
+              regions: [
+                { id: "r1", bbox: { x: 0, y: 0, width: 0.5, height: 0.5 }, maskBase64: PNG_B64 },
+              ],
+            }),
+          }),
+          { status: 200 },
+        );
+      }
+      return new Response(
+        JSON.stringify({
+          id: "und_1",
+          output_text: JSON.stringify([{ key: "color", value: "indigo", uncertainty: "observed" }]),
+        }),
+        { status: 200 },
+      );
+    }) as typeof fetch;
+    const meta = createMetaAdapter(async () => "test-secret-key", fetchFn) as MetaAdapter;
+    const { workflow } = fakeWorkflow();
+    const { job } = await createJob(
+      db,
+      { workflow, config },
+      ctx.userId,
+      ctx.projectId,
+      KEY("segmentprompt"),
+      { type: "analyze_fabric", revisionId: ctx.revisionId },
+    );
+    await runJob(db, { meta, media, config }, job.id);
+    const done = await getJobForUser(db, ctx.userId, job.id);
+    expect(done.state).toBe("completed");
+    const segmentRequest = requestBodies.find((b) => b["model"] === "sam-3.1")!;
+    const serialized = JSON.stringify(segmentRequest);
+    expect(serialized).toContain("regions");
+    expect(serialized).toContain("maskBase64");
+    expect(serialized).toContain("base64-encoded PNG or JPEG mask image");
+    expect(serialized).toContain("bbox");
+    expect(serialized).toContain("normalized");
+    expect(serialized).not.toContain("test-secret-key");
   });
 
   it("completes generate_concept and stores the concept asset", async () => {

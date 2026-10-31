@@ -76,6 +76,63 @@ describe("createMetaAdapter", () => {
     expect(JSON.parse(String(calls[0]!.init!.body)).model).toBe("muse-image-1.0");
   });
 
+  it.each([401, 403])(
+    "records redacted diagnostic for HTTP %i without leaking key or full body",
+    async (status) => {
+      const longTail = "word ".repeat(100) + "ENDMARKER";
+      const body = JSON.stringify({
+        error: {
+          code: "invalid_api_key",
+          message: `Invalid API key test-secret-key Bearer test-secret-key ${longTail}`,
+        },
+      });
+      const { fetchFn } = fakeFetch(body, status);
+      const meta = createMetaAdapter(key, fetchFn);
+      const error = await meta
+        .segmentFabric({ imageDataUrl: "data:image/png;base64,AAA", prompt: "x" })
+        .catch((e: unknown) => e);
+      expect(error).toMatchObject({ code: "PROVIDER_UNAVAILABLE" });
+      const diagnostic = (error as { providerDiagnostic?: Record<string, unknown> })
+        .providerDiagnostic!;
+      expect(diagnostic["providerStatus"]).toBe(status);
+      expect(diagnostic["failureKind"]).toBe("http_error");
+      expect(diagnostic["providerErrorCode"]).toBe("invalid_api_key");
+      expect(String(diagnostic["providerErrorMessage"]).length).toBeLessThanOrEqual(200);
+      const serialized = JSON.stringify(diagnostic);
+      expect(serialized).not.toContain("test-secret-key");
+      expect(serialized).not.toContain(body);
+      expect(serialized).not.toContain("ENDMARKER");
+    },
+  );
+
+  it("records diagnostic for HTTP 200 with non-JSON body", async () => {
+    const { fetchFn } = fakeFetch("this is prose, not json", 200);
+    const meta = createMetaAdapter(key, fetchFn);
+    const error = await meta
+      .understandFabric({ imageDataUrl: "data:image/png;base64,AAA", prompt: "x" })
+      .catch((e: unknown) => e);
+    expect(error).toMatchObject({ code: "PROVIDER_UNAVAILABLE" });
+    expect((error as { providerDiagnostic?: unknown }).providerDiagnostic).toMatchObject({
+      providerStatus: 200,
+      failureKind: "non_json_response",
+      providerErrorCode: null,
+      providerErrorMessage: null,
+    });
+  });
+
+  it("records diagnostic for HTTP 200 with unparseable output shape", async () => {
+    const { fetchFn } = fakeFetch({ id: "req_x", output: [] }, 200);
+    const meta = createMetaAdapter(key, fetchFn);
+    const error = await meta
+      .segmentFabric({ imageDataUrl: "data:image/png;base64,AAA", prompt: "x" })
+      .catch((e: unknown) => e);
+    expect(error).toMatchObject({ code: "PROVIDER_UNAVAILABLE" });
+    expect((error as { providerDiagnostic?: unknown }).providerDiagnostic).toMatchObject({
+      providerStatus: 200,
+      failureKind: "unparseable_output",
+    });
+  });
+
   it("maps HTTP 500 to PROVIDER_UNAVAILABLE without leaking the body", async () => {
     const { fetchFn } = fakeFetch("upstream secret failure detail", 500);
     const meta = createMetaAdapter(key, fetchFn);
