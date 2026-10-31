@@ -2,9 +2,10 @@ import { createClerkClient, verifyToken } from "@clerk/backend";
 import type { Db, DbPrepared, DbRunResult } from "./db";
 import type { TailorHttpDeps } from "./http";
 import type { VerifiedActor } from "./identity";
-import { err } from "./errors";
+import { err, TailorError } from "./errors";
 import { createR2MediaStore, type R2BucketLike } from "./media";
 import { createMetaAdapter } from "./meta";
+import type { ImageCropper } from "./config";
 
 /**
  * Cloudflare runtime wiring: adapts the real D1 binding to the server Db
@@ -159,6 +160,65 @@ export function createClerkVerifier(
   };
 }
 
+// ---- Cloudflare Images cropper ----
+
+/**
+ * Structural subset of the Images binding. Per the runtime types in
+ * .cloudflare/types, `trim` top/left/width/height are pixel values (pixels to
+ * cut from each side / resulting size), not fractions, so the normalized
+ * rect is converted with the known source dimensions.
+ */
+export interface ImagesBindingLike {
+  input(stream: ReadableStream<Uint8Array>): {
+    transform(transform: {
+      trim: { top: number; left: number; width: number; height: number };
+    }): {
+      output(options: { format: string }): Promise<{
+        image(): ReadableStream<Uint8Array>;
+      }>;
+    };
+  };
+}
+
+export function isImagesLike(value: unknown): value is ImagesBindingLike {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    typeof (value as { input?: unknown }).input === "function"
+  );
+}
+
+function bytesToStream(bytes: Uint8Array): ReadableStream<Uint8Array> {
+  return new ReadableStream<Uint8Array>({
+    start(controller) {
+      controller.enqueue(bytes);
+      controller.close();
+    },
+  });
+}
+
+export function createImagesCropper(binding: ImagesBindingLike): ImageCropper {
+  return {
+    async crop({ bytes, widthPx, heightPx, rect }) {
+      const left = Math.min(widthPx - 1, Math.max(0, Math.round(rect.x * widthPx)));
+      const top = Math.min(heightPx - 1, Math.max(0, Math.round(rect.y * heightPx)));
+      const width = Math.max(1, Math.min(Math.round(rect.width * widthPx), widthPx - left));
+      const height = Math.max(1, Math.min(Math.round(rect.height * heightPx), heightPx - top));
+      try {
+        const result = await binding
+          .input(bytesToStream(bytes))
+          .transform({ trim: { top, left, width, height } })
+          .output({ format: "image/jpeg" });
+        const buffer = await new Response(result.image() as BodyInit).arrayBuffer();
+        return new Uint8Array(buffer);
+      } catch (e) {
+        if (e instanceof TailorError) throw e;
+        throw err("PROVIDER_UNAVAILABLE", "Image cropping failed.");
+      }
+    },
+  };
+}
+
 // ---- Deps from Worker env ----
 
 export interface TailorWorkerEnv {
@@ -167,6 +227,7 @@ export interface TailorWorkerEnv {
   META_API_KEY?: SecretBindingLike;
   TAILOR_MEDIA?: unknown;
   TAILOR_WORKFLOW?: unknown;
+  IMAGES?: unknown;
   [key: string]: unknown;
 }
 
@@ -213,6 +274,7 @@ export function tailorDepsFromEnv(env: TailorWorkerEnv): TailorHttpDeps {
     deps.verifier = createClerkVerifier(secretResolver(env.CLERK_SECRET_KEY));
   }
   if (isR2Like(env.TAILOR_MEDIA)) deps.media = createR2MediaStore(env.TAILOR_MEDIA);
+  if (isImagesLike(env.IMAGES)) deps.cropper = createImagesCropper(env.IMAGES);
   if (env.META_API_KEY) {
     deps.meta = createMetaAdapter(secretResolver(env.META_API_KEY));
   }

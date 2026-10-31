@@ -57,6 +57,7 @@ import { Route as ApiTailorProjectsIdArchiveRouteImport } from './routes/api/tai
 import { Route as ApiTailorProjectsIdBriefsRouteImport } from './routes/api/tailor/projects/$id/briefs'
 import { Route as ApiTailorProjectsIdChecksRouteImport } from './routes/api/tailor/projects/$id/checks'
 import { Route as ApiTailorProjectsIdDraftRouteImport } from './routes/api/tailor/projects/$id/draft'
+import { Route as ApiTailorProjectsIdFabricSelectionRouteImport } from './routes/api/tailor/projects/$id/fabric-selection'
 import { Route as ApiTailorProjectsIdJobsRouteImport } from './routes/api/tailor/projects/$id/jobs'
 import { Route as ApiTailorProjectsIdRevisionsRouteImport } from './routes/api/tailor/projects/$id/revisions'
 import { Route as ApiTailorProjectsIdUploadsRouteImport } from './routes/api/tailor/projects/$id/uploads'
@@ -314,6 +315,12 @@ const ApiTailorProjectsIdDraftRoute =
     path: '/draft',
     getParentRoute: () => ApiTailorProjectsIdRoute,
   } as any)
+const ApiTailorProjectsIdFabricSelectionRoute =
+  ApiTailorProjectsIdFabricSelectionRouteImport.update({
+    id: '/fabric-selection',
+    path: '/fabric-selection',
+    getParentRoute: () => ApiTailorProjectsIdRoute,
+  } as any)
 const ApiTailorProjectsIdJobsRoute = ApiTailorProjectsIdJobsRouteImport.update({
   id: '/jobs',
   path: '/jobs',
@@ -404,6 +411,7 @@ export interface FileRoutesByFullPath {
   '/api/tailor/projects/$id/briefs': typeof ApiTailorProjectsIdBriefsRoute
   '/api/tailor/projects/$id/checks': typeof ApiTailorProjectsIdChecksRoute
   '/api/tailor/projects/$id/draft': typeof ApiTailorProjectsIdDraftRoute
+  '/api/tailor/projects/$id/fabric-selection': typeof ApiTailorProjectsIdFabricSelectionRoute
   '/api/tailor/projects/$id/jobs': typeof ApiTailorProjectsIdJobsRoute
   '/api/tailor/projects/$id/revisions': typeof ApiTailorProjectsIdRevisionsRoute
   '/api/tailor/projects/$id/uploads': typeof ApiTailorProjectsIdUploadsRouteWithChildren
@@ -461,6 +469,7 @@ export interface FileRoutesByTo {
   '/api/tailor/projects/$id/briefs': typeof ApiTailorProjectsIdBriefsRoute
   '/api/tailor/projects/$id/checks': typeof ApiTailorProjectsIdChecksRoute
   '/api/tailor/projects/$id/draft': typeof ApiTailorProjectsIdDraftRoute
+  '/api/tailor/projects/$id/fabric-selection': typeof ApiTailorProjectsIdFabricSelectionRoute
   '/api/tailor/projects/$id/jobs': typeof ApiTailorProjectsIdJobsRoute
   '/api/tailor/projects/$id/revisions': typeof ApiTailorProjectsIdRevisionsRoute
   '/api/tailor/projects/$id/uploads': typeof ApiTailorProjectsIdUploadsRouteWithChildren
@@ -519,6 +528,7 @@ export interface FileRoutesById {
   '/api/tailor/projects/$id/briefs': typeof ApiTailorProjectsIdBriefsRoute
   '/api/tailor/projects/$id/checks': typeof ApiTailorProjectsIdChecksRoute
   '/api/tailor/projects/$id/draft': typeof ApiTailorProjectsIdDraftRoute
+  '/api/tailor/projects/$id/fabric-selection': typeof ApiTailorProjectsIdFabricSelectionRoute
   '/api/tailor/projects/$id/jobs': typeof ApiTailorProjectsIdJobsRoute
   '/api/tailor/projects/$id/revisions': typeof ApiTailorProjectsIdRevisionsRoute
   '/api/tailor/projects/$id/uploads': typeof ApiTailorProjectsIdUploadsRouteWithChildren
@@ -578,6 +588,7 @@ export interface FileRouteTypes {
     | '/api/tailor/projects/$id/briefs'
     | '/api/tailor/projects/$id/checks'
     | '/api/tailor/projects/$id/draft'
+    | '/api/tailor/projects/$id/fabric-selection'
     | '/api/tailor/projects/$id/jobs'
     | '/api/tailor/projects/$id/revisions'
     | '/api/tailor/projects/$id/uploads'
@@ -635,6 +646,7 @@ export interface FileRouteTypes {
     | '/api/tailor/projects/$id/briefs'
     | '/api/tailor/projects/$id/checks'
     | '/api/tailor/projects/$id/draft'
+    | '/api/tailor/projects/$id/fabric-selection'
     | '/api/tailor/projects/$id/jobs'
     | '/api/tailor/projects/$id/revisions'
     | '/api/tailor/projects/$id/uploads'
@@ -692,6 +704,7 @@ export interface FileRouteTypes {
     | '/api/tailor/projects/$id/briefs'
     | '/api/tailor/projects/$id/checks'
     | '/api/tailor/projects/$id/draft'
+    | '/api/tailor/projects/$id/fabric-selection'
     | '/api/tailor/projects/$id/jobs'
     | '/api/tailor/projects/$id/revisions'
     | '/api/tailor/projects/$id/uploads'
@@ -1074,6 +1087,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiTailorProjectsIdDraftRouteImport
       parentRoute: typeof ApiTailorProjectsIdRoute
     }
+    '/api/tailor/projects/$id/fabric-selection': {
+      id: '/api/tailor/projects/$id/fabric-selection'
+      path: '/fabric-selection'
+      fullPath: '/api/tailor/projects/$id/fabric-selection'
+      preLoaderRoute: typeof ApiTailorProjectsIdFabricSelectionRouteImport
+      parentRoute: typeof ApiTailorProjectsIdRoute
+    }
     '/api/tailor/projects/$id/jobs': {
       id: '/api/tailor/projects/$id/jobs'
       path: '/jobs'
@@ -1227,6 +1247,7 @@ interface ApiTailorProjectsIdRouteChildren {
   ApiTailorProjectsIdBriefsRoute: typeof ApiTailorProjectsIdBriefsRoute
   ApiTailorProjectsIdChecksRoute: typeof ApiTailorProjectsIdChecksRoute
   ApiTailorProjectsIdDraftRoute: typeof ApiTailorProjectsIdDraftRoute
+  ApiTailorProjectsIdFabricSelectionRoute: typeof ApiTailorProjectsIdFabricSelectionRoute
   ApiTailorProjectsIdJobsRoute: typeof ApiTailorProjectsIdJobsRoute
   ApiTailorProjectsIdRevisionsRoute: typeof ApiTailorProjectsIdRevisionsRoute
   ApiTailorProjectsIdUploadsRoute: typeof ApiTailorProjectsIdUploadsRouteWithChildren
@@ -1237,6 +1258,8 @@ const ApiTailorProjectsIdRouteChildren: ApiTailorProjectsIdRouteChildren = {
   ApiTailorProjectsIdBriefsRoute: ApiTailorProjectsIdBriefsRoute,
   ApiTailorProjectsIdChecksRoute: ApiTailorProjectsIdChecksRoute,
   ApiTailorProjectsIdDraftRoute: ApiTailorProjectsIdDraftRoute,
+  ApiTailorProjectsIdFabricSelectionRoute:
+    ApiTailorProjectsIdFabricSelectionRoute,
   ApiTailorProjectsIdJobsRoute: ApiTailorProjectsIdJobsRoute,
   ApiTailorProjectsIdRevisionsRoute: ApiTailorProjectsIdRevisionsRoute,
   ApiTailorProjectsIdUploadsRoute: ApiTailorProjectsIdUploadsRouteWithChildren,

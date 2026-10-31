@@ -26,6 +26,22 @@ export interface MediaStore {
   getPrivate(key: string): Promise<Uint8Array>;
   deletePrivate(key: string): Promise<void>;
 }
+export interface NormalizedRect {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+/** Crops a normalized rect from a source image and returns JPEG bytes. */
+export interface ImageCropper {
+  crop(input: {
+    bytes: Uint8Array;
+    mime: string;
+    widthPx: number;
+    heightPx: number;
+    rect: NormalizedRect;
+  }): Promise<Uint8Array>;
+}
 import { err } from "./errors";
 const unavailable = () => {
   throw err("PROVIDER_UNAVAILABLE", "Provider is not configured.");
@@ -39,6 +55,11 @@ export class UnconfiguredMetaAdapter implements MetaAdapter {
 export class UnconfiguredWorkflowAdapter implements WorkflowAdapter {
   async dispatch(): Promise<{ workflowId: string }> {
     throw err("FEATURE_UNAVAILABLE", "Workflow binding is not configured.");
+  }
+}
+export class UnconfiguredImageCropper implements ImageCropper {
+  async crop(): Promise<Uint8Array> {
+    throw err("FEATURE_UNAVAILABLE", "Image cropping is not configured.");
   }
 }
 export class UnconfiguredMediaStore implements MediaStore {

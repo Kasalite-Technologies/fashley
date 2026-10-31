@@ -380,7 +380,7 @@ const unparseableProviderOutput = (outputText?: string) =>
     }),
   );
 
-async function insertDerivedAsset(
+export async function insertDerivedAsset(
   db: Db,
   input: {
     id: string;
@@ -393,7 +393,7 @@ async function insertDerivedAsset(
     heightPx: number;
     sha256: string;
     parentAssetId: string | null;
-    originJobId: string;
+    originJobId: string | null;
   },
 ): Promise<AssetRow> {
   const now = nowMs();
