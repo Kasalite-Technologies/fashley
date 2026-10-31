@@ -30,6 +30,7 @@ import { listPublishedTemplates, getPublishedTemplate, templateDetail } from "./
 import {
   createProject,
   getProjectDetail,
+  getProjectHistory,
   listProjects,
   saveDraft,
   freezeRevision,
@@ -257,6 +258,20 @@ export function createTailorHandlers(deps: TailorHttpDeps) {
       wrap(async () => {
         const { db, userId } = await owner(request);
         return { status: 200, data: await getProjectDetail(db, userId, id) };
+      }),
+    projectHistory: (request: Request, id: string) =>
+      wrap(async () => {
+        const { db, userId } = await owner(request);
+        const u = new URL(request.url);
+        const limitRaw = u.searchParams.get("limit");
+        const cursor = u.searchParams.get("cursor");
+        return {
+          status: 200,
+          data: await getProjectHistory(db, userId, id, {
+            ...(cursor ? { cursor } : {}),
+            ...(limitRaw ? { limit: Number(limitRaw) } : {}),
+          }),
+        };
       }),
     saveDraft: (request: Request, id: string) =>
       wrap(async () => {

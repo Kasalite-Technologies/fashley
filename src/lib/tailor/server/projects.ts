@@ -3,6 +3,7 @@ import { conflict, err, newId, notFound } from "./errors";
 import { hashPayload, nowMs, toIso } from "./util";
 import { checkReceipt, storeReceipt } from "./receipts";
 import { emptyProjectInput, type ProjectInput } from "../contracts";
+import { toJob, type JobRow } from "./jobs";
 
 export interface ProjectRow {
   id: string;
@@ -158,8 +159,121 @@ export async function getProjectDetail(db: Db, userId: string, projectId: string
       input: JSON.parse(d.input_json) as ProjectInput,
     },
     currentRevision,
-    latestJob: null,
+    latestJob: await getLatestJob(db, userId, projectId),
     latestBriefSummary,
+  };
+}
+/** Newest ai_jobs row for the project (created_at desc, id desc), owner-scoped. Null when none. */
+export async function getLatestJob(db: Db, userId: string, projectId: string) {
+  const row = await db
+    .prepare(
+      "SELECT * FROM ai_jobs WHERE project_id = ? AND owner_user_id = ? ORDER BY created_at DESC, id DESC LIMIT 1",
+    )
+    .bind(projectId, userId)
+    .first<JobRow>();
+  return row ? toJob(row) : null;
+}
+export interface HistoryItem {
+  kind: "revision" | "brief" | "review" | "job";
+  id: string;
+  createdAt: string;
+  summary: string;
+  revisionId?: string;
+  briefId?: string;
+  status?: string;
+}
+/**
+ * Merged project timeline (revisions, briefs, jobs, review actions), newest first.
+ * Cursor is an opaque offset into the merged ordering; invalid cursors are INVALID_INPUT.
+ */
+export async function getProjectHistory(
+  db: Db,
+  userId: string,
+  projectId: string,
+  opts: { cursor?: string; limit?: number } = {},
+) {
+  await getOwnedProject(db, userId, projectId);
+  const limit = Math.min(50, Math.max(1, Math.floor(opts.limit ?? 20) || 20));
+  let offset = 0;
+  if (opts.cursor) {
+    const m = opts.cursor.match(/^offset:(\d+)$/);
+    if (!m) throw err("INVALID_INPUT", "Invalid history cursor.");
+    offset = Number(m[1]);
+  }
+  const items: (HistoryItem & { ts: number })[] = [];
+  const { results: revisions } = await db
+    .prepare(
+      "SELECT * FROM project_revisions WHERE project_id = ? ORDER BY created_at DESC, id DESC",
+    )
+    .bind(projectId)
+    .all<RevisionRow & { created_at: number }>();
+  for (const r of revisions)
+    items.push({
+      kind: "revision",
+      id: r.id,
+      createdAt: toIso(r.created_at),
+      summary: `Input revision ${r.revision_number} saved`,
+      revisionId: r.id,
+      ts: r.created_at,
+    });
+  const { results: briefs } = await db
+    .prepare("SELECT * FROM brief_revisions WHERE project_id = ? ORDER BY created_at DESC, id DESC")
+    .bind(projectId)
+    .all<{
+      id: string;
+      brief_number: number;
+      state: string;
+      revision_id: string;
+      created_at: number;
+    }>();
+  for (const b of briefs)
+    items.push({
+      kind: "brief",
+      id: b.id,
+      createdAt: toIso(b.created_at),
+      summary: `Brief ${b.brief_number} ${b.state}`,
+      briefId: b.id,
+      status: b.state,
+      ts: b.created_at,
+    });
+  const { results: jobs } = await db
+    .prepare(
+      "SELECT * FROM ai_jobs WHERE project_id = ? AND owner_user_id = ? ORDER BY created_at DESC, id DESC",
+    )
+    .bind(projectId, userId)
+    .all<JobRow>();
+  for (const j of jobs)
+    items.push({
+      kind: "job",
+      id: j.id,
+      createdAt: toIso(j.created_at),
+      summary: `Job ${j.type} ${j.state}`,
+      revisionId: j.revision_id,
+      status: j.state,
+      ts: j.created_at,
+    });
+  for (const b of briefs) {
+    const { results: actions } = await db
+      .prepare("SELECT * FROM review_actions WHERE brief_id = ? ORDER BY created_at DESC, id DESC")
+      .bind(b.id)
+      .all<{ id: string; action: string; reviewer_name: string; created_at: number }>();
+    for (const a of actions)
+      items.push({
+        kind: "review",
+        id: a.id,
+        createdAt: toIso(a.created_at),
+        summary: `Review ${a.action} by ${a.reviewer_name}`,
+        briefId: b.id,
+        status: a.action,
+        ts: a.created_at,
+      });
+  }
+  items.sort((x, y) => y.ts - x.ts || (x.id < y.id ? 1 : x.id > y.id ? -1 : 0));
+  const page = items.slice(offset, offset + limit).map(({ ts: _ts, ...item }) => item);
+  const nextOffset = offset + page.length;
+  return {
+    items: page,
+    nextCursor: nextOffset < items.length ? `offset:${nextOffset}` : null,
   };
 }
 export async function listProjects(
