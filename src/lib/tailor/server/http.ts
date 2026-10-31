@@ -2,6 +2,7 @@ import type { Db } from "./db";
 import { TailorError, errorEnvelope, err, newRequestId } from "./errors";
 import {
   defaultConfig,
+  type ImageCropper,
   type MediaStore,
   type MetaAdapter,
   type TailorConfig,
@@ -15,6 +16,7 @@ import {
   receiveUploadContent,
 } from "./uploads";
 import { cancelJob, createBriefJob, createJob, getJobForUser, retryJob } from "./jobs";
+import { createFabricSelection } from "./fabric-selection";
 import {
   ensureLocalUser,
   getMe,
@@ -55,6 +57,7 @@ import {
   deleteProjectRequestSchema,
   checksRequestSchema,
   createUploadRequestSchema,
+  fabricSelectionRequestSchema,
   startJobRequestSchema,
   createBriefRequestSchema,
   retryJobRequestSchema,
@@ -73,6 +76,7 @@ export interface TailorHttpDeps {
   media?: MediaStore;
   meta?: MetaAdapter;
   workflow?: WorkflowAdapter;
+  cropper?: ImageCropper;
 }
 let registered: TailorHttpDeps | undefined;
 export function setTailorHttpDeps(deps: TailorHttpDeps | undefined) {
@@ -164,6 +168,11 @@ export function createTailorHandlers(deps: TailorHttpDeps) {
   function requireMedia(): MediaStore {
     if (!deps.media) throw err("FEATURE_UNAVAILABLE", "Tailor media binding is not configured.");
     return deps.media;
+  }
+  function requireCropper(): ImageCropper {
+    if (!deps.cropper)
+      throw err("FEATURE_UNAVAILABLE", "Image cropping is not configured.");
+    return deps.cropper;
   }
   const jobDeps = () => ({
     ...(deps.workflow ? { workflow: deps.workflow } : {}),
@@ -335,6 +344,25 @@ export function createTailorHandlers(deps: TailorHttpDeps) {
         return json(status, b);
       }
     },
+    fabricSelection: (request: Request, id: string) =>
+      wrap(async () => {
+        const { db, userId } = await owner(request);
+        const media = requireMedia();
+        const cropper = requireCropper();
+        const req = await body(request, fabricSelectionRequestSchema);
+        const r = await createFabricSelection(
+          db,
+          { media, cropper },
+          userId,
+          id,
+          await key(request),
+          req,
+        );
+        return {
+          status: r.replayed ? 200 : 201,
+          data: { selection: r.selection, asset: r.asset },
+        };
+      }),
     startJob: (request: Request, id: string) =>
       wrap(async () => {
         const { db, userId } = await owner(request);

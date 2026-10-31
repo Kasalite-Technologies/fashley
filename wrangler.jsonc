@@ -17,6 +17,9 @@
       "bucket_name": "fashley-tailor-media"
     }
   ],
+  "images": {
+    "binding": "IMAGES"
+  },
   "secrets_store_secrets": [
     {
       "binding": "CLERK_SECRET_KEY",

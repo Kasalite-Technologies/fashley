@@ -19,6 +19,7 @@ export default defineConfig({
         name: "fashley-tailor",
       }),
       TAILOR_MEDIA: bindings.r2({ name: "fashley-tailor-media" }),
+      IMAGES: bindings.images(),
       CLERK_SECRET_KEY: bindings.secretsStoreSecret({
         storeId: "f1a49cc62eaa46cfa793e4de4ed2ec87",
         secretName: "CLERK_SECRET_KEY",

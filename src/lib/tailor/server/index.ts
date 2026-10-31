@@ -14,4 +14,5 @@ export * from "./media";
 export * from "./meta";
 export * from "./uploads";
 export * from "./jobs";
+export * from "./fabric-selection";
 export * from "./http";
