@@ -6,7 +6,15 @@ import {
   type TailorConfig,
   type WorkflowAdapter,
 } from "./config";
-import { err, newId, notFound, TailorError } from "./errors";
+import {
+  err,
+  errWithProviderDiagnostic,
+  makeProviderDiagnostic,
+  newId,
+  notFound,
+  sanitizeProviderDiagnosticText,
+  TailorError,
+} from "./errors";
 import { hashPayload, nowMs, toIso } from "./util";
 import { getRevision } from "./projects";
 import { assembleBrief } from "./briefs";
@@ -15,6 +23,7 @@ import { sanitizeImage } from "./media";
 import {
   base64ToBytes,
   bytesToDataUrl,
+  FABRIC_SEGMENTATION_PROMPT,
   META_MODELS,
   META_PROMPT_VERSIONS,
   type MetaGenerateResult,
@@ -360,6 +369,16 @@ function stepOutputJson(value: unknown): string {
   return s.length <= 2000 ? s : JSON.stringify({ truncated: s.slice(0, 1900) });
 }
 const providerUnavailable = () => err("PROVIDER_UNAVAILABLE", "Meta provider is unavailable.");
+const unparseableProviderOutput = (outputText?: string) =>
+  errWithProviderDiagnostic(
+    "PROVIDER_UNAVAILABLE",
+    "Meta provider is unavailable.",
+    makeProviderDiagnostic({
+      providerStatus: null,
+      failureKind: "unparseable_output",
+      providerErrorMessage: outputText ? sanitizeProviderDiagnosticText(outputText) : null,
+    }),
+  );
 
 async function insertDerivedAsset(
   db: Db,
@@ -412,28 +431,29 @@ interface RegionInput {
   maskBase64?: string;
 }
 function parseRegions(outputText: string): RegionInput[] {
+  const fail = () => {
+    throw unparseableProviderOutput(outputText);
+  };
   let parsed: unknown;
   try {
     parsed = JSON.parse(stripFence(outputText));
   } catch {
-    throw providerUnavailable();
+    return fail();
   }
-  if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed))
-    throw providerUnavailable();
+  if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed)) return fail();
   const regions = (parsed as { regions?: unknown }).regions;
-  if (!Array.isArray(regions) || regions.length === 0) throw providerUnavailable();
+  if (!Array.isArray(regions) || regions.length === 0) return fail();
   return regions.map((r) => {
-    if (typeof r !== "object" || r === null) throw providerUnavailable();
+    if (typeof r !== "object" || r === null) return fail();
     const rec = r as Record<string, unknown>;
     const bbox = rec["bbox"] as Record<string, unknown> | null;
     if (typeof rec["id"] !== "string" || !rec["id"] || !bbox || typeof bbox !== "object")
-      throw providerUnavailable();
+      return fail();
     const nums = [bbox["x"], bbox["y"], bbox["width"], bbox["height"]];
     if (nums.some((n) => typeof n !== "number" || !Number.isFinite(n) || n < 0 || n > 1))
-      throw providerUnavailable();
-    if (Number(bbox["width"]) <= 0 || Number(bbox["height"]) <= 0) throw providerUnavailable();
-    if (rec["maskBase64"] !== undefined && typeof rec["maskBase64"] !== "string")
-      throw providerUnavailable();
+      return fail();
+    if (Number(bbox["width"]) <= 0 || Number(bbox["height"]) <= 0) return fail();
+    if (typeof rec["maskBase64"] !== "string" || !rec["maskBase64"]) return fail();
     return {
       id: rec["id"],
       bbox: {
@@ -442,7 +462,7 @@ function parseRegions(outputText: string): RegionInput[] {
         width: Number(bbox["width"]),
         height: Number(bbox["height"]),
       },
-      ...(typeof rec["maskBase64"] === "string" ? { maskBase64: rec["maskBase64"] } : {}),
+      maskBase64: rec["maskBase64"],
     };
   });
 }
@@ -477,9 +497,9 @@ function parseObservations(outputText: string): Observation[] {
   return [{ key: "summary", value, uncertainty: "uncertain" as const }];
 }
 function asSegmentResult(raw: unknown): MetaSegmentResult {
-  if (typeof raw !== "object" || raw === null) throw providerUnavailable();
+  if (typeof raw !== "object" || raw === null) throw unparseableProviderOutput();
   const rec = raw as Record<string, unknown>;
-  if (typeof rec["outputText"] !== "string") throw providerUnavailable();
+  if (typeof rec["outputText"] !== "string") throw unparseableProviderOutput();
   return {
     providerRequestId:
       typeof rec["providerRequestId"] === "string" ? rec["providerRequestId"] : null,
@@ -487,9 +507,10 @@ function asSegmentResult(raw: unknown): MetaSegmentResult {
   };
 }
 function asGenerateResult(raw: unknown): MetaGenerateResult {
-  if (typeof raw !== "object" || raw === null) throw providerUnavailable();
+  if (typeof raw !== "object" || raw === null) throw unparseableProviderOutput();
   const rec = raw as Record<string, unknown>;
-  if (typeof rec["imageBase64"] !== "string" || !rec["imageBase64"]) throw providerUnavailable();
+  if (typeof rec["imageBase64"] !== "string" || !rec["imageBase64"])
+    throw unparseableProviderOutput();
   return {
     providerRequestId:
       typeof rec["providerRequestId"] === "string" ? rec["providerRequestId"] : null,
@@ -598,9 +619,11 @@ export async function runJob(
       return r.value;
     } catch (e) {
       const code = e instanceof TailorError ? e.code : "PROVIDER_UNAVAILABLE";
-      await recordStep(stepKey, "failed", modelId, promptVersion, null, { errorCode: code }).catch(
-        () => undefined,
-      );
+      const diagnostic = e instanceof TailorError ? e.providerDiagnostic : undefined;
+      await recordStep(stepKey, "failed", modelId, promptVersion, null, {
+        errorCode: code,
+        ...(diagnostic ? { diagnostic } : {}),
+      }).catch(() => undefined);
       throw e;
     }
   }
@@ -633,22 +656,22 @@ export async function runJob(
       const bytes = await media.getPrivate(asset.object_key);
       const imageDataUrl = bytesToDataUrl(bytes, sniffMime(bytes) ?? asset.mime);
       await setStage("segmenting");
-      const segment = await step(
+      const regions = await step(
         "segment_fabric",
         META_MODELS.segment,
         META_PROMPT_VERSIONS.segment,
         async () => {
           const r = asSegmentResult(
-            await meta.segmentFabric({ imageDataUrl, prompt: "fabric textile cloth material" }),
+            await meta.segmentFabric({ imageDataUrl, prompt: FABRIC_SEGMENTATION_PROMPT }),
           );
+          const parsedRegions = parseRegions(r.outputText);
           return {
-            value: r,
+            value: parsedRegions,
             providerRequestId: r.providerRequestId,
             output: { outputText: r.outputText.slice(0, 1000) },
           };
         },
       );
-      const regions = parseRegions(segment.outputText);
       await setStage("persisting");
       const outRegions: { id: string; maskAssetId: string; bbox: RegionInput["bbox"] }[] = [];
       for (const region of regions) {

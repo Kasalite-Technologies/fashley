@@ -30,12 +30,74 @@ const RETRYABLE = new Set<ErrorCode>([
   "FEATURE_UNAVAILABLE",
 ]);
 
+export type ProviderFailureKind =
+  | "http_error"
+  | "network_error"
+  | "non_json_response"
+  | "unparseable_output"
+  | "missing_api_key"
+  | "provider_error";
+
+/** Redacted provider diagnostic persisted only on internal step-run rows. Never returned to clients. */
+export interface ProviderDiagnostic {
+  providerStatus: number | null;
+  failureKind: ProviderFailureKind;
+  providerErrorCode: string | null;
+  providerErrorMessage: string | null;
+}
+
+const MAX_DIAGNOSTIC_TEXT = 200;
+
+export function sanitizeProviderDiagnosticText(
+  value: unknown,
+  secrets: readonly string[] = [],
+): string | null {
+  if (typeof value !== "string" && typeof value !== "number") return null;
+  let text = String(value);
+  for (const secret of secrets) {
+    if (secret) text = text.split(secret).join("[redacted]");
+  }
+  text = text
+    .replace(/data:[^\s"']+/gi, "[redacted]")
+    .replace(/Bearer\s+[^\s"']+/gi, "Bearer [redacted]")
+    .replace(
+      /\b(authorization|api[-_]?key|access[-_]?token|client[-_]?secret|secret)\b\s*[:=]\s*[^\s"',}]+/gi,
+      "$1=[redacted]",
+    )
+    .replace(/[A-Za-z0-9+/=_-]{40,}/g, "[redacted]")
+    // eslint-disable-next-line no-control-regex
+    .replace(/[\u0000-\u001f\u007f]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+  return text ? text.slice(0, MAX_DIAGNOSTIC_TEXT) : null;
+}
+
+export function makeProviderDiagnostic(input: {
+  providerStatus: number | null;
+  failureKind: ProviderFailureKind;
+  providerErrorCode?: unknown;
+  providerErrorMessage?: unknown;
+  secrets?: readonly string[];
+}): ProviderDiagnostic {
+  const secrets = input.secrets ?? [];
+  return {
+    providerStatus:
+      typeof input.providerStatus === "number" && Number.isFinite(input.providerStatus)
+        ? input.providerStatus
+        : null,
+    failureKind: input.failureKind,
+    providerErrorCode: sanitizeProviderDiagnosticText(input.providerErrorCode, secrets),
+    providerErrorMessage: sanitizeProviderDiagnosticText(input.providerErrorMessage, secrets),
+  };
+}
+
 export class TailorError extends Error {
   constructor(
     public code: ErrorCode,
     message: string,
     public currentVersion?: number,
     public fieldErrors?: Record<string, string[]>,
+    public providerDiagnostic?: ProviderDiagnostic,
   ) {
     super(message);
     this.name = "TailorError";
@@ -50,6 +112,11 @@ export class TailorError extends Error {
 
 export const err = (code: ErrorCode, message: string, currentVersion?: number) =>
   new TailorError(code, message, currentVersion);
+export const errWithProviderDiagnostic = (
+  code: ErrorCode,
+  message: string,
+  providerDiagnostic: ProviderDiagnostic,
+) => new TailorError(code, message, undefined, undefined, providerDiagnostic);
 export const notFound = () => err("NOT_FOUND", "Not found.");
 export const conflict = (currentVersion?: number) =>
   err(

@@ -1,5 +1,13 @@
 import type { MetaAdapter } from "./config";
-import { err } from "./errors";
+import {
+  err,
+  errWithProviderDiagnostic,
+  makeProviderDiagnostic,
+  type ProviderDiagnostic,
+} from "./errors";
+
+export const FABRIC_SEGMENTATION_PROMPT =
+  'Segment the fabric, textile, cloth, or material in this image. Return only a JSON object with exactly this shape: {"regions":[{"id":"region-1","bbox":{"x":0,"y":0,"width":0.5,"height":0.5},"maskBase64":"<base64-encoded PNG or JPEG mask image>"}]}. The regions value must be an array. Each region must have a string id, a bbox object with normalized x, y, width, and height values between 0 and 1, and maskBase64 containing a base64-encoded PNG or JPEG mask image for that region. Do not return prose, markdown, or any fields outside this JSON shape.';
 
 export const META_MODELS = {
   segment: "sam-3.1",
@@ -7,7 +15,7 @@ export const META_MODELS = {
   generate: "muse-image-1.0",
 } as const;
 export const META_PROMPT_VERSIONS = {
-  segment: "sam-fabric-v1",
+  segment: "sam-fabric-v2",
   understand: "fabric-understanding-v1",
   generate: "concept-v1",
 } as const;
@@ -37,6 +45,30 @@ export interface MetaGenerateResult {
 
 const BASE_URL = "https://api.meta.ai/v1";
 const unavailable = () => err("PROVIDER_UNAVAILABLE", "Meta provider is unavailable.");
+const unavailableWith = (diagnostic: ProviderDiagnostic) =>
+  errWithProviderDiagnostic("PROVIDER_UNAVAILABLE", "Meta provider is unavailable.", diagnostic);
+
+function diagnosticFromErrorBody(status: number, text: string, key: string): ProviderDiagnostic {
+  let code: unknown = null;
+  let message: unknown = null;
+  try {
+    const parsed: unknown = JSON.parse(text);
+    if (isRecord(parsed)) {
+      const error = isRecord(parsed["error"]) ? parsed["error"] : null;
+      code = error?.["code"] ?? error?.["type"] ?? parsed["code"] ?? null;
+      message = error?.["message"] ?? parsed["message"] ?? null;
+    }
+  } catch {
+    // Non-JSON error bodies are not excerpted: only the status is persisted.
+  }
+  return makeProviderDiagnostic({
+    providerStatus: status,
+    failureKind: "http_error",
+    providerErrorCode: code,
+    providerErrorMessage: message,
+    secrets: [key],
+  });
+}
 
 function isRecord(v: unknown): v is Record<string, unknown> {
   return typeof v === "object" && v !== null && !Array.isArray(v);
@@ -105,14 +137,25 @@ export function createMetaAdapter(
   resolveApiKey: () => Promise<string | null>,
   fetchFn: typeof fetch = fetch,
 ): MetaAdapter {
-  async function post(payload: Record<string, unknown>): Promise<unknown> {
+  async function post(
+    payload: Record<string, unknown>,
+  ): Promise<{ body: unknown; status: number }> {
     let key: string | null;
     try {
       key = await resolveApiKey();
-    } catch {
-      throw unavailable();
+    } catch (e) {
+      throw unavailableWith(
+        makeProviderDiagnostic({
+          providerStatus: null,
+          failureKind: "provider_error",
+          providerErrorMessage: e instanceof Error ? e.message : null,
+        }),
+      );
     }
-    if (!key) throw unavailable();
+    if (!key)
+      throw unavailableWith(
+        makeProviderDiagnostic({ providerStatus: null, failureKind: "missing_api_key" }),
+      );
     let res: Response;
     try {
       res = await fetchFn(`${BASE_URL}/responses`, {
@@ -120,36 +163,54 @@ export function createMetaAdapter(
         headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
-    } catch {
-      throw unavailable();
+    } catch (e) {
+      throw unavailableWith(
+        makeProviderDiagnostic({
+          providerStatus: null,
+          failureKind: "network_error",
+          providerErrorMessage: e instanceof Error ? e.message : null,
+          secrets: [key],
+        }),
+      );
     }
-    if (!res.ok) throw unavailable();
+    const text = await res.text().catch(() => "");
+    if (!res.ok) throw unavailableWith(diagnosticFromErrorBody(res.status, text, key));
     try {
-      return await res.json();
+      return { body: JSON.parse(text) as unknown, status: res.status };
     } catch {
-      throw unavailable();
+      throw unavailableWith(
+        makeProviderDiagnostic({
+          providerStatus: res.status,
+          failureKind: "non_json_response",
+          secrets: [key],
+        }),
+      );
     }
   }
+  const unparseable = (status: number) =>
+    unavailableWith(
+      makeProviderDiagnostic({ providerStatus: status, failureKind: "unparseable_output" }),
+    );
   return {
     async segmentFabric(input: unknown): Promise<MetaSegmentResult> {
       const { imageDataUrl, prompt } = parseTextInput(input);
-      const body = await post({
+      const { body, status } = await post({
         model: META_MODELS.segment,
         input: messageInput(prompt, imageDataUrl),
         stream: false,
       });
       const outputText = extractOutputText(body);
-      if (outputText === null) throw unavailable();
+      if (outputText === null) throw unparseable(status);
       return { providerRequestId: providerRequestId(body), outputText };
     },
     async understandFabric(input: unknown): Promise<MetaUnderstandResult> {
       const { imageDataUrl, prompt } = parseTextInput(input);
-      const body = await post({
+      const { body, status } = await post({
         model: META_MODELS.understand,
         input: messageInput(prompt, imageDataUrl),
       });
       const outputText = extractOutputText(body);
-      if (outputText === null) throw unavailable();
+      if (outputText === null) throw unparseable(status);
       return { providerRequestId: providerRequestId(body), outputText };
     },
     async generateConcept(input: unknown): Promise<MetaGenerateResult> {
@@ -159,12 +220,12 @@ export function createMetaAdapter(
         input["imageDataUrl"] === undefined || input["imageDataUrl"] === null
           ? undefined
           : requiredText(input["imageDataUrl"]);
-      const body = await post({
+      const { body, status } = await post({
         model: META_MODELS.generate,
         input: imageDataUrl ? messageInput(prompt, imageDataUrl) : prompt,
       });
       const imageBase64 = extractImageBase64(body);
-      if (!imageBase64) throw unavailable();
+      if (!imageBase64) throw unparseable(status);
       return {
         providerRequestId: providerRequestId(body),
         modelId: META_MODELS.generate,
