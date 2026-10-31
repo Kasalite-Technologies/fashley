@@ -4,9 +4,10 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { TailorAppShell } from "@/components/tailor/TailorAppShell";
-import { EvidenceTimeline } from "@/components/tailor/panels";
+import { EvidenceTimeline, JobStatusPanel } from "@/components/tailor/panels";
 import { PageError } from "@/components/tailor/status";
 import { tailorApi, tailorKeys } from "@/lib/tailor/client";
+import type { Job } from "@/lib/tailor/contracts";
 
 export const Route = createFileRoute("/tailor/projects/$projectId/history")({
   head: () => ({
@@ -14,6 +15,35 @@ export const Route = createFileRoute("/tailor/projects/$projectId/history")({
   }),
   component: HistoryPage,
 });
+
+function HistoryJobPanel({ jobId, userId }: { jobId: string; userId: string }) {
+  const [actionError, setActionError] = useState<unknown>(null);
+  const job = useQuery({
+    queryKey: tailorKeys.job(userId, jobId),
+    queryFn: () => tailorApi.getJob(jobId),
+    retry: false,
+  });
+  if (job.isPending) return <Skeleton className="h-24" />;
+  if (job.isError) return <PageError error={job.error} onRetry={() => void job.refetch()} />;
+  if (actionError) return <PageError error={actionError} />;
+  return (
+    <JobStatusPanel
+      job={job.data}
+      onCancel={(j: Job, key: string) => {
+        void tailorApi
+          .cancelJob(j.id, key)
+          .then(() => job.refetch())
+          .catch((e) => setActionError(e));
+      }}
+      onRetry={(j: Job, key: string, acknowledge: boolean) => {
+        void tailorApi
+          .retryJob(j.id, acknowledge ? { acknowledgePossibleProviderCost: true } : {}, key)
+          .then(() => job.refetch())
+          .catch((e) => setActionError(e));
+      }}
+    />
+  );
+}
 
 export function HistoryPage() {
   const { projectId } = Route.useParams();
@@ -54,6 +84,11 @@ export function HistoryPage() {
         ) : (
           <>
             <EvidenceTimeline items={history.data.items} />
+            {history.data.items
+              .filter((item) => item.kind === "job")
+              .map((item) => (
+                <HistoryJobPanel key={item.id} jobId={item.id} userId={userId} />
+              ))}
             {history.data.nextCursor ? (
               <Button
                 type="button"

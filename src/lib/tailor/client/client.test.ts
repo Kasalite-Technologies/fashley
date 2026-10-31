@@ -49,6 +49,68 @@ describe("fixture adapter (fixture evidence)", () => {
     ).rejects.toMatchObject({ code: "REVISION_CONFLICT" });
   });
 
+  it("polls a queued-first concept job to completion", async () => {
+    const api = createFixtureTailorApi();
+    const detail = await api.getProject("prj_fixture_1");
+    const started = await api.startJob(
+      "prj_fixture_1",
+      { type: "generate_concept", revisionId: "rev_fixture_1" },
+      "key-concept",
+    );
+    expect(started.job.state).toBe("queued");
+    expect((await api.getJob(started.job.id)).state).toBe("running");
+    const done = await api.getJob(started.job.id);
+    expect(done.state).toBe("completed");
+    expect(done.result?.type).toBe("generate_concept");
+    // Reload recovery source: the project now reports this job as latest.
+    expect((await api.getProject(detail.project.id)).latestJob?.id).toBe(started.job.id);
+  });
+
+  it("polls a queued-first brief job to completion and an analyze job to regions", async () => {
+    const api = createFixtureTailorApi();
+    const brief = await api.createBrief("prj_fixture_1", { revisionId: "rev_fixture_1" }, "k-brief");
+    expect(brief.job.state).toBe("queued");
+    await api.getJob(brief.job.id);
+    const briefDone = await api.getJob(brief.job.id);
+    expect(briefDone.result).toEqual({ type: "assemble_brief", briefId: "brf_fixture_1" });
+
+    const analyze = await api.startJob(
+      "prj_fixture_1",
+      { type: "analyze_fabric", revisionId: "rev_fixture_1" },
+      "k-analyze",
+    );
+    await api.getJob(analyze.job.id);
+    const analyzeDone = await api.getJob(analyze.job.id);
+    expect(analyzeDone.result?.type).toBe("analyze_fabric");
+    if (analyzeDone.result?.type === "analyze_fabric") {
+      expect(analyzeDone.result.segmentation.regions).toHaveLength(1);
+      expect(analyzeDone.result.observations).toHaveLength(1);
+    }
+  });
+
+  it("persists a concept selection through patchDraft (selection-persist path)", async () => {
+    const api = createFixtureTailorApi();
+    const detail = await api.getProject("prj_fixture_1");
+    await api.patchDraft("prj_fixture_1", {
+      expectedDraftVersion: detail.draft.version,
+      input: { ...detail.draft.input, selectedConceptAssetId: "ast_fixture_concept" },
+    });
+    const after = await api.getProject("prj_fixture_1");
+    expect(after.draft.input.selectedConceptAssetId).toBe("ast_fixture_concept");
+  });
+
+  it("rejects retry for a job that is not failed/cancelled", async () => {
+    const api = createFixtureTailorApi();
+    const started = await api.startJob(
+      "prj_fixture_1",
+      { type: "generate_concept", revisionId: "rev_fixture_1" },
+      "key-retry",
+    );
+    await expect(api.retryJob(started.job.id, {}, "k-r")).rejects.toMatchObject({
+      code: "JOB_NOT_RETRYABLE",
+    });
+  });
+
   it("does not allow verify or accept actions on a measurements-free share (F10/F15)", async () => {
     const api = createFixtureTailorApi();
     await api.reviewExchange({ token: "synthetic-fixture-token-0001" });
@@ -130,6 +192,69 @@ describe("http adapter", () => {
       requestId: "req_test_1",
       currentVersion: 6,
     });
+  });
+
+  it("unwraps a {data:{job}} envelope and forwards the retry acknowledgement", async () => {
+    const job = {
+      id: "job_http_1",
+      projectId: "prj_http_1",
+      revisionId: "rev_http_1",
+      type: "generate_concept",
+      state: "failed",
+      stage: null,
+      attemptCount: 1,
+      createdAt: "2026-10-30T10:00:00.000Z",
+      updatedAt: "2026-10-30T10:00:00.000Z",
+      retryAfterMs: null,
+      result: null,
+      error: { code: "AMBIGUOUS_PROVIDER_RESULT", message: "Unclear.", retryable: true },
+    };
+    const calls: Array<{ url: string; body?: string }> = [];
+    const fetchFn = vi.fn(async (url: string, init?: { body?: string }) => {
+      calls.push({ url, ...(init?.body ? { body: init.body } : {}) });
+      // retryJob unwraps the envelope to a bare Job (jobSchema), not {job}.
+      return new Response(
+        JSON.stringify({ data: { ...job, state: "queued", error: null }, requestId: "req_http_1" }),
+        { status: 200, headers: { "Content-Type": "application/json" } },
+      );
+    });
+    const api = createHttpTailorApi(fetchFn as unknown as typeof fetch);
+    const retried = await api.retryJob(
+      "job_http_1",
+      { acknowledgePossibleProviderCost: true },
+      "retry-key-1",
+    );
+    expect(retried.state).toBe("queued");
+    expect(calls[0]?.url).toContain("/api/tailor/jobs/job_http_1/retry");
+    expect(JSON.parse(calls[0]?.body ?? "{}")).toEqual({
+      acknowledgePossibleProviderCost: true,
+    });
+
+    const envelopeFetch = vi.fn(
+      async () =>
+        new Response(JSON.stringify({ data: job, requestId: "req_http_1" }), {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        }),
+    );
+    const api2 = createHttpTailorApi(envelopeFetch as unknown as typeof fetch);
+    await expect(api2.getJob("job_http_1")).resolves.toMatchObject({ id: "job_http_1", state: "failed" });
+
+    const startFetch = vi.fn(
+      async () =>
+        new Response(
+          JSON.stringify({ data: { job, credits: { reserved: 0 } }, requestId: "req_http_1" }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        ),
+    );
+    const api3 = createHttpTailorApi(startFetch as unknown as typeof fetch);
+    const started = await api3.startJob(
+      "prj_http_1",
+      { type: "generate_concept", revisionId: "rev_http_1" },
+      "start-key-1",
+    );
+    expect(started.job.id).toBe("job_http_1");
+    expect(started.credits.reserved).toBe(0);
   });
 
   it("maps a network failure to FEATURE_UNAVAILABLE", async () => {
