@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
+import { FabricSelectionCanvas } from "@/components/tailor/FabricSelectionCanvas";
 import { TailorAppShell } from "@/components/tailor/TailorAppShell";
 import { ProjectStepper } from "@/components/tailor/ProjectStepper";
 import { DraftSaveStatus, PageError } from "@/components/tailor/status";
@@ -70,6 +71,7 @@ export function WorkspacePage() {
   const [actionError, setActionError] = useState<unknown>(null);
   const [fabricConsent, setFabricConsent] = useState(false);
   const [fabricStatus, setFabricStatus] = useState<string | null>(null);
+  const [fabricSelectionPending, setFabricSelectionPending] = useState(false);
   const [activeJobId, setActiveJobId] = useState<string | null>(null);
   const [checks, setChecks] = useState<Checks | null>(null);
   const [briefJobId, setBriefJobId] = useState<string | null>(null);
@@ -285,6 +287,18 @@ export function WorkspacePage() {
   if (input.selectedConceptAssetId) completed.push("design");
   if (input.measurements.some((m) => m.valueMm)) completed.push("measurements");
   const conceptResult = job.data?.result?.type === "generate_concept" ? job.data.result : null;
+  const fabricAnalysis =
+    job.data?.state === "completed" &&
+    job.data.result?.type === "analyze_fabric" &&
+    job.data.result.segmentation.status === "completed" &&
+    job.data.result.sourceAssetId === input.fabric.sourceAssetId
+      ? { analysisJobId: job.data.id, regions: job.data.result.segmentation.regions }
+      : null;
+  const fabricSelectionState = input.fabric.selection
+    ? input.fabric.selection.method === "sam"
+      ? ({ method: "sam", regionId: input.fabric.selection.regionId } as const)
+      : ({ method: "manual_crop" } as const)
+    : null;
   const frozenLabels = conceptResult
     ? Object.entries(conceptResult.inputSnapshot.design.optionIds).map(([group, choice]) => {
         const groupDef = template.data?.designOptions.find((o) => o.id === group);
@@ -486,52 +500,34 @@ export function WorkspacePage() {
               onFile={(f) => void handleFabricFile(f)}
             />
             {input.fabric.sourceAssetId ? (
-              <div className="space-y-3">
-                <img
-                  src={tailorApi.ownerAssetUrl(input.fabric.sourceAssetId)}
-                  alt="Your uploaded fabric"
-                  className="max-h-80 rounded-md border object-contain"
-                />
-                <div className="flex flex-wrap gap-2">
-                  <Button
-                    type="button"
-                    className="min-h-11"
-                    disabled={!me.data?.capabilities.manualCrop}
-                    onClick={async () => {
-                      try {
-                        const result = await tailorApi.fabricSelection(
-                          projectId,
-                          {
-                            sourceAssetId: input.fabric.sourceAssetId,
-                            method: "manual_crop",
-                            crop: { x: 0, y: 0, width: 1, height: 1 },
-                          },
-                          keeper.current.keyFor("fabric-selection"),
-                        );
-                        keeper.current.clear("fabric-selection");
-                        update({
-                          ...input,
-                          fabric: { ...input.fabric, selection: result.selection },
-                        });
-                      } catch (e) {
-                        setActionError(e);
-                      }
-                    }}
-                  >
-                    Use whole photo as swatch (manual selection)
-                  </Button>
-                  {!me.data?.capabilities.manualCrop ? (
-                    <p className="text-sm text-muted-foreground">
-                      Manual selection is not available yet. Upload a photo that is already closely
-                      cropped to the fabric.
-                    </p>
-                  ) : null}
-                </div>
-                <p className="text-sm text-muted-foreground">
-                  Automatic region finding runs from the Design step job flow when available. If it
-                  fails, manual selection remains available and is labelled manual, not automatic.
-                </p>
-              </div>
+              <FabricSelectionCanvas
+                sourceAssetId={input.fabric.sourceAssetId}
+                imageSrc={tailorApi.ownerAssetUrl(input.fabric.sourceAssetId)}
+                analysis={fabricAnalysis}
+                selection={fabricSelectionState}
+                disabled={fabricSelectionPending}
+                manualCropDisabled={!me.data?.capabilities.manualCrop}
+                onSelect={async (request) => {
+                  setActionError(null);
+                  setFabricSelectionPending(true);
+                  try {
+                    const result = await tailorApi.fabricSelection(
+                      projectId,
+                      request,
+                      keeper.current.keyFor("fabric-selection"),
+                    );
+                    keeper.current.clear("fabric-selection");
+                    update({
+                      ...input,
+                      fabric: { ...input.fabric, selection: result.selection },
+                    });
+                  } catch (e) {
+                    setActionError(e);
+                  } finally {
+                    setFabricSelectionPending(false);
+                  }
+                }}
+              />
             ) : null}
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-1.5">
