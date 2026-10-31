@@ -6,6 +6,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { Job } from "@/lib/tailor/contracts";
 import { IdempotencyKeyKeeper } from "@/lib/tailor/client";
 import { useRef } from "react";
+import { canRetryJob, retryNeedsCostAcknowledgement } from "./jobRecovery";
+
+const JOB_TYPE_LABEL: Record<Job["type"], string> = {
+  analyze_fabric: "Analyze fabric",
+  generate_concept: "Generate concept",
+  assemble_brief: "Compile brief",
+};
 
 const STAGE_LABEL: Record<string, string> = {
   validating: "Validating inputs",
@@ -34,7 +41,7 @@ export function JobStatusPanel({
       </CardHeader>
       <CardContent className="space-y-3">
         <p role="status" className="text-sm">
-          State: <strong>{job.state.replace(/_/g, " ")}</strong>
+          {JOB_TYPE_LABEL[job.type]} · State: <strong>{job.state.replace(/_/g, " ")}</strong>
           {job.stage ? <> · Stage: {STAGE_LABEL[job.stage] ?? job.stage}</> : null}
           <> · Attempts: {job.attemptCount}</>
         </p>
@@ -60,7 +67,7 @@ export function JobStatusPanel({
               Cancel job
             </Button>
           ) : null}
-          {(job.state === "retry_wait" || job.state === "needs_attention") && onRetry ? (
+          {canRetryJob(job) && onRetry ? (
             <Button
               type="button"
               className="min-h-11"
@@ -68,19 +75,24 @@ export function JobStatusPanel({
                 onRetry(
                   job,
                   keeper.current.keyFor(`retry-${job.id}`),
-                  job.error?.code === "AMBIGUOUS_PROVIDER_RESULT",
+                  retryNeedsCostAcknowledgement(job),
                 )
               }
             >
-              {job.error?.code === "AMBIGUOUS_PROVIDER_RESULT"
+              {retryNeedsCostAcknowledgement(job)
                 ? "Retry and acknowledge possible extra cost"
                 : "Retry job"}
             </Button>
           ) : null}
         </div>
-        {(job.state === "retry_wait" || job.state === "needs_attention") && !onRetry ? (
+        {canRetryJob(job) && !onRetry ? (
           <p className="text-sm text-muted-foreground">
             Retry is not available here. Return to the step that started this job.
+          </p>
+        ) : null}
+        {(job.state === "failed" || job.state === "cancelled") && !canRetryJob(job) ? (
+          <p className="text-sm text-muted-foreground">
+            This job cannot be retried. Start the step again to create a new job.
           </p>
         ) : null}
       </CardContent>

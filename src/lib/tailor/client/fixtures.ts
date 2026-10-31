@@ -73,6 +73,9 @@ export function createFixtureTailorApi(): TailorApi {
   let reviewGranted = false;
   let seq = 1;
   const jobs = new Map<string, Job>();
+  // Queued-first: a started job completes only after getJob polls advance it,
+  // so polling/recovery behaviour is exercisable in fixture mode.
+  const pendingResults = new Map<string, Job["result"]>();
 
   const summary = () => ({
     id: project.project.id,
@@ -270,6 +273,14 @@ export function createFixtureTailorApi(): TailorApi {
           briefId: brief.id,
           status: brief.state,
         },
+        ...[...jobs.values()].map((j) => ({
+          kind: "job" as const,
+          id: j.id,
+          createdAt: NOW,
+          summary: `Job ${j.type} ${j.state}`,
+          revisionId: j.revisionId,
+          status: j.state,
+        })),
       ],
       nextCursor: null,
     }),
@@ -311,31 +322,45 @@ export function createFixtureTailorApi(): TailorApi {
         projectId: project.project.id,
         revisionId: b.revisionId,
         type: b.type,
-        state: "completed",
-        stage: "persisting",
+        state: "queued",
+        stage: "validating",
         attemptCount: 1,
         createdAt: NOW,
         updatedAt: NOW,
         retryAfterMs: null,
-        result:
-          b.type === "generate_concept"
-            ? {
-                type: "generate_concept",
-                asset: fixtureConceptAsset,
-                inputSnapshot: fixtureInputComplete,
-                modelId: "fixture-model",
-                promptVersion: "fixture-v1",
-                providerRequestId: null,
-                warnings: [],
-              }
-            : {
-                type: "analyze_fabric",
-                sourceAssetId: fixtureFabricAsset.id,
-                segmentation: { status: "completed", regions: [], errorCode: null },
-                observations: [],
-              },
+        result: null,
         error: null,
       });
+      pendingResults.set(
+        job.id,
+        b.type === "generate_concept"
+          ? {
+              type: "generate_concept",
+              asset: clone(fixtureConceptAsset),
+              inputSnapshot: clone(fixtureInputComplete),
+              modelId: "fixture-model",
+              promptVersion: "fixture-v1",
+              providerRequestId: null,
+              warnings: [],
+            }
+          : {
+              type: "analyze_fabric",
+              sourceAssetId:
+                project.draft.input.fabric.sourceAssetId ?? fixtureFabricAsset.id,
+              segmentation: {
+                status: "completed",
+                regions: [
+                  {
+                    id: "region_fixture_1",
+                    maskAssetId: fixtureFabricAsset.id,
+                    bbox: { x: 0.1, y: 0.1, width: 0.8, height: 0.8 },
+                  },
+                ],
+                errorCode: null,
+              },
+              observations: [{ key: "weave", value: "plain", uncertainty: "uncertain" }],
+            },
+      );
       jobs.set(job.id, job);
       project = { ...project, latestJob: job };
       return { job: clone(job), credits: { reserved: 0 } };
@@ -343,6 +368,23 @@ export function createFixtureTailorApi(): TailorApi {
     getJob: async (jobId) => {
       const job = jobs.get(jobId);
       if (!job) throw error("NOT_FOUND", "Job not found.");
+      if (job.state === "queued") {
+        const running = { ...job, state: "running" as const };
+        jobs.set(jobId, running);
+        return clone(running);
+      }
+      if (job.state === "running") {
+        const completed = {
+          ...job,
+          state: "completed" as const,
+          stage: "persisting" as const,
+          result: pendingResults.get(jobId) ?? job.result,
+        };
+        jobs.set(jobId, completed);
+        pendingResults.delete(jobId);
+        if (project.latestJob?.id === jobId) project = { ...project, latestJob: completed };
+        return clone(completed);
+      }
       return clone(job);
     },
     cancelJob: async (jobId) => {
@@ -354,13 +396,13 @@ export function createFixtureTailorApi(): TailorApi {
     },
     retryJob: async (jobId) => {
       const job = jobs.get(jobId);
-      if (!job || (job.state !== "retry_wait" && job.state !== "needs_attention")) {
+      if (!job || (job.state !== "failed" && job.state !== "cancelled")) {
         throw error(
           "JOB_NOT_RETRYABLE",
           "This job cannot be retried. Start the step again to create a new job.",
         );
       }
-      const retried = { ...job, state: "queued" as const };
+      const retried = { ...job, state: "queued" as const, stage: "validating" as const, error: null };
       jobs.set(jobId, retried);
       return clone(retried);
     },
@@ -377,16 +419,18 @@ export function createFixtureTailorApi(): TailorApi {
         projectId: project.project.id,
         revisionId: b.revisionId,
         type: "assemble_brief",
-        state: "completed",
-        stage: "persisting",
+        state: "queued",
+        stage: "validating",
         attemptCount: 1,
         createdAt: NOW,
         updatedAt: NOW,
         retryAfterMs: null,
-        result: { type: "assemble_brief", briefId: brief.id },
+        result: null,
         error: null,
       });
+      pendingResults.set(job.id, { type: "assemble_brief", briefId: brief.id });
       jobs.set(job.id, job);
+      project = { ...project, latestJob: job };
       return { job: clone(job) };
     },
     getBrief: async (briefId) => {

@@ -2,6 +2,7 @@ import { createFileRoute, Link, Outlet, useLocation, useNavigate } from "@tansta
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
@@ -15,6 +16,13 @@ import { ProjectStepper } from "@/components/tailor/ProjectStepper";
 import { DraftSaveStatus, PageError } from "@/components/tailor/status";
 import { ConstraintCard, FabricUploadField, MeasurementField } from "@/components/tailor/fields";
 import { ConceptViewer, JobStatusPanel } from "@/components/tailor/panels";
+import {
+  isTerminalJob,
+  pollIntervalForJob,
+  pollUploadUntilSettled,
+  seededJobIds,
+  withoutSelectedConcept,
+} from "@/components/tailor/jobRecovery";
 import { normalizeStep, type WorkspaceStep } from "@/components/tailor/types";
 import {
   IdempotencyKeyKeeper,
@@ -73,16 +81,24 @@ export function WorkspacePage() {
   const [fabricStatus, setFabricStatus] = useState<string | null>(null);
   const [fabricSelectionPending, setFabricSelectionPending] = useState(false);
   const [activeJobId, setActiveJobId] = useState<string | null>(null);
+  const [analyzeJobId, setAnalyzeJobId] = useState<string | null>(null);
   const [checks, setChecks] = useState<Checks | null>(null);
   const [briefJobId, setBriefJobId] = useState<string | null>(null);
   const [compiledBriefId, setCompiledBriefId] = useState<string | null>(null);
+  const [selectingConcept, setSelectingConcept] = useState(false);
+  const terminalHandled = useRef(new Set<string>());
 
   useEffect(() => {
     if (project.data && input === null) {
       setInput(project.data.draft.input);
       setDraftVersion(project.data.draft.version);
       setProjectVersion(project.data.project.version);
-      if (project.data.latestJob) setActiveJobId(project.data.latestJob.id);
+      // Reload recovery: resume whichever job the server last ran, by type.
+      // Functional guards keep a job started this session from being reseeded.
+      const seeded = seededJobIds(project.data.latestJob);
+      if (seeded.activeJobId) setActiveJobId((prev) => prev ?? seeded.activeJobId);
+      if (seeded.analyzeJobId) setAnalyzeJobId((prev) => prev ?? seeded.analyzeJobId);
+      if (seeded.briefJobId) setBriefJobId((prev) => prev ?? seeded.briefJobId);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [project.data]);
@@ -100,12 +116,67 @@ export function WorkspacePage() {
     queryFn: () => tailorApi.getJob(activeJobId as string),
     enabled: Boolean(activeJobId),
     retry: false,
-    refetchInterval: (query) => {
-      const data = query.state.data as Job | undefined;
-      if (!data || ["completed", "failed", "cancelled"].includes(data.state)) return false;
-      return document.hidden ? 10000 : 2000;
-    },
+    refetchInterval: (query) => pollIntervalForJob(query.state.data as Job | undefined),
   });
+
+  const analyzeJob = useQuery({
+    queryKey: tailorKeys.job(userId, analyzeJobId ?? "none"),
+    queryFn: () => tailorApi.getJob(analyzeJobId as string),
+    enabled: Boolean(analyzeJobId),
+    retry: false,
+    refetchInterval: (query) => pollIntervalForJob(query.state.data as Job | undefined),
+  });
+
+  // On terminal completion, refresh project/brief so restored state (for
+  // example a compiled brief) loads through the normal queries.
+  useEffect(() => {
+    for (const tracked of [job.data, analyzeJob.data]) {
+      if (!tracked || !isTerminalJob(tracked)) continue;
+      const key = `${tracked.id}:${tracked.state}`;
+      if (terminalHandled.current.has(key)) continue;
+      terminalHandled.current.add(key);
+      void queryClient.invalidateQueries({
+        queryKey: tailorKeys.project(userId, projectId),
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [job.data, analyzeJob.data]);
+
+  function jobPanelHandlers(refetch: () => unknown) {
+    return {
+      onCancel: (j: Job, key: string) => {
+        void tailorApi
+          .cancelJob(j.id, key)
+          .then(() => refetch())
+          .catch((e) => setActionError(e));
+      },
+      onRetry: (j: Job, key: string, acknowledge: boolean) => {
+        void tailorApi
+          .retryJob(
+            j.id,
+            acknowledge ? { acknowledgePossibleProviderCost: true } : {},
+            key,
+          )
+          .then(() => refetch())
+          .catch((e) => setActionError(e));
+      },
+    };
+  }
+
+  async function selectConcept(assetId: string) {
+    if (!input) return;
+    const next = { ...input, selectedConceptAssetId: assetId };
+    setSelectingConcept(true);
+    setActionError(null);
+    try {
+      await saveDraft(next);
+      setInput(next);
+    } catch (e) {
+      setActionError(e);
+    } finally {
+      setSelectingConcept(false);
+    }
+  }
 
   function update(next: ProjectInput) {
     setInput(next);
@@ -151,11 +222,15 @@ export function WorkspacePage() {
     onError: (e) => setActionError(e),
   });
 
-  async function runSequence(action: "concept" | "checks" | "brief") {
+  async function runSequence(action: "concept" | "checks" | "brief" | "analyze") {
     if (!input) return;
     setActionError(null);
     try {
-      const revision = await saveThenFreeze(input);
+      // A new concept supersedes any earlier selection; clear it in the
+      // draft that is about to be frozen so it cannot go stale.
+      const effective = action === "concept" ? withoutSelectedConcept(input) : input;
+      if (effective !== input) setInput(effective);
+      const revision = await saveThenFreeze(effective);
       if (action === "concept") {
         const started = await tailorApi.startJob(
           projectId,
@@ -164,6 +239,14 @@ export function WorkspacePage() {
         );
         keeper.current.clear("generate-concept");
         setActiveJobId(started.job.id);
+      } else if (action === "analyze") {
+        const started = await tailorApi.startJob(
+          projectId,
+          { type: "analyze_fabric", revisionId: revision.id },
+          keeper.current.keyFor("analyze-fabric"),
+        );
+        keeper.current.clear("analyze-fabric");
+        setAnalyzeJobId(started.job.id);
       } else if (action === "checks") {
         setChecks(await tailorApi.runChecks(projectId, { revisionId: revision.id }));
       } else {
@@ -187,15 +270,26 @@ export function WorkspacePage() {
     queryFn: () => tailorApi.getJob(briefJobId as string),
     enabled: Boolean(briefJobId),
     retry: false,
-    refetchInterval: (query) => {
-      const data = query.state.data as Job | undefined;
-      if (!data || ["completed", "failed", "cancelled"].includes(data.state)) return false;
-      return 2000;
-    },
+    refetchInterval: (query) => pollIntervalForJob(query.state.data as Job | undefined),
   });
   useEffect(() => {
     if (briefJob.data?.result?.type === "assemble_brief")
       setCompiledBriefId(briefJob.data.result.briefId);
+    if (briefJob.data && isTerminalJob(briefJob.data)) {
+      const key = `${briefJob.data.id}:${briefJob.data.state}`;
+      if (!terminalHandled.current.has(key)) {
+        terminalHandled.current.add(key);
+        void queryClient.invalidateQueries({
+          queryKey: tailorKeys.project(userId, projectId),
+        });
+        if (briefJob.data.result?.type === "assemble_brief") {
+          void queryClient.invalidateQueries({
+            queryKey: tailorKeys.brief(userId, briefJob.data.result.briefId),
+          });
+        }
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [briefJob.data]);
 
   const compiledBrief = useQuery({
@@ -247,20 +341,37 @@ export function WorkspacePage() {
       keeper.current.clear("fabric-upload");
       await tailorApi.uploadContent(intent.putUrl, file);
       setFabricStatus("Checking image");
-      const status = await tailorApi.completeUpload(
+      const completed = await tailorApi.completeUpload(
         projectId,
         intent.uploadId,
         keeper.current.keyFor("fabric-complete"),
       );
       keeper.current.clear("fabric-complete");
+      const status =
+        completed.status === "ready" || completed.status === "rejected" || completed.status === "expired"
+          ? completed
+          : await pollUploadUntilSettled(
+              () => tailorApi.getUpload(projectId, intent.uploadId),
+              { initial: completed },
+            );
       if (status.status !== "ready" || !status.asset) {
         setFabricStatus(
-          status.error?.message ?? "Image is still being checked. Refresh to see its status.",
+          status.error?.message ??
+            (status.status === "ready"
+              ? "Image check finished without a usable photo. Upload another photo."
+              : "Image is still being checked. Wait a moment, then upload again if it does not finish."),
         );
         return;
       }
       setFabricStatus("Photo ready");
-      update({ ...input, fabric: { ...input.fabric, sourceAssetId: status.asset.id } });
+      update({
+        ...withoutSelectedConcept(input),
+        fabric: {
+          ...input.fabric,
+          sourceAssetId: status.asset.id,
+          selection: null,
+        },
+      });
     } catch (e) {
       setFabricStatus(null);
       setActionError(e);
@@ -287,12 +398,14 @@ export function WorkspacePage() {
   if (input.selectedConceptAssetId) completed.push("design");
   if (input.measurements.some((m) => m.valueMm)) completed.push("measurements");
   const conceptResult = job.data?.result?.type === "generate_concept" ? job.data.result : null;
+  const analyzeResult =
+    analyzeJob.data?.result?.type === "analyze_fabric" ? analyzeJob.data.result : null;
   const fabricAnalysis =
-    job.data?.state === "completed" &&
-    job.data.result?.type === "analyze_fabric" &&
-    job.data.result.segmentation.status === "completed" &&
-    job.data.result.sourceAssetId === input.fabric.sourceAssetId
-      ? { analysisJobId: job.data.id, regions: job.data.result.segmentation.regions }
+    analyzeJob.data?.state === "completed" &&
+    analyzeResult &&
+    analyzeResult.segmentation.status === "completed" &&
+    analyzeResult.sourceAssetId === input.fabric.sourceAssetId
+      ? { analysisJobId: analyzeJob.data.id, regions: analyzeResult.segmentation.regions }
       : null;
   const fabricSelectionState = input.fabric.selection
     ? input.fabric.selection.method === "sam"
@@ -500,6 +613,69 @@ export function WorkspacePage() {
               onFile={(f) => void handleFabricFile(f)}
             />
             {input.fabric.sourceAssetId ? (
+              <div className="space-y-3">
+                <p className="text-sm">
+                  Analyze the photo to find fabric regions you can pick as a swatch. Analysis
+                  suggests regions and visible-fabric observations only; it does not measure how
+                  much fabric you have or guarantee fit.
+                </p>
+                <Button
+                  type="button"
+                  className="min-h-11"
+                  disabled={analyzeJob.data ? !isTerminalJob(analyzeJob.data) : false}
+                  onClick={() => void runSequence("analyze")}
+                >
+                  {analyzeJob.data && !isTerminalJob(analyzeJob.data)
+                    ? "Analyzing fabric"
+                    : analyzeResult
+                      ? "Analyze fabric again"
+                      : "Analyze fabric"}
+                </Button>
+                {analyzeJob.isError ? (
+                  <PageError error={analyzeJob.error} onRetry={() => void analyzeJob.refetch()} />
+                ) : analyzeJob.data ? (
+                  <JobStatusPanel job={analyzeJob.data} {...jobPanelHandlers(() => analyzeJob.refetch())} />
+                ) : (
+                  <p className="text-sm text-muted-foreground">
+                    No analysis yet. Manual crop below works without analysis.
+                  </p>
+                )}
+                {analyzeJob.data?.state === "completed" && analyzeResult ? (
+                  analyzeResult.segmentation.status !== "completed" ? (
+                    <p className="text-sm text-muted-foreground">
+                      Analysis finished without usable regions
+                      {analyzeResult.segmentation.errorCode
+                        ? ` (${analyzeResult.segmentation.errorCode})`
+                        : ""}
+                      . Manual crop below is still available.
+                    </p>
+                  ) : analyzeResult.segmentation.regions.length ? (
+                    <div className="space-y-2">
+                      <p className="text-sm">
+                        Analysis completed: {analyzeResult.segmentation.regions.length} region
+                        {analyzeResult.segmentation.regions.length === 1 ? "" : "s"} found. Pick
+                        one below, or use manual crop.
+                      </p>
+                      {analyzeResult.observations.length ? (
+                        <ul className="list-disc space-y-1 pl-5 text-sm">
+                          {analyzeResult.observations.map((o) => (
+                            <li key={o.key}>
+                              {o.key}: {o.value}
+                              {o.uncertainty === "uncertain" ? " (uncertain)" : ""}
+                            </li>
+                          ))}
+                        </ul>
+                      ) : null}
+                    </div>
+                  ) : (
+                    <p className="text-sm">
+                      Analysis completed: 0 regions found. Manual crop below is still available.
+                    </p>
+                  )
+                ) : null}
+              </div>
+            ) : null}
+            {input.fabric.sourceAssetId ? (
               <FabricSelectionCanvas
                 sourceAssetId={input.fabric.sourceAssetId}
                 imageSrc={tailorApi.ownerAssetUrl(input.fabric.sourceAssetId)}
@@ -518,7 +694,7 @@ export function WorkspacePage() {
                     );
                     keeper.current.clear("fabric-selection");
                     update({
-                      ...input,
+                      ...withoutSelectedConcept(input),
                       fabric: { ...input.fabric, selection: result.selection },
                     });
                   } catch (e) {
@@ -652,7 +828,7 @@ export function WorkspacePage() {
                     value={input.design.optionIds[option.id] ?? ""}
                     onValueChange={(v) =>
                       update({
-                        ...input,
+                        ...withoutSelectedConcept(input),
                         design: {
                           ...input.design,
                           optionIds: { ...input.design.optionIds, [option.id]: v },
@@ -692,22 +868,10 @@ export function WorkspacePage() {
                 Confirm a fabric swatch in the Fabric step before generating.
               </p>
             ) : null}
-            {job.data ? (
-              <JobStatusPanel
-                job={job.data}
-                onCancel={(j, key) => {
-                  void tailorApi
-                    .cancelJob(j.id, key)
-                    .then(() => job.refetch())
-                    .catch((e) => setActionError(e));
-                }}
-                onRetry={(j, key) => {
-                  void tailorApi
-                    .retryJob(j.id, {}, key)
-                    .then(() => job.refetch())
-                    .catch((e) => setActionError(e));
-                }}
-              />
+            {job.isError ? (
+              <PageError error={job.error} onRetry={() => void job.refetch()} />
+            ) : job.data ? (
+              <JobStatusPanel job={job.data} {...jobPanelHandlers(() => job.refetch())} />
             ) : null}
             <ConceptViewer
               conceptAssetId={conceptResult?.asset.id ?? input.selectedConceptAssetId}
@@ -716,13 +880,30 @@ export function WorkspacePage() {
               assetUrl={(id) => tailorApi.ownerAssetUrl(id)}
             />
             {conceptResult ? (
-              <Button
-                type="button"
-                className="min-h-11"
-                onClick={() => update({ ...input, selectedConceptAssetId: conceptResult.asset.id })}
-              >
-                Use this concept
-              </Button>
+              <div className="flex flex-wrap items-center gap-2">
+                <Button
+                  type="button"
+                  className="min-h-11"
+                  disabled={
+                    selectingConcept || input.selectedConceptAssetId === conceptResult.asset.id
+                  }
+                  onClick={() => void selectConcept(conceptResult.asset.id)}
+                >
+                  {selectingConcept
+                    ? "Saving selection"
+                    : input.selectedConceptAssetId === conceptResult.asset.id
+                      ? "Concept selected"
+                      : "Use this concept"}
+                </Button>
+                {input.selectedConceptAssetId === conceptResult.asset.id ? (
+                  <Badge variant="secondary">Selected concept</Badge>
+                ) : null}
+              </div>
+            ) : input.selectedConceptAssetId ? (
+              <p className="flex flex-wrap items-center gap-2 text-sm">
+                <Badge variant="secondary">Selected concept</Badge>
+                Saved selection for this project.
+              </p>
             ) : null}
           </section>
         ) : null}
@@ -876,7 +1057,17 @@ export function WorkspacePage() {
                 Compile brief
               </Button>
             </div>
-            {briefJob.data ? <JobStatusPanel job={briefJob.data} /> : null}
+            {briefJob.isError ? (
+              <PageError error={briefJob.error} onRetry={() => void briefJob.refetch()} />
+            ) : briefJob.data ? (
+              <JobStatusPanel job={briefJob.data} {...jobPanelHandlers(() => briefJob.refetch())} />
+            ) : null}
+            {compiledBrief.isError ? (
+              <PageError
+                error={compiledBrief.error}
+                onRetry={() => void compiledBrief.refetch()}
+              />
+            ) : null}
             {compiledBrief.data ? (
               <div className="space-y-3">
                 <p className="text-sm">
