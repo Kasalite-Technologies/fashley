@@ -12,13 +12,10 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as AccountRouteImport } from './routes/account'
-import { Route as AuthRouteImport } from './routes/auth'
 import { Route as BagDesignRouteImport } from './routes/bag-design'
-import { Route as CoinsRouteImport } from './routes/coins'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as DiscoverRouteImport } from './routes/discover'
 import { Route as PrivacyRouteImport } from './routes/privacy'
-import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as ReviewRouteImport } from './routes/review'
 import { Route as ShoeDesignRouteImport } from './routes/shoe-design'
 import { Route as ShopRouteImport } from './routes/shop'
@@ -26,11 +23,9 @@ import { Route as StudioRouteImport } from './routes/studio'
 import { Route as TailorRouteImport } from './routes/tailor'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as WardrobeRouteImport } from './routes/wardrobe'
-import { Route as ApiEditImageRouteImport } from './routes/api/edit-image'
 import { Route as ProductHandleRouteImport } from './routes/product.$handle'
 import { Route as ReviewTokenRouteImport } from './routes/review.$token'
 import { Route as TailorNewRouteImport } from './routes/tailor.new'
-import { Route as ApiPublicPaystackRouteImport } from './routes/api/public/paystack'
 import { Route as ApiTailorConsentsRouteImport } from './routes/api/tailor/consents'
 import { Route as ApiTailorMeRouteImport } from './routes/api/tailor/me'
 import { Route as ApiTailorProjectsRouteImport } from './routes/api/tailor/projects'
@@ -82,19 +77,9 @@ const AccountRoute = AccountRouteImport.update({
   path: '/account',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthRoute = AuthRouteImport.update({
-  id: '/auth',
-  path: '/auth',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const BagDesignRoute = BagDesignRouteImport.update({
   id: '/bag-design',
   path: '/bag-design',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CoinsRoute = CoinsRouteImport.update({
-  id: '/coins',
-  path: '/coins',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ContactRoute = ContactRouteImport.update({
@@ -110,11 +95,6 @@ const DiscoverRoute = DiscoverRouteImport.update({
 const PrivacyRoute = PrivacyRouteImport.update({
   id: '/privacy',
   path: '/privacy',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ResetPasswordRoute = ResetPasswordRouteImport.update({
-  id: '/reset-password',
-  path: '/reset-password',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ReviewRoute = ReviewRouteImport.update({
@@ -152,11 +132,6 @@ const WardrobeRoute = WardrobeRouteImport.update({
   path: '/wardrobe',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiEditImageRoute = ApiEditImageRouteImport.update({
-  id: '/api/edit-image',
-  path: '/api/edit-image',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ProductHandleRoute = ProductHandleRouteImport.update({
   id: '/product/$handle',
   path: '/product/$handle',
@@ -171,11 +146,6 @@ const TailorNewRoute = TailorNewRouteImport.update({
   id: '/new',
   path: '/new',
   getParentRoute: () => TailorRoute,
-} as any)
-const ApiPublicPaystackRoute = ApiPublicPaystackRouteImport.update({
-  id: '/api/public/paystack',
-  path: '/api/public/paystack',
-  getParentRoute: () => rootRouteImport,
 } as any)
 const ApiTailorConsentsRoute = ApiTailorConsentsRouteImport.update({
   id: '/api/tailor/consents',
@@ -373,13 +343,10 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/account': typeof AccountRoute
-  '/auth': typeof AuthRoute
   '/bag-design': typeof BagDesignRoute
-  '/coins': typeof CoinsRoute
   '/contact': typeof ContactRoute
   '/discover': typeof DiscoverRoute
   '/privacy': typeof PrivacyRoute
-  '/reset-password': typeof ResetPasswordRoute
   '/review': typeof ReviewRouteWithChildren
   '/shoe-design': typeof ShoeDesignRoute
   '/shop': typeof ShopRoute
@@ -387,11 +354,9 @@ export interface FileRoutesByFullPath {
   '/tailor': typeof TailorRouteWithChildren
   '/terms': typeof TermsRoute
   '/wardrobe': typeof WardrobeRoute
-  '/api/edit-image': typeof ApiEditImageRoute
   '/product/$handle': typeof ProductHandleRoute
   '/review/$token': typeof ReviewTokenRoute
   '/tailor/new': typeof TailorNewRoute
-  '/api/public/paystack': typeof ApiPublicPaystackRoute
   '/api/tailor/consents': typeof ApiTailorConsentsRouteWithChildren
   '/api/tailor/me': typeof ApiTailorMeRouteWithChildren
   '/api/tailor/projects': typeof ApiTailorProjectsRouteWithChildren
@@ -432,13 +397,10 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/account': typeof AccountRoute
-  '/auth': typeof AuthRoute
   '/bag-design': typeof BagDesignRoute
-  '/coins': typeof CoinsRoute
   '/contact': typeof ContactRoute
   '/discover': typeof DiscoverRoute
   '/privacy': typeof PrivacyRoute
-  '/reset-password': typeof ResetPasswordRoute
   '/review': typeof ReviewRouteWithChildren
   '/shoe-design': typeof ShoeDesignRoute
   '/shop': typeof ShopRoute
@@ -446,11 +408,9 @@ export interface FileRoutesByTo {
   '/tailor': typeof TailorRouteWithChildren
   '/terms': typeof TermsRoute
   '/wardrobe': typeof WardrobeRoute
-  '/api/edit-image': typeof ApiEditImageRoute
   '/product/$handle': typeof ProductHandleRoute
   '/review/$token': typeof ReviewTokenRoute
   '/tailor/new': typeof TailorNewRoute
-  '/api/public/paystack': typeof ApiPublicPaystackRoute
   '/api/tailor/consents': typeof ApiTailorConsentsRouteWithChildren
   '/api/tailor/me': typeof ApiTailorMeRouteWithChildren
   '/api/tailor/projects': typeof ApiTailorProjectsRouteWithChildren
@@ -492,13 +452,10 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/account': typeof AccountRoute
-  '/auth': typeof AuthRoute
   '/bag-design': typeof BagDesignRoute
-  '/coins': typeof CoinsRoute
   '/contact': typeof ContactRoute
   '/discover': typeof DiscoverRoute
   '/privacy': typeof PrivacyRoute
-  '/reset-password': typeof ResetPasswordRoute
   '/review': typeof ReviewRouteWithChildren
   '/shoe-design': typeof ShoeDesignRoute
   '/shop': typeof ShopRoute
@@ -506,11 +463,9 @@ export interface FileRoutesById {
   '/tailor': typeof TailorRouteWithChildren
   '/terms': typeof TermsRoute
   '/wardrobe': typeof WardrobeRoute
-  '/api/edit-image': typeof ApiEditImageRoute
   '/product/$handle': typeof ProductHandleRoute
   '/review/$token': typeof ReviewTokenRoute
   '/tailor/new': typeof TailorNewRoute
-  '/api/public/paystack': typeof ApiPublicPaystackRoute
   '/api/tailor/consents': typeof ApiTailorConsentsRouteWithChildren
   '/api/tailor/me': typeof ApiTailorMeRouteWithChildren
   '/api/tailor/projects': typeof ApiTailorProjectsRouteWithChildren
@@ -553,13 +508,10 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/account'
-    | '/auth'
     | '/bag-design'
-    | '/coins'
     | '/contact'
     | '/discover'
     | '/privacy'
-    | '/reset-password'
     | '/review'
     | '/shoe-design'
     | '/shop'
@@ -567,11 +519,9 @@ export interface FileRouteTypes {
     | '/tailor'
     | '/terms'
     | '/wardrobe'
-    | '/api/edit-image'
     | '/product/$handle'
     | '/review/$token'
     | '/tailor/new'
-    | '/api/public/paystack'
     | '/api/tailor/consents'
     | '/api/tailor/me'
     | '/api/tailor/projects'
@@ -612,13 +562,10 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/account'
-    | '/auth'
     | '/bag-design'
-    | '/coins'
     | '/contact'
     | '/discover'
     | '/privacy'
-    | '/reset-password'
     | '/review'
     | '/shoe-design'
     | '/shop'
@@ -626,11 +573,9 @@ export interface FileRouteTypes {
     | '/tailor'
     | '/terms'
     | '/wardrobe'
-    | '/api/edit-image'
     | '/product/$handle'
     | '/review/$token'
     | '/tailor/new'
-    | '/api/public/paystack'
     | '/api/tailor/consents'
     | '/api/tailor/me'
     | '/api/tailor/projects'
@@ -671,13 +616,10 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/account'
-    | '/auth'
     | '/bag-design'
-    | '/coins'
     | '/contact'
     | '/discover'
     | '/privacy'
-    | '/reset-password'
     | '/review'
     | '/shoe-design'
     | '/shop'
@@ -685,11 +627,9 @@ export interface FileRouteTypes {
     | '/tailor'
     | '/terms'
     | '/wardrobe'
-    | '/api/edit-image'
     | '/product/$handle'
     | '/review/$token'
     | '/tailor/new'
-    | '/api/public/paystack'
     | '/api/tailor/consents'
     | '/api/tailor/me'
     | '/api/tailor/projects'
@@ -731,13 +671,10 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
   AccountRoute: typeof AccountRoute
-  AuthRoute: typeof AuthRoute
   BagDesignRoute: typeof BagDesignRoute
-  CoinsRoute: typeof CoinsRoute
   ContactRoute: typeof ContactRoute
   DiscoverRoute: typeof DiscoverRoute
   PrivacyRoute: typeof PrivacyRoute
-  ResetPasswordRoute: typeof ResetPasswordRoute
   ReviewRoute: typeof ReviewRouteWithChildren
   ShoeDesignRoute: typeof ShoeDesignRoute
   ShopRoute: typeof ShopRoute
@@ -745,9 +682,7 @@ export interface RootRouteChildren {
   TailorRoute: typeof TailorRouteWithChildren
   TermsRoute: typeof TermsRoute
   WardrobeRoute: typeof WardrobeRoute
-  ApiEditImageRoute: typeof ApiEditImageRoute
   ProductHandleRoute: typeof ProductHandleRoute
-  ApiPublicPaystackRoute: typeof ApiPublicPaystackRoute
   ApiTailorConsentsRoute: typeof ApiTailorConsentsRouteWithChildren
   ApiTailorMeRoute: typeof ApiTailorMeRouteWithChildren
   ApiTailorProjectsRoute: typeof ApiTailorProjectsRouteWithChildren
@@ -785,25 +720,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AccountRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/auth': {
-      id: '/auth'
-      path: '/auth'
-      fullPath: '/auth'
-      preLoaderRoute: typeof AuthRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/bag-design': {
       id: '/bag-design'
       path: '/bag-design'
       fullPath: '/bag-design'
       preLoaderRoute: typeof BagDesignRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/coins': {
-      id: '/coins'
-      path: '/coins'
-      fullPath: '/coins'
-      preLoaderRoute: typeof CoinsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/contact': {
@@ -825,13 +746,6 @@ declare module '@tanstack/react-router' {
       path: '/privacy'
       fullPath: '/privacy'
       preLoaderRoute: typeof PrivacyRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/reset-password': {
-      id: '/reset-password'
-      path: '/reset-password'
-      fullPath: '/reset-password'
-      preLoaderRoute: typeof ResetPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/review': {
@@ -883,13 +797,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WardrobeRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/edit-image': {
-      id: '/api/edit-image'
-      path: '/api/edit-image'
-      fullPath: '/api/edit-image'
-      preLoaderRoute: typeof ApiEditImageRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/product/$handle': {
       id: '/product/$handle'
       path: '/product/$handle'
@@ -910,13 +817,6 @@ declare module '@tanstack/react-router' {
       fullPath: '/tailor/new'
       preLoaderRoute: typeof TailorNewRouteImport
       parentRoute: typeof TailorRoute
-    }
-    '/api/public/paystack': {
-      id: '/api/public/paystack'
-      path: '/api/public/paystack'
-      fullPath: '/api/public/paystack'
-      preLoaderRoute: typeof ApiPublicPaystackRouteImport
-      parentRoute: typeof rootRouteImport
     }
     '/api/tailor/consents': {
       id: '/api/tailor/consents'
@@ -1342,13 +1242,10 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
   AccountRoute: AccountRoute,
-  AuthRoute: AuthRoute,
   BagDesignRoute: BagDesignRoute,
-  CoinsRoute: CoinsRoute,
   ContactRoute: ContactRoute,
   DiscoverRoute: DiscoverRoute,
   PrivacyRoute: PrivacyRoute,
-  ResetPasswordRoute: ResetPasswordRoute,
   ReviewRoute: ReviewRouteWithChildren,
   ShoeDesignRoute: ShoeDesignRoute,
   ShopRoute: ShopRoute,
@@ -1356,9 +1253,7 @@ const rootRouteChildren: RootRouteChildren = {
   TailorRoute: TailorRouteWithChildren,
   TermsRoute: TermsRoute,
   WardrobeRoute: WardrobeRoute,
-  ApiEditImageRoute: ApiEditImageRoute,
   ProductHandleRoute: ProductHandleRoute,
-  ApiPublicPaystackRoute: ApiPublicPaystackRoute,
   ApiTailorConsentsRoute: ApiTailorConsentsRouteWithChildren,
   ApiTailorMeRoute: ApiTailorMeRouteWithChildren,
   ApiTailorProjectsRoute: ApiTailorProjectsRouteWithChildren,

@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { DesignStudio } from "@/components/DesignStudio";
+import { SiteHeader } from "@/components/SiteHeader";
+import { DesignPreview } from "@/components/DesignPreview";
 
 export const Route = createFileRoute("/studio")({
   head: () => ({ meta: [
@@ -9,5 +10,10 @@ export const Route = createFileRoute("/studio")({
     { property: "og:description", content: "Upload your Ankara, kente, lace or adire. Choose a cut and see outfit designs in your print." },
     { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary_large_image" },
   ] }),
-  component: () => <DesignStudio kind="outfits" />,
+  component: () => (
+    <div className="min-h-screen">
+      <SiteHeader />
+      <DesignPreview kind="outfits" />
+    </div>
+  ),
 });

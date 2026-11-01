@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { DesignStudio } from "@/components/DesignStudio";
+import { SiteHeader } from "@/components/SiteHeader";
+import { DesignPreview } from "@/components/DesignPreview";
 
 export const Route = createFileRoute("/shoe-design")({
   head: () => ({ meta: [
@@ -9,5 +10,10 @@ export const Route = createFileRoute("/shoe-design")({
     { property: "og:description", content: "See shoe ideas from your fabric or leather photo. Choose the shoe type, style and hardware." },
     { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary_large_image" },
   ] }),
-  component: () => <DesignStudio kind="shoes" />,
+  component: () => (
+    <div className="min-h-screen">
+      <SiteHeader />
+      <DesignPreview kind="shoes" />
+    </div>
+  ),
 });

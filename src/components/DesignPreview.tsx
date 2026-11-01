@@ -1,6 +1,4 @@
-import { Link } from '@tanstack/react-router';
 import { Heart, NotebookPen, Share2 } from 'lucide-react';
-import { Button } from './ui/button';
 import type { DesignKind } from '@/lib/design-options';
 import waxFabric from '@/assets/previews/0.jpg';
 import dress from '@/assets/previews/1.jpg';
@@ -79,10 +77,6 @@ const collections = [
   { name: 'Office', src: officeBag, alt: 'Saved wax print handbag', note: 'Line the inside in plain black.', fav: true },
 ];
 
-function Cta({ label }: { label: string }) {
-  return <><Button asChild size="lg" className="mt-8"><Link to="/auth">{label}</Link></Button><p className="mt-3 text-sm text-muted-foreground">Start with three free images. Saved designs stay in your account.</p></>;
-}
-
 function Steps({ heading, steps }: { heading: string; steps: Step[] }) {
   return <section className="mt-10 border-t border-border pt-8"><h2 className="text-3xl">{heading}</h2><ol className="mt-5 grid gap-6 md:grid-cols-3">{steps.map(([title, text], i) => <li key={title}><p className="text-sm text-muted-foreground">0{i + 1}</p><h3 className="mt-2 text-2xl">{title}</h3><p className="mt-2 text-sm">{text}</p></li>)}</ol></section>;
 }
@@ -107,7 +101,6 @@ function WardrobePreview() {
       ['File it by occasion', 'Put it in a collection like Wedding guest or Office.'],
       ['Brief your tailor', 'Add a note, then share it on WhatsApp before your fitting.'],
     ]} />
-    <Cta label="Sign in to start your wardrobe" />
   </main>;
 }
 
@@ -124,6 +117,5 @@ export function DesignPreview({ kind = 'outfits', wardrobe = false }: { kind?: D
     </div>
     <p className="mt-3 text-xs text-muted-foreground">These are AI examples. Your designs depend on the fabric and options you choose.</p>
     <Steps heading="How it works" steps={p.steps} />
-    <Cta label="Sign in or create an account" />
   </main>;
 }

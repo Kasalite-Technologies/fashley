@@ -6,7 +6,7 @@ import { SiteHeader } from "@/components/SiteHeader";
 import { BackButton } from "@/components/BackButton";
 import { Button } from "@/components/ui/button";
 import { fetchProducts, isFabricProduct, type ShopifyProduct } from "@/lib/shopify";
-import { StockNotification } from "@/components/StockNotification";
+
 import { useRouter } from "@tanstack/react-router";
 import { useCartStore } from "@/stores/cartStore";
 
@@ -95,7 +95,7 @@ function ProductCard({ product }: { product: ShopifyProduct }) {
 
 function ProductGrid({ products, section }: { products: ShopifyProduct[]; section: "outfits" | "fabric" }) {
   if (products.length === 0) {
-    return <StockNotification section={section} />;
+    return <p className="mt-6 text-sm text-muted-foreground">Nothing here yet.</p>;
   }
   return (
     <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
