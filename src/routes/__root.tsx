@@ -16,7 +16,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
 import { Button } from "@/components/ui/button";
-import logoAsset from "@/assets/logo.png.asset.json";
+import logoUrl from "@/assets/logo.jpg";
 import { TailorClerkProvider } from "@/components/tailor/TailorClerk";
 import { useCartSync } from "@/hooks/useCartSync";
 import { registerPwa } from "@/lib/pwa-register";
@@ -24,7 +24,7 @@ import { registerPwa } from "@/lib/pwa-register";
 const SPLASH: [number, number, number][] = [[1290,2796,3],[1179,2556,3],[1284,2778,3],[1170,2532,3],[1125,2436,3],[1242,2688,3],[828,1792,2],[750,1334,2],[640,1136,2],[2048,2732,2],[1668,2388,2],[1640,2360,2],[1536,2048,2]];
 
 function NotFoundComponent() {
- return <div><SiteHeader/><main className="mx-auto max-w-lg px-5 py-16 text-center"><img src={logoAsset.url} alt="Fashley" width={100} height={100} className="mx-auto h-24 w-24 object-contain"/><p className="mt-6 text-sm text-muted-foreground">404 | Page not found</p><h1 className="mt-3 text-4xl">We can’t find this page.</h1><p className="mt-4 text-muted-foreground">This page may have moved. Head home or browse styles for your next outfit.</p><div className="mt-8 flex flex-wrap justify-center gap-3"><Button asChild><Link to="/">Back home</Link></Button><Button asChild variant="outline"><Link to="/discover">Discover styles</Link></Button></div></main></div>;
+ return <div><SiteHeader/><main className="mx-auto max-w-lg px-5 py-16 text-center"><img src={logoUrl} alt="Fashley" width={100} height={100} className="mx-auto h-24 w-24 rounded-lg object-cover"/><p className="mt-6 text-sm text-muted-foreground">404 | Page not found</p><h1 className="mt-3 text-4xl">We can’t find this page.</h1><p className="mt-4 text-muted-foreground">This page may have moved. Head home or browse styles for your next outfit.</p><div className="mt-8 flex flex-wrap justify-center gap-3"><Button asChild><Link to="/">Back home</Link></Button><Button asChild variant="outline"><Link to="/discover">Discover styles</Link></Button></div></main></div>;
 }
 
 function ErrorComponent({ error, reset }: ErrorComponentProps) {
