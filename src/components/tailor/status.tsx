@@ -26,6 +26,36 @@ const STATUS: Record<string, { label: string; icon: typeof Clock3 }> = {
   superseded: { label: "Superseded", icon: FileWarning },
 };
 
+import { customerStatusFor } from "./customerStatus";
+
+const CUSTOMER_ICON: Record<string, typeof Clock3> = {
+  awaiting_review: Clock3,
+  changes_requested: FileWarning,
+  design_approved: CheckCircle2,
+  accepted: CheckCircle2,
+};
+
+/** Customer-facing status badge plus, where known, one next-step hint. */
+export function CustomerProjectStatus({
+  status,
+  reviewStatus,
+}: {
+  status?: string | null | undefined;
+  reviewStatus?: string | null | undefined;
+}) {
+  const customer = customerStatusFor({ status, reviewStatus });
+  const Icon = (reviewStatus ? CUSTOMER_ICON[reviewStatus] : undefined) ?? CircleDashed;
+  return (
+    <div className="space-y-1.5">
+      <Badge variant="secondary" className="gap-1.5">
+        <Icon className="h-3.5 w-3.5" aria-hidden="true" />
+        {customer.label}
+      </Badge>
+      {customer.hint ? <p className="text-sm text-muted-foreground">{customer.hint}</p> : null}
+    </div>
+  );
+}
+
 /** Status is always text plus icon, never colour alone and never a generic "verified". */
 export function ProjectStatusBadge({
   status,

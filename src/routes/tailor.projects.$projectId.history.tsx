@@ -11,7 +11,7 @@ import type { Job } from "@/lib/tailor/contracts";
 
 export const Route = createFileRoute("/tailor/projects/$projectId/history")({
   head: () => ({
-    meta: [{ title: "Project history | Fashley" }, { name: "robots", content: "noindex" }],
+    meta: [{ title: "Outfit history | Fashley" }, { name: "robots", content: "noindex" }],
   }),
   component: HistoryPage,
 });
@@ -62,7 +62,7 @@ export function HistoryPage() {
   });
 
   return (
-    <TailorAppShell title="Project history" projectTitle={project.data?.project.title}>
+    <TailorAppShell title="Outfit history" projectTitle={project.data?.project.title}>
       <div className="max-w-3xl space-y-6">
         <Button asChild variant="outline" className="min-h-11">
           <Link
@@ -70,12 +70,12 @@ export function HistoryPage() {
             params={{ projectId }}
             search={{ step: "overview" }}
           >
-            Back to project
+            Back to outfit project
           </Link>
         </Button>
         <p className="text-sm text-muted-foreground">
-          This timeline shows saved input versions, briefs, jobs and human review actions. Review
-          links and private prompts are never shown here.
+          This timeline shows locked versions, briefs, jobs and your tailor's review actions. Links
+          sent to your tailor and private prompts are never shown here.
         </p>
         {history.isPending ? (
           <Skeleton className="h-48" />

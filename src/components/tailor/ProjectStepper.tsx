@@ -13,7 +13,7 @@ export function ProjectStepper({
   onStep?: (step: WorkspaceStep) => void;
 }) {
   return (
-    <nav aria-label="Project steps">
+    <nav aria-label="Outfit steps">
       <ol className="flex flex-wrap gap-2">
         {WORKSPACE_STEPS.map((step, index) => {
           const isCurrent = step.id === current;

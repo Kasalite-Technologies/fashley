@@ -1,7 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ProjectStatusBadge } from "./status";
+import { CustomerProjectStatus } from "./status";
 
 export type ProjectCardData = {
   id: string;
@@ -27,16 +27,16 @@ export function ProjectCard({
       </CardHeader>
       <CardContent className="space-y-3">
         <p className="text-sm text-muted-foreground">
-          {project.templateName ?? "Template not selected"}
+          {project.templateName ?? "Garment not chosen yet"}
         </p>
         <p className="text-sm text-muted-foreground">
           Updated {new Date(project.updatedAt).toLocaleDateString()}
           {project.currentRevisionNumber
-            ? ` · Input revision ${project.currentRevisionNumber}`
-            : " · No saved revision yet"}
+            ? ` · Locked version ${project.currentRevisionNumber}`
+            : " · No locked version yet"}
         </p>
         <div className="flex flex-wrap items-center gap-2">
-          <ProjectStatusBadge status={project.reviewStatus ?? project.status} />
+          <CustomerProjectStatus status={project.status} reviewStatus={project.reviewStatus} />
         </div>
         <div className="flex flex-wrap gap-2 pt-2">
           <Button asChild className="min-h-11">
@@ -45,7 +45,7 @@ export function ProjectCard({
               params={{ projectId: project.id }}
               search={{ step: "overview" }}
             >
-              Continue project
+              Open outfit project
             </Link>
           </Button>
           {onArchive ? (
