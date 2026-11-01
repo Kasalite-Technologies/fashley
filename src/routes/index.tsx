@@ -11,9 +11,9 @@ export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
       { title: "Fashley | Turn your fabric into fashion with AI" },
-      { name: "description", content: "See outfit ideas from a photo of your Ankara, kente, lace or adire. Design shoes and bags in the same print. Save a favourite to show your tailor." },
+      { name: "description", content: "Turn a photo of your Ankara, kente, lace or adire into a tailor-ready brief. See outfit ideas, design shoes and bags in the same print, add your measurements and share the brief with your tailor." },
       { property: "og:title", content: "Fashley | Turn your fabric into fashion with AI" },
-      { property: "og:description", content: "See outfit ideas from a photo of your Ankara, kente, lace or adire. Design shoes and bags in the same print. Save a favourite to show your tailor." },
+      { property: "og:description", content: "Turn a photo of your Ankara, kente, lace or adire into a tailor-ready brief. See outfit ideas, design shoes and bags in the same print, add your measurements and share the brief with your tailor." },
       { property: "og:image", content: "https://fashley.lovable.app/fashley-share.jpg" },
       { name: "twitter:image", content: "https://fashley.lovable.app/fashley-share.jpg" },
       { property: "og:type", content: "website" },
@@ -49,9 +49,12 @@ function Index() {
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Button asChild size="lg" className="rounded-full px-8">
-                <Link to="/studio">
-                  <Sparkles className="mr-2 h-4 w-4" /> Start a design
+                <Link to="/tailor">
+                  <Sparkles className="mr-2 h-4 w-4" /> Start an outfit project
                 </Link>
+              </Button>
+              <Button asChild size="lg" variant="outline" className="rounded-full px-8">
+                <Link to="/studio">Start a design</Link>
               </Button>
               <Button asChild size="lg" variant="outline" className="rounded-full px-8">
                 <Link to="/wardrobe">My wardrobe</Link>
@@ -61,6 +64,30 @@ function Index() {
           <div className="relative">
             <div className="absolute -inset-4 -z-10 rounded-[2rem] bg-blush" />
             <img src={hero} alt="Model wearing a dress made from African wax print fabric" width={1024} height={1280} className="aspect-[4/5] w-full rounded-2xl object-cover" />
+          </div>
+        </section>
+
+        <section className="border-y border-border/60">
+          <div className="mx-auto max-w-6xl px-5 py-10">
+            <h2 className="text-3xl">How it works</h2>
+            <ol className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-5">
+              {[
+                ["Your fabric", "Start with a photo of the fabric you already have."],
+                ["Design idea", "See AI outfit concepts in your print and pick a direction."],
+                ["Your measurements", "Add the measurements you know. Your tailor checks them with you."],
+                ["Tailor brief", "Send your tailor a brief with the design and measurements together."],
+                ["Tailor approves", "Your tailor reviews and approves the brief before any sewing starts."],
+              ].map(([title, text], i) => (
+                <li key={title}>
+                  <span className="font-display text-3xl text-muted-foreground">0{i + 1}</span>
+                  <h3 className="mt-2 text-xl">{title}</h3>
+                  <p className="mt-1 text-sm text-muted-foreground">{text}</p>
+                </li>
+              ))}
+            </ol>
+            <p className="mt-6 max-w-2xl text-xs text-muted-foreground">
+              AI concepts are previews only, not sewing patterns or a promise of fit. Measurements are entered by you and verified by your tailor.
+            </p>
           </div>
         </section>
 
