@@ -99,7 +99,7 @@ function Index() {
                   </Link>
                 </Button>
                 <Button asChild size="lg" variant="outline">
-                  <Link to="/tailor">Start an outfit project</Link>
+                  <Link to="/bag-design">Open bag studio</Link>
                 </Button>
               </div>
             </div>
@@ -140,8 +140,8 @@ function Index() {
                 Four outfit previews in your print. Pick the one you like.
               </p>
               <Button asChild variant="outline" className="mt-4">
-                <Link to="/tailor">
-                  Start an outfit <ArrowRight />
+                <Link to="/studio">
+                  Open outfit studio <ArrowRight />
                 </Link>
               </Button>
             </article>
@@ -198,8 +198,8 @@ function Index() {
                 Four previews in your print. Example outfit shown.
               </p>
               <Button asChild variant="outline" className="mt-4">
-                <Link to="/tailor">
-                  Start an outfit project <ArrowRight />
+                <Link to="/studio">
+                  Open outfit studio <ArrowUpRight />
                 </Link>
               </Button>
             </article>
@@ -316,11 +316,6 @@ function Index() {
                 <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
                   Send the outfit and your measurements to your tailor.
                 </p>
-                <Button asChild variant="outline" className="mt-4">
-                  <Link to="/tailor">
-                    Start an outfit project <ArrowRight />
-                  </Link>
-                </Button>
               </article>
             </div>
           </div>
