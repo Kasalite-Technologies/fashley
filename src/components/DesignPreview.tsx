@@ -80,7 +80,7 @@ const collections = [
 ];
 
 function Cta({ label }: { label: string }) {
-  return <><Button asChild size="lg" className="mt-8"><Link to="/tailor">{label}</Link></Button><p className="mt-3 text-sm text-muted-foreground">Start with three free images. Saved designs stay in your account.</p></>;
+  return <><Button asChild size="lg" className="mt-8"><Link to="/auth">{label}</Link></Button><p className="mt-3 text-sm text-muted-foreground">Start with three free images. Saved designs stay in your account.</p></>;
 }
 
 function Steps({ heading, steps }: { heading: string; steps: Step[] }) {
