@@ -206,15 +206,15 @@ function Index() {
             <article className="rounded-lg border border-border bg-card p-6">
               <img
                 src={bagConcept}
-                alt="Example bag preview in an example print"
-                width={1920}
-                height={1280}
+                alt="Example leather bag preview"
+                width={1600}
+                height={1600}
                 loading="lazy"
                 className="aspect-square w-full rounded-md border border-border object-cover"
               />
               <h3 className="mt-4 font-sans text-xl font-semibold tracking-tight">Bag</h3>
               <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                Its own studio, its own previews. Example bag shown.
+                Leather, suede, or fabric. Example bag in leather.
               </p>
               <Button asChild variant="outline" className="mt-4">
                 <Link to="/bag-design">
@@ -225,15 +225,15 @@ function Index() {
             <article className="rounded-lg border border-border bg-card p-6">
               <img
                 src={shoeConcept}
-                alt="Example shoe preview in an example print"
-                width={1920}
-                height={1280}
+                alt="Example suede shoe preview"
+                width={1600}
+                height={1600}
                 loading="lazy"
                 className="aspect-square w-full rounded-md border border-border object-cover"
               />
               <h3 className="mt-4 font-sans text-xl font-semibold tracking-tight">Shoe</h3>
               <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                Its own studio, its own previews. Example shoes shown.
+                Leather, suede, or fabric. Example shoes in suede.
               </p>
               <Button asChild variant="outline" className="mt-4">
                 <Link to="/shoe-design">
@@ -252,7 +252,8 @@ function Index() {
               className="h-20 w-20 rounded-md border border-border object-cover"
             />
             <figcaption className="text-sm leading-relaxed text-muted-foreground">
-              Every design starts with a fabric photo. This print is an example.
+              Outfits start with your fabric. Bags and shoes start with their own material. This
+              print is an example.
             </figcaption>
           </figure>
         </section>
@@ -343,7 +344,7 @@ function Index() {
             <article className="rounded-lg border border-border bg-card p-6">
               <h3 className="font-sans text-xl font-semibold tracking-tight">Shoe studio</h3>
               <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                Your print, on shoes.
+                Yours in leather, suede, or fabric.
               </p>
               <Button asChild variant="outline" className="mt-4">
                 <Link to="/shoe-design">
@@ -355,7 +356,7 @@ function Index() {
             <article className="rounded-lg border border-border bg-card p-6">
               <h3 className="font-sans text-xl font-semibold tracking-tight">Bag studio</h3>
               <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                Your print, on bags.
+                Yours in leather, suede, or fabric.
               </p>
               <Button asChild variant="outline" className="mt-4">
                 <Link to="/bag-design">
