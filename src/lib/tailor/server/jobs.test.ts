@@ -485,7 +485,7 @@ describe("runJob", () => {
     expect(serialized).not.toContain("test-secret-key");
   });
 
-  it("completes generate_concept and stores the concept asset", async () => {
+  it("completes generate_concept and stores up to four concept assets", async () => {
     const db = await makeDb();
     const ctx = await seedProject(db);
     const media = new InMemoryMediaStore();
@@ -515,12 +515,17 @@ describe("runJob", () => {
     if (done.result?.type === "generate_concept") {
       expect(done.result.modelId).toBe("muse-image-1.0");
       expect(done.result.providerRequestId).toBe("gen_1");
-      const asset = await db
-        .prepare("SELECT * FROM assets WHERE id = ?")
-        .bind(done.result.asset.id)
-        .first<{ kind: string; origin_job_id: string }>();
-      expect(asset).toMatchObject({ kind: "concept", origin_job_id: job.id });
-      expect(media.objects.has(`private/${ctx.projectId}/${done.result.asset.id}`)).toBe(true);
+      expect(done.result.assets).toHaveLength(4);
+      expect(done.result.asset.id).toBe(done.result.assets[0]?.id);
+      expect(new Set(done.result.assets.map((a) => a.id)).size).toBe(4);
+      for (const preview of done.result.assets) {
+        const asset = await db
+          .prepare("SELECT * FROM assets WHERE id = ?")
+          .bind(preview.id)
+          .first<{ kind: string; origin_job_id: string }>();
+        expect(asset).toMatchObject({ kind: "concept", origin_job_id: job.id });
+        expect(media.objects.has(`private/${ctx.projectId}/${preview.id}`)).toBe(true);
+      }
     }
   });
 });

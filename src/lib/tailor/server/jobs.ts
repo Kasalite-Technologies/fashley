@@ -31,6 +31,13 @@ import {
 } from "./meta";
 import { jobResultSchema, type Asset, type Job, type JobResult } from "../contracts";
 
+export const CONCEPT_STYLE_DIRECTIONS = [
+  "classic silhouette with clean, tailored lines",
+  "relaxed silhouette with soft drape and movement",
+  "statement detail focus, with one bold design feature",
+  "polished evening styling with refined finishing details",
+] as const;
+
 export interface JobRow {
   id: string;
   owner_user_id: string;
@@ -748,52 +755,72 @@ export async function runJob(
         imageDataUrl = bytesToDataUrl(bytes, sniffMime(bytes) ?? fabricAsset.mime);
       }
       await setStage("generating");
-      const generated = await step(
-        "generate_concept",
-        META_MODELS.generate,
-        META_PROMPT_VERSIONS.generate,
-        async () => {
-          const r = asGenerateResult(
-            await meta.generateConcept({ prompt, ...(imageDataUrl ? { imageDataUrl } : {}) }),
+      const assets: Asset[] = [];
+      const warnings: string[] = [];
+      let providerRequestId: string | null = null;
+      for (const [index, direction] of CONCEPT_STYLE_DIRECTIONS.entries()) {
+        try {
+          const generated = await step(
+            `generate_concept_${index + 1}`,
+            META_MODELS.generate,
+            META_PROMPT_VERSIONS.generate,
+            async () => {
+              const r = asGenerateResult(
+                await meta.generateConcept({
+                  prompt: `${prompt} Style variation ${index + 1} of ${CONCEPT_STYLE_DIRECTIONS.length}: ${direction}. Keep the same reference fabric print.`,
+                  ...(imageDataUrl ? { imageDataUrl } : {}),
+                }),
+              );
+              return {
+                value: r,
+                providerRequestId: r.providerRequestId,
+                output: { modelId: r.modelId },
+              };
+            },
           );
-          return {
-            value: r,
-            providerRequestId: r.providerRequestId,
-            output: { modelId: r.modelId },
-          };
-        },
-      );
-      let imageBytes: Uint8Array;
-      try {
-        imageBytes = base64ToBytes(generated.imageBase64);
-      } catch {
-        throw providerUnavailable();
+          providerRequestId ??= generated.providerRequestId;
+          let imageBytes: Uint8Array;
+          try {
+            imageBytes = base64ToBytes(generated.imageBase64);
+          } catch {
+            throw providerUnavailable();
+          }
+          const sanitized = await sanitizeProviderImage(imageBytes);
+          await setStage("persisting");
+          const assetId = newId("ast");
+          await media.putPrivate(`private/${job.project_id}/${assetId}`, sanitized.bytes);
+          const assetRow = await insertDerivedAsset(db, {
+            id: assetId,
+            projectId: job.project_id,
+            ownerUserId: job.owner_user_id,
+            kind: "concept",
+            mime: sanitized.mime,
+            bytes: sanitized.bytes.length,
+            widthPx: sanitized.widthPx,
+            heightPx: sanitized.heightPx,
+            sha256: sanitized.sha256,
+            parentAssetId: fabricAsset?.id ?? null,
+            originJobId: jobId,
+          });
+          assets.push(toAsset(assetRow));
+          await setStage("generating");
+        } catch {
+          warnings.push(
+            `Style preview ${index + 1} of ${CONCEPT_STYLE_DIRECTIONS.length} could not be generated.`,
+          );
+        }
       }
-      const sanitized = await sanitizeProviderImage(imageBytes);
-      await setStage("persisting");
-      const assetId = newId("ast");
-      await media.putPrivate(`private/${job.project_id}/${assetId}`, sanitized.bytes);
-      const assetRow = await insertDerivedAsset(db, {
-        id: assetId,
-        projectId: job.project_id,
-        ownerUserId: job.owner_user_id,
-        kind: "concept",
-        mime: sanitized.mime,
-        bytes: sanitized.bytes.length,
-        widthPx: sanitized.widthPx,
-        heightPx: sanitized.heightPx,
-        sha256: sanitized.sha256,
-        parentAssetId: fabricAsset?.id ?? null,
-        originJobId: jobId,
-      });
+      const [firstAsset] = assets;
+      if (!firstAsset) throw providerUnavailable();
       result = {
         type: "generate_concept",
-        asset: toAsset(assetRow),
+        asset: firstAsset,
+        assets,
         inputSnapshot: input,
         modelId: META_MODELS.generate,
         promptVersion: META_PROMPT_VERSIONS.generate,
-        providerRequestId: generated.providerRequestId,
-        warnings: [],
+        providerRequestId,
+        warnings,
       };
     } else {
       throw providerUnavailable();

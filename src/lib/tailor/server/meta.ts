@@ -17,7 +17,7 @@ export const META_MODELS = {
 export const META_PROMPT_VERSIONS = {
   segment: "sam-fabric-v2",
   understand: "fabric-understanding-v1",
-  generate: "concept-v1",
+  generate: "concept-v2",
 } as const;
 
 export interface MetaSegmentInput {

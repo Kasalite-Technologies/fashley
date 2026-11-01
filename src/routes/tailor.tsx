@@ -198,7 +198,7 @@ export function DashboardPage() {
           ) : (
             <EmptyState
               title="No outfit projects yet"
-              description="Start with your fabric, design choices and measurements, then lock a version and send the brief to your tailor."
+              description="Start with your fabric, preview up to four outfit styles, and pick the one you like. Sharing it with a tailor is up to you."
               action={
                 <Button asChild className="min-h-11">
                   <Link to="/tailor/new">Start your first outfit</Link>
