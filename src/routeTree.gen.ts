@@ -26,11 +26,14 @@ import { Route as WardrobeRouteImport } from './routes/wardrobe'
 import { Route as ProductHandleRouteImport } from './routes/product.$handle'
 import { Route as ReviewTokenRouteImport } from './routes/review.$token'
 import { Route as TailorNewRouteImport } from './routes/tailor.new'
+import { Route as ApiStudioDesignsRouteImport } from './routes/api/studio/designs'
+import { Route as ApiStudioGenerateRouteImport } from './routes/api/studio/generate'
 import { Route as ApiTailorConsentsRouteImport } from './routes/api/tailor/consents'
 import { Route as ApiTailorMeRouteImport } from './routes/api/tailor/me'
 import { Route as ApiTailorProjectsRouteImport } from './routes/api/tailor/projects'
 import { Route as ApiTailorTemplatesRouteImport } from './routes/api/tailor/templates'
 import { Route as TailorProjectsProjectIdRouteImport } from './routes/tailor.projects.$projectId'
+import { Route as ApiStudioDesignsIdRouteImport } from './routes/api/studio/designs/$id'
 import { Route as ApiTailorAssetsIdRouteImport } from './routes/api/tailor/assets/$id'
 import { Route as ApiTailorBriefsIdRouteImport } from './routes/api/tailor/briefs/$id'
 import { Route as ApiTailorJobsJobIdRouteImport } from './routes/api/tailor/jobs/$jobId'
@@ -147,6 +150,16 @@ const TailorNewRoute = TailorNewRouteImport.update({
   path: '/new',
   getParentRoute: () => TailorRoute,
 } as any)
+const ApiStudioDesignsRoute = ApiStudioDesignsRouteImport.update({
+  id: '/api/studio/designs',
+  path: '/api/studio/designs',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiStudioGenerateRoute = ApiStudioGenerateRouteImport.update({
+  id: '/api/studio/generate',
+  path: '/api/studio/generate',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiTailorConsentsRoute = ApiTailorConsentsRouteImport.update({
   id: '/api/tailor/consents',
   path: '/api/tailor/consents',
@@ -171,6 +184,11 @@ const TailorProjectsProjectIdRoute = TailorProjectsProjectIdRouteImport.update({
   id: '/projects/$projectId',
   path: '/projects/$projectId',
   getParentRoute: () => TailorRoute,
+} as any)
+const ApiStudioDesignsIdRoute = ApiStudioDesignsIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => ApiStudioDesignsRoute,
 } as any)
 const ApiTailorAssetsIdRoute = ApiTailorAssetsIdRouteImport.update({
   id: '/api/tailor/assets/$id',
@@ -357,11 +375,14 @@ export interface FileRoutesByFullPath {
   '/product/$handle': typeof ProductHandleRoute
   '/review/$token': typeof ReviewTokenRoute
   '/tailor/new': typeof TailorNewRoute
+  '/api/studio/designs': typeof ApiStudioDesignsRouteWithChildren
+  '/api/studio/generate': typeof ApiStudioGenerateRoute
   '/api/tailor/consents': typeof ApiTailorConsentsRouteWithChildren
   '/api/tailor/me': typeof ApiTailorMeRouteWithChildren
   '/api/tailor/projects': typeof ApiTailorProjectsRouteWithChildren
   '/api/tailor/templates': typeof ApiTailorTemplatesRouteWithChildren
   '/tailor/projects/$projectId': typeof TailorProjectsProjectIdRouteWithChildren
+  '/api/studio/designs/$id': typeof ApiStudioDesignsIdRoute
   '/api/tailor/assets/$id': typeof ApiTailorAssetsIdRoute
   '/api/tailor/briefs/$id': typeof ApiTailorBriefsIdRouteWithChildren
   '/api/tailor/jobs/$jobId': typeof ApiTailorJobsJobIdRouteWithChildren
@@ -411,11 +432,14 @@ export interface FileRoutesByTo {
   '/product/$handle': typeof ProductHandleRoute
   '/review/$token': typeof ReviewTokenRoute
   '/tailor/new': typeof TailorNewRoute
+  '/api/studio/designs': typeof ApiStudioDesignsRouteWithChildren
+  '/api/studio/generate': typeof ApiStudioGenerateRoute
   '/api/tailor/consents': typeof ApiTailorConsentsRouteWithChildren
   '/api/tailor/me': typeof ApiTailorMeRouteWithChildren
   '/api/tailor/projects': typeof ApiTailorProjectsRouteWithChildren
   '/api/tailor/templates': typeof ApiTailorTemplatesRouteWithChildren
   '/tailor/projects/$projectId': typeof TailorProjectsProjectIdRouteWithChildren
+  '/api/studio/designs/$id': typeof ApiStudioDesignsIdRoute
   '/api/tailor/assets/$id': typeof ApiTailorAssetsIdRoute
   '/api/tailor/briefs/$id': typeof ApiTailorBriefsIdRouteWithChildren
   '/api/tailor/jobs/$jobId': typeof ApiTailorJobsJobIdRouteWithChildren
@@ -466,11 +490,14 @@ export interface FileRoutesById {
   '/product/$handle': typeof ProductHandleRoute
   '/review/$token': typeof ReviewTokenRoute
   '/tailor/new': typeof TailorNewRoute
+  '/api/studio/designs': typeof ApiStudioDesignsRouteWithChildren
+  '/api/studio/generate': typeof ApiStudioGenerateRoute
   '/api/tailor/consents': typeof ApiTailorConsentsRouteWithChildren
   '/api/tailor/me': typeof ApiTailorMeRouteWithChildren
   '/api/tailor/projects': typeof ApiTailorProjectsRouteWithChildren
   '/api/tailor/templates': typeof ApiTailorTemplatesRouteWithChildren
   '/tailor/projects/$projectId': typeof TailorProjectsProjectIdRouteWithChildren
+  '/api/studio/designs/$id': typeof ApiStudioDesignsIdRoute
   '/api/tailor/assets/$id': typeof ApiTailorAssetsIdRoute
   '/api/tailor/briefs/$id': typeof ApiTailorBriefsIdRouteWithChildren
   '/api/tailor/jobs/$jobId': typeof ApiTailorJobsJobIdRouteWithChildren
@@ -522,11 +549,14 @@ export interface FileRouteTypes {
     | '/product/$handle'
     | '/review/$token'
     | '/tailor/new'
+    | '/api/studio/designs'
+    | '/api/studio/generate'
     | '/api/tailor/consents'
     | '/api/tailor/me'
     | '/api/tailor/projects'
     | '/api/tailor/templates'
     | '/tailor/projects/$projectId'
+    | '/api/studio/designs/$id'
     | '/api/tailor/assets/$id'
     | '/api/tailor/briefs/$id'
     | '/api/tailor/jobs/$jobId'
@@ -576,11 +606,14 @@ export interface FileRouteTypes {
     | '/product/$handle'
     | '/review/$token'
     | '/tailor/new'
+    | '/api/studio/designs'
+    | '/api/studio/generate'
     | '/api/tailor/consents'
     | '/api/tailor/me'
     | '/api/tailor/projects'
     | '/api/tailor/templates'
     | '/tailor/projects/$projectId'
+    | '/api/studio/designs/$id'
     | '/api/tailor/assets/$id'
     | '/api/tailor/briefs/$id'
     | '/api/tailor/jobs/$jobId'
@@ -630,11 +663,14 @@ export interface FileRouteTypes {
     | '/product/$handle'
     | '/review/$token'
     | '/tailor/new'
+    | '/api/studio/designs'
+    | '/api/studio/generate'
     | '/api/tailor/consents'
     | '/api/tailor/me'
     | '/api/tailor/projects'
     | '/api/tailor/templates'
     | '/tailor/projects/$projectId'
+    | '/api/studio/designs/$id'
     | '/api/tailor/assets/$id'
     | '/api/tailor/briefs/$id'
     | '/api/tailor/jobs/$jobId'
@@ -683,6 +719,8 @@ export interface RootRouteChildren {
   TermsRoute: typeof TermsRoute
   WardrobeRoute: typeof WardrobeRoute
   ProductHandleRoute: typeof ProductHandleRoute
+  ApiStudioDesignsRoute: typeof ApiStudioDesignsRouteWithChildren
+  ApiStudioGenerateRoute: typeof ApiStudioGenerateRoute
   ApiTailorConsentsRoute: typeof ApiTailorConsentsRouteWithChildren
   ApiTailorMeRoute: typeof ApiTailorMeRouteWithChildren
   ApiTailorProjectsRoute: typeof ApiTailorProjectsRouteWithChildren
@@ -818,6 +856,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TailorNewRouteImport
       parentRoute: typeof TailorRoute
     }
+    '/api/studio/designs': {
+      id: '/api/studio/designs'
+      path: '/api/studio/designs'
+      fullPath: '/api/studio/designs'
+      preLoaderRoute: typeof ApiStudioDesignsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/studio/generate': {
+      id: '/api/studio/generate'
+      path: '/api/studio/generate'
+      fullPath: '/api/studio/generate'
+      preLoaderRoute: typeof ApiStudioGenerateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/tailor/consents': {
       id: '/api/tailor/consents'
       path: '/api/tailor/consents'
@@ -852,6 +904,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/tailor/projects/$projectId'
       preLoaderRoute: typeof TailorProjectsProjectIdRouteImport
       parentRoute: typeof TailorRoute
+    }
+    '/api/studio/designs/$id': {
+      id: '/api/studio/designs/$id'
+      path: '/$id'
+      fullPath: '/api/studio/designs/$id'
+      preLoaderRoute: typeof ApiStudioDesignsIdRouteImport
+      parentRoute: typeof ApiStudioDesignsRoute
     }
     '/api/tailor/assets/$id': {
       id: '/api/tailor/assets/$id'
@@ -1106,6 +1165,17 @@ const TailorRouteChildren: TailorRouteChildren = {
 const TailorRouteWithChildren =
   TailorRoute._addFileChildren(TailorRouteChildren)
 
+interface ApiStudioDesignsRouteChildren {
+  ApiStudioDesignsIdRoute: typeof ApiStudioDesignsIdRoute
+}
+
+const ApiStudioDesignsRouteChildren: ApiStudioDesignsRouteChildren = {
+  ApiStudioDesignsIdRoute: ApiStudioDesignsIdRoute,
+}
+
+const ApiStudioDesignsRouteWithChildren =
+  ApiStudioDesignsRoute._addFileChildren(ApiStudioDesignsRouteChildren)
+
 interface ApiTailorConsentsRouteChildren {
   ApiTailorConsentsIdWithdrawRoute: typeof ApiTailorConsentsIdWithdrawRoute
 }
@@ -1254,6 +1324,8 @@ const rootRouteChildren: RootRouteChildren = {
   TermsRoute: TermsRoute,
   WardrobeRoute: WardrobeRoute,
   ProductHandleRoute: ProductHandleRoute,
+  ApiStudioDesignsRoute: ApiStudioDesignsRouteWithChildren,
+  ApiStudioGenerateRoute: ApiStudioGenerateRoute,
   ApiTailorConsentsRoute: ApiTailorConsentsRouteWithChildren,
   ApiTailorMeRoute: ApiTailorMeRouteWithChildren,
   ApiTailorProjectsRoute: ApiTailorProjectsRouteWithChildren,

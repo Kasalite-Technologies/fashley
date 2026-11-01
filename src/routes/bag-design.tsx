@@ -1,6 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { SiteHeader } from "@/components/SiteHeader";
-import { DesignPreview } from "@/components/DesignPreview";
+import { StudioGate } from "@/components/StudioApp";
 
 export const Route = createFileRoute("/bag-design")({
   head: () => ({ meta: [
@@ -10,10 +9,5 @@ export const Route = createFileRoute("/bag-design")({
     { property: "og:description", content: "See a tote or clutch in your fabric or leather. Choose the bag shape and hardware before you save a design." },
     { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary_large_image" },
   ] }),
-  component: () => (
-    <div className="min-h-screen">
-      <SiteHeader />
-      <DesignPreview kind="bags" />
-    </div>
-  ),
+  component: () => <StudioGate kind="bags" />,
 });

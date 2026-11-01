@@ -1,22 +1,16 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { SiteHeader } from "@/components/SiteHeader";
-import { DesignPreview } from "@/components/DesignPreview";
+import { WardrobeApp } from "@/components/WardrobeApp";
 
 export const Route = createFileRoute("/wardrobe")({
   head: () => ({
     meta: [
       { title: "My wardrobe | Fashley" },
-      { name: "description", content: "Keep your saved designs in collections. Find a favourite outfit or matching bag to show your tailor." },
+      { name: "description", content: "Your saved Fashley designs." },
       { property: "og:title", content: "My wardrobe | Fashley" },
-      { property: "og:description", content: "Keep your saved designs in collections. Find a favourite outfit or matching bag to show your tailor." },
+      { property: "og:description", content: "Your saved Fashley designs." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
-  component: () => (
-    <div className="min-h-screen">
-      <SiteHeader />
-      <DesignPreview wardrobe />
-    </div>
-  ),
+  component: WardrobeApp,
 });
