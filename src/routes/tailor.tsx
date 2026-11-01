@@ -34,7 +34,7 @@ export const Route = createFileRoute("/tailor")({
     };
   },
   head: () => ({
-    meta: [{ title: "Your tailoring projects | Fashley" }, { name: "robots", content: "noindex" }],
+    meta: [{ title: "My outfit projects | Fashley" }, { name: "robots", content: "noindex" }],
   }),
   component: TailorRoute,
 });
@@ -87,11 +87,11 @@ export function DashboardPage() {
   }, [queryText]);
 
   return (
-    <TailorAppShell title="Your tailoring projects">
+    <TailorAppShell title="My outfit projects">
       <div className="space-y-6">
         <div className="flex flex-wrap items-center gap-3">
           <Button asChild className="min-h-11">
-            <Link to="/tailor/new">New project</Link>
+            <Link to="/tailor/new">Start a new outfit</Link>
           </Button>
           {isFixtureMode ? (
             <p className="text-xs text-muted-foreground">Fixture mode: synthetic test data only.</p>
@@ -101,10 +101,10 @@ export function DashboardPage() {
         <form
           className="grid gap-4 sm:grid-cols-3"
           onSubmit={(e) => e.preventDefault()}
-          aria-label="Filter projects"
+          aria-label="Filter my outfit projects"
         >
           <div className="space-y-1.5">
-            <Label htmlFor="project-search">Search projects</Label>
+            <Label htmlFor="project-search">Search my outfit projects</Label>
             <Input
               id="project-search"
               value={queryText}
@@ -114,7 +114,7 @@ export function DashboardPage() {
             />
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="project-status">Project status</Label>
+            <Label htmlFor="project-status">Outfit status</Label>
             <select
               id="project-status"
               value={search.status}
@@ -135,7 +135,7 @@ export function DashboardPage() {
             </select>
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="project-review-status">Review status</Label>
+            <Label htmlFor="project-review-status">Tailor review</Label>
             <select
               id="project-review-status"
               value={search.reviewStatus}
@@ -151,10 +151,10 @@ export function DashboardPage() {
               }
             >
               <option value="all">All</option>
-              <option value="awaiting_review">Awaiting review</option>
-              <option value="changes_requested">Changes requested</option>
-              <option value="design_approved">Design approved</option>
-              <option value="accepted">Accepted</option>
+              <option value="awaiting_review">Sent to tailor — waiting</option>
+              <option value="changes_requested">Tailor asked for changes</option>
+              <option value="design_approved">Tailor approved the design</option>
+              <option value="accepted">Tailor approved the brief</option>
             </select>
           </div>
         </form>
@@ -167,7 +167,10 @@ export function DashboardPage() {
         ) : null}
 
         {projects.isPending ? (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3" aria-label="Loading projects">
+          <div
+            className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
+            aria-label="Loading outfit projects"
+          >
             <Skeleton className="h-44" />
             <Skeleton className="h-44" />
             <Skeleton className="h-44" />
@@ -177,8 +180,8 @@ export function DashboardPage() {
         ) : projects.data.items.length === 0 ? (
           search.q || search.status !== "all" || search.reviewStatus !== "all" ? (
             <EmptyState
-              title="No projects match these filters"
-              description="Try a different search, or reset the filters to see all of your projects."
+              title="No outfit projects match these filters"
+              description="Try a different search, or reset the filters to see all of your outfit projects."
               action={
                 <Button
                   type="button"
@@ -194,11 +197,11 @@ export function DashboardPage() {
             />
           ) : (
             <EmptyState
-              title="No projects yet"
-              description="Start a tailoring brief with your fabric, design choices and measurements, then share a frozen version with your tailor."
+              title="No outfit projects yet"
+              description="Start with your fabric, design choices and measurements, then lock a version and send the brief to your tailor."
               action={
                 <Button asChild className="min-h-11">
-                  <Link to="/tailor/new">Create your first brief</Link>
+                  <Link to="/tailor/new">Start your first outfit</Link>
                 </Button>
               }
             />
@@ -243,7 +246,7 @@ export function DashboardPage() {
                   })
                 }
               >
-                Load more projects
+                Load more outfit projects
               </Button>
             ) : null}
           </>

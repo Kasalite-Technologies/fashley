@@ -7,13 +7,14 @@ import { TailorAppShell } from "@/components/tailor/TailorAppShell";
 import { BriefDocument } from "@/components/tailor/BriefDocument";
 import { ShareBriefDialog, type ShareSelection } from "@/components/tailor/ShareBriefDialog";
 import { PageError } from "@/components/tailor/status";
+import { latestTailorFeedback } from "@/components/tailor/customerStatus";
 import { IdempotencyKeyKeeper, tailorApi, tailorKeys } from "@/lib/tailor/client";
 
 export const Route = createFileRoute("/tailor/projects/$projectId/brief")({
   validateSearch: (search: Record<string, unknown>): { briefId?: string } =>
     typeof search["briefId"] === "string" ? { briefId: search["briefId"] } : {},
   head: () => ({
-    meta: [{ title: "Tailoring brief | Fashley" }, { name: "robots", content: "noindex" }],
+    meta: [{ title: "Your outfit brief | Fashley" }, { name: "robots", content: "noindex" }],
   }),
   component: BriefPage,
 });
@@ -99,7 +100,7 @@ export function BriefPage() {
   });
 
   return (
-    <TailorAppShell title="Tailoring brief" projectTitle={project.data?.project.title}>
+    <TailorAppShell title="Your outfit brief" projectTitle={project.data?.project.title}>
       <style>{PRINT_CSS}</style>
       <div className="space-y-6">
         <div className="flex flex-wrap gap-2" data-print-hide>
@@ -109,7 +110,7 @@ export function BriefPage() {
               params={{ projectId }}
               search={{ step: "handoff" }}
             >
-              Back to project
+              Back to outfit project
             </Link>
           </Button>
           <Button asChild variant="outline" className="min-h-11">
@@ -138,15 +139,18 @@ export function BriefPage() {
                 setShareOpen(true);
               }}
             >
-              Share for review
+              Send to tailor
             </Button>
           ) : null}
         </div>
         {brief.data && brief.data.state !== "finalized" ? (
           <p className="text-sm text-muted-foreground">
-            This brief is {brief.data.state}. Only a current finalized brief can be shared.
+            This brief is {brief.data.state}. Only a current locked (finalized) brief can be sent to
+            your tailor.
           </p>
         ) : null}
+
+        {brief.data ? <TailorFeedbackSection actions={brief.data.review.actions} /> : null}
 
         {project.isPending || brief.isPending ? (
           <Skeleton className="h-64" />
@@ -154,8 +158,8 @@ export function BriefPage() {
           <PageError error={project.error} onRetry={() => void project.refetch()} />
         ) : !briefId ? (
           <p className="text-sm">
-            No brief has been finalized for this project yet. Compile and finalize one in the Brief
-            step of the workspace.
+            No brief has been locked for this outfit yet. Make and lock one in the Brief step of the
+            workspace.
           </p>
         ) : brief.isError ? (
           <PageError error={brief.error} onRetry={() => void brief.refetch()} />
@@ -169,15 +173,18 @@ export function BriefPage() {
           </div>
         ) : null}
 
-        <section aria-label="Review links" className="space-y-3" data-print-hide>
-          <h2 className="text-xl">Review links</h2>
+        <section aria-label="Links sent to your tailor" className="space-y-3" data-print-hide>
+          <h2 className="text-xl">Links sent to your tailor</h2>
+          <p className="text-sm text-muted-foreground">
+            Your tailor gets a link to this brief only — not your account.
+          </p>
           {shares.isPending ? (
             <Skeleton className="h-20" />
           ) : shares.isError ? (
             <PageError error={shares.error} onRetry={() => void shares.refetch()} />
           ) : shares.data.items.length === 0 ? (
             <p className="text-sm text-muted-foreground">
-              No review links have been created for this brief.
+              No links have been sent to your tailor for this brief yet.
             </p>
           ) : (
             <ul className="space-y-3">
@@ -235,5 +242,26 @@ export function BriefPage() {
         />
       ) : null}
     </TailorAppShell>
+  );
+}
+
+function TailorFeedbackSection({
+  actions,
+}: {
+  actions: import("@/lib/tailor/contracts").Brief["review"]["actions"];
+}) {
+  const feedback = latestTailorFeedback(actions);
+  if (!feedback) return null;
+  return (
+    <section aria-label="Feedback from your tailor" className="space-y-2" data-print-hide>
+      <h2 className="text-xl">Feedback from your tailor</h2>
+      <p className="text-sm font-medium">{feedback.label}</p>
+      <p className="text-sm text-muted-foreground">
+        {feedback.reviewerName} (
+        {feedback.identityVerified ? "verified identity" : "name as stated, not verified"}) ·{" "}
+        {new Date(feedback.createdAt).toLocaleString()}
+      </p>
+      {feedback.note ? <p className="text-sm">{feedback.note}</p> : null}
+    </section>
   );
 }

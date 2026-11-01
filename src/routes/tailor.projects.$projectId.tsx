@@ -40,7 +40,7 @@ export const Route = createFileRoute("/tailor/projects/$projectId")({
     step: normalizeStep(search["step"]),
   }),
   head: () => ({
-    meta: [{ title: "Tailoring project | Fashley" }, { name: "robots", content: "noindex" }],
+    meta: [{ title: "Your outfit project | Fashley" }, { name: "robots", content: "noindex" }],
   }),
   component: WorkspaceRoute,
 });
@@ -380,14 +380,14 @@ export function WorkspacePage() {
 
   if (project.isPending || !input) {
     return (
-      <TailorAppShell title="Project">
+      <TailorAppShell title="Your outfit project">
         <Skeleton className="h-64" />
       </TailorAppShell>
     );
   }
   if (project.isError) {
     return (
-      <TailorAppShell title="Project">
+      <TailorAppShell title="Your outfit project">
         <PageError error={project.error} onRetry={() => void project.refetch()} />
       </TailorAppShell>
     );
@@ -430,7 +430,7 @@ export function WorkspacePage() {
         <div className="flex flex-wrap items-center gap-3">
           <DraftSaveStatus state={saveState} savedAt={savedAt} />
           <span className="text-sm text-muted-foreground">
-            Input revision: {project.data.currentRevision?.number ?? "not frozen yet"}
+            Locked version: {project.data.currentRevision?.number ?? "not locked yet"}
           </span>
           <Button asChild variant="outline" className="min-h-11">
             <Link
@@ -468,7 +468,7 @@ export function WorkspacePage() {
 
         {saveState === "conflict" ? (
           <Alert variant="destructive" role="alert">
-            <AlertTitle>This project changed elsewhere</AlertTitle>
+            <AlertTitle>This outfit project changed elsewhere</AlertTitle>
             <AlertDescription className="space-y-3">
               <p>
                 Your current edits are still on this screen so you can copy them. Reload to get the
@@ -498,9 +498,13 @@ export function WorkspacePage() {
         ) : null}
 
         {step === "overview" ? (
-          <section className="max-w-2xl space-y-5" aria-label="Overview">
+          <section className="max-w-2xl space-y-5" aria-label="Your outfit">
+            <p className="text-sm text-muted-foreground">
+              Start here with the basics. What happens next: you will add your fabric, choose a
+              design, and enter your measurements.
+            </p>
             <div className="space-y-1.5">
-              <Label htmlFor="ov-title">Project title</Label>
+              <Label htmlFor="ov-title">Name your outfit</Label>
               <Input
                 id="ov-title"
                 value={input.overview.title}
@@ -595,6 +599,10 @@ export function WorkspacePage() {
                 much fabric you have, so you will enter the physical size below.
               </AlertDescription>
             </Alert>
+            <p className="text-sm text-muted-foreground">
+              What happens next: once your fabric photo is ready, confirm a swatch from it, then
+              move on to your design.
+            </p>
             <div className="flex items-start gap-3">
               <Checkbox
                 id="fabric-consent"
@@ -847,13 +855,17 @@ export function WorkspacePage() {
               ))
             ) : (
               <p className="text-sm text-muted-foreground">
-                Choose a garment template in the Overview step to see design options.
+                Choose what you are making in the Your outfit step to see design options.
               </p>
             )}
             <p className="text-sm">
               Generating a concept uses {me.data?.jobQuotes.generate_concept ?? 0} pilot credit(s).
-              It saves and freezes your current inputs first, so the result always matches a saved
+              It saves and locks your current inputs first, so the result always matches a saved
               version.
+            </p>
+            <p className="text-sm text-muted-foreground">
+              Locking saves this exact version. Your brief is made from it. You can still make a new
+              version later.
             </p>
             <Button
               type="button"
@@ -913,6 +925,10 @@ export function WorkspacePage() {
             <p className="text-sm">
               Enter measurements by hand. They are not estimated from photos, and only a reviewer
               can mark them verified.
+            </p>
+            <p className="text-sm text-muted-foreground">
+              What happens next: your measurements are saved with your outfit and included in the
+              brief only when you choose to share them.
             </p>
             {template.data ? (
               template.data.measurementFields.map((field) => {
@@ -979,7 +995,7 @@ export function WorkspacePage() {
               })
             ) : (
               <p className="text-sm text-muted-foreground">
-                Choose a garment template to see its measurements.
+                Choose what you are making to see its measurements.
               </p>
             )}
             <Button type="button" className="min-h-11" onClick={() => void runSequence("checks")}>
@@ -1004,8 +1020,12 @@ export function WorkspacePage() {
         {step === "brief" ? (
           <section className="max-w-2xl space-y-5" aria-label="Brief">
             <p className="text-sm">
-              Add questions for your tailor. Correct facts here or in earlier steps, then compile
-              again. Compiled brief text itself is not edited directly.
+              Add questions for your tailor. Correct facts here or in earlier steps, then make the
+              brief again. The brief text itself is not edited directly.
+            </p>
+            <p className="text-sm text-muted-foreground">
+              Locking saves this exact version. Your brief is made from it. You can still make a new
+              version later.
             </p>
             {input.customerQuestions.map((q, index) => (
               <div key={index} className="flex items-start gap-2">
@@ -1054,7 +1074,7 @@ export function WorkspacePage() {
             ) : null}
             <div className="flex flex-wrap gap-2">
               <Button type="button" className="min-h-11" onClick={() => void runSequence("brief")}>
-                Compile brief
+                Make my brief
               </Button>
             </div>
             {briefJob.isError ? (
@@ -1076,7 +1096,7 @@ export function WorkspacePage() {
                 </p>
                 {compiledBrief.data.blockers.length ? (
                   <Alert role="alert">
-                    <AlertTitle>Before finalizing</AlertTitle>
+                    <AlertTitle>Before you lock this version</AlertTitle>
                     <AlertDescription>
                       <ul className="list-disc pl-5">
                         {compiledBrief.data.blockers.map((b) => (
@@ -1084,8 +1104,8 @@ export function WorkspacePage() {
                         ))}
                       </ul>
                       <p className="mt-2">
-                        Finalizing keeps these warnings on the brief. Acceptance by a tailor stays
-                        blocked until they are resolved.
+                        Locking this version keeps these warnings on the brief. Approval by a tailor
+                        stays blocked until they are resolved.
                       </p>
                     </AlertDescription>
                   </Alert>
@@ -1097,12 +1117,12 @@ export function WorkspacePage() {
                   onClick={() => finalize.mutate()}
                 >
                   {finalize.isPending
-                    ? "Finalizing"
-                    : `Finalize version ${compiledBrief.data.briefNumber}`}
+                    ? "Locking this version"
+                    : `Lock this version (brief ${compiledBrief.data.briefNumber})`}
                 </Button>
                 <p className="text-sm text-muted-foreground">
-                  Finalizing a new version replaces earlier review links. Old approvals do not carry
-                  over.
+                  Locking a new version replaces earlier links sent to your tailor. Old approvals do
+                  not carry over.
                 </p>
               </div>
             ) : null}
@@ -1110,11 +1130,14 @@ export function WorkspacePage() {
         ) : null}
 
         {step === "handoff" ? (
-          <section className="max-w-2xl space-y-4" aria-label="Handoff">
+          <section className="max-w-2xl space-y-4" aria-label="Send to tailor">
             {project.data.project.latestBriefId ? (
               <>
                 <p className="text-sm">
-                  Your finalized brief is ready to open, print and share for review.
+                  Your locked brief is ready to open, print and send to your tailor for review.
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  Your tailor gets a link to this brief only — not your account.
                 </p>
                 <Button asChild className="min-h-11">
                   <Link
@@ -1122,15 +1145,18 @@ export function WorkspacePage() {
                     params={{ projectId }}
                     search={{ step: "overview" }}
                   >
-                    Open brief and share
+                    Open brief and send to tailor
                   </Link>
                 </Button>
               </>
             ) : (
               <>
                 <p className="text-sm">
-                  There is no finalized brief yet. Compile and finalize one in the Brief step, then
-                  share it from the brief page.
+                  There is no locked brief yet. Make and lock one in the Brief step, then send it
+                  from the brief page.
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  Your tailor gets a link to this brief only — not your account.
                 </p>
                 <Button
                   type="button"

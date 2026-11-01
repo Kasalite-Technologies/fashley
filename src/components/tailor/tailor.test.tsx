@@ -6,10 +6,13 @@ import {
   type ReviewSessionResponse,
 } from "@/lib/tailor/contracts";
 import { BriefDocument } from "./BriefDocument";
+import { customerStatusFor, latestTailorFeedback } from "./customerStatus";
 import { MeasurementField, ConstraintCard } from "./fields";
 import { ProjectStepper } from "./ProjectStepper";
 import { ReviewActionPanel } from "./ReviewActionPanel";
 import { ShareBriefDialog } from "./ShareBriefDialog";
+import { CustomerProjectStatus } from "./status";
+import { TailorAppShell } from "./TailorAppShell";
 
 afterEach(() => cleanup());
 
@@ -149,6 +152,118 @@ describe("MeasurementField error linking", () => {
       document.getElementById(describedBy.split(" ").find((id) => id.includes("error")) ?? ""),
     ).toHaveTextContent("Enter a number");
     expect(screen.getByText("Not verified")).toBeInTheDocument();
+  });
+});
+
+describe("customerStatusFor (fixture evidence)", () => {
+  it("maps each known review status to customer words with one next step", () => {
+    expect(customerStatusFor({ status: "active", reviewStatus: null })).toEqual({
+      label: "Draft — not sent yet",
+      hint: "Open to continue your outfit.",
+    });
+    expect(customerStatusFor({ status: "active", reviewStatus: "awaiting_review" })).toEqual({
+      label: "Sent to tailor — waiting",
+      hint: "Waiting for your tailor to review this brief.",
+    });
+    expect(customerStatusFor({ status: "active", reviewStatus: "changes_requested" })).toEqual({
+      label: "Tailor asked for changes",
+      hint: "Open to see what to change.",
+    });
+    expect(customerStatusFor({ status: "active", reviewStatus: "design_approved" })).toEqual({
+      label: "Tailor approved",
+      hint: "Your tailor approved this brief.",
+    });
+    expect(customerStatusFor({ status: "active", reviewStatus: "accepted" })).toEqual({
+      label: "Tailor approved",
+      hint: "Your tailor approved this brief.",
+    });
+  });
+
+  it("shows unknown values honestly with no invented hint", () => {
+    expect(customerStatusFor({ status: "active", reviewStatus: "some_future_state" })).toEqual({
+      label: "Some future state",
+      hint: null,
+    });
+    expect(customerStatusFor({ status: "archived", reviewStatus: null })).toEqual({
+      label: "Archived",
+      hint: null,
+    });
+    expect(customerStatusFor({ status: null, reviewStatus: null })).toEqual({
+      label: "No brief yet",
+      hint: null,
+    });
+  });
+
+  it("renders the customer badge and hint", () => {
+    render(<CustomerProjectStatus status="active" reviewStatus="changes_requested" />);
+    expect(screen.getByText("Tailor asked for changes")).toBeInTheDocument();
+    expect(screen.getByText("Open to see what to change.")).toBeInTheDocument();
+  });
+});
+
+describe("latestTailorFeedback (fixture evidence)", () => {
+  it("returns the newest review action with its note", () => {
+    const feedback = latestTailorFeedback([
+      {
+        action: "approve_design",
+        reviewerName: "Fixture Tailor",
+        note: null,
+        createdAt: "2026-10-30T10:00:00.000Z",
+      },
+      {
+        action: "request_changes",
+        reviewerName: "Fixture Tailor",
+        note: "Please lengthen the sleeve.",
+        createdAt: "2026-10-31T10:00:00.000Z",
+      },
+    ]);
+    expect(feedback).toMatchObject({
+      label: "Your tailor asked for changes",
+      note: "Please lengthen the sleeve.",
+      reviewerName: "Fixture Tailor",
+    });
+    expect(latestTailorFeedback([])).toBeNull();
+  });
+});
+
+describe("TailorAppShell customer branding", () => {
+  it("renders the customer brand and nav labels", async () => {
+    const { createMemoryHistory, createRootRoute, createRoute, createRouter, RouterProvider } =
+      await import("@tanstack/react-router");
+    const rootRoute = createRootRoute({
+      component: () => (
+        <TailorAppShell title="My outfit projects">
+          <p>Dashboard child</p>
+        </TailorAppShell>
+      ),
+    });
+    const stub = (path: string) =>
+      createRoute({
+        getParentRoute: () => rootRoute,
+        path,
+        component: () => null,
+      });
+    const routeTree = rootRoute.addChildren([
+      createRoute({
+        getParentRoute: () => rootRoute,
+        path: "/",
+        component: () => null,
+      }),
+      stub("/tailor"),
+      stub("/tailor/new"),
+      stub("/account"),
+    ]);
+    const router = createRouter({
+      routeTree,
+      history: createMemoryHistory({ initialEntries: ["/"] }),
+    });
+    render(<RouterProvider router={router} />);
+    expect(await screen.findByText("Fashley — my outfits")).toBeInTheDocument();
+    expect(screen.getAllByRole("link", { name: /My outfit projects/ }).length).toBeGreaterThan(0);
+    expect(screen.getByRole("link", { name: /Start a new outfit/ })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /Account/ })).toBeInTheDocument();
+    expect(screen.getByRole("navigation", { name: "My outfits" })).toBeInTheDocument();
+    expect(screen.queryByText("Fashley Tailor")).not.toBeInTheDocument();
   });
 });
 

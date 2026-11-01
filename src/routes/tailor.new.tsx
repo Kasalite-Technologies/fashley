@@ -12,7 +12,7 @@ import { IdempotencyKeyKeeper, tailorApi, tailorKeys } from "@/lib/tailor/client
 
 export const Route = createFileRoute("/tailor/new")({
   head: () => ({
-    meta: [{ title: "New tailoring project | Fashley" }, { name: "robots", content: "noindex" }],
+    meta: [{ title: "Start a new outfit | Fashley" }, { name: "robots", content: "noindex" }],
   }),
   component: NewProjectPage,
 });
@@ -61,17 +61,17 @@ export function NewProjectPage() {
   });
 
   return (
-    <TailorAppShell title="New project">
+    <TailorAppShell title="Start a new outfit">
       <form
         className="max-w-2xl space-y-6"
         onSubmit={(e) => {
           e.preventDefault();
           if (!title.trim()) {
-            setFormError("Enter a project title.");
+            setFormError("Give your outfit a name.");
             return;
           }
           if (!templateKey) {
-            setFormError("Choose a garment template.");
+            setFormError("Choose what you are making.");
             return;
           }
           setFormError(null);
@@ -79,7 +79,7 @@ export function NewProjectPage() {
         }}
       >
         <div className="space-y-1.5">
-          <Label htmlFor="project-title">Project title</Label>
+          <Label htmlFor="project-title">Name your outfit</Label>
           <Input
             id="project-title"
             value={title}
@@ -95,7 +95,7 @@ export function NewProjectPage() {
         </div>
 
         <fieldset className="space-y-3">
-          <legend className="text-sm font-semibold">Garment</legend>
+          <legend className="text-sm font-semibold">What are you making?</legend>
           {templates.isPending ? (
             <Skeleton className="h-24" />
           ) : templates.isError ? (
@@ -103,10 +103,10 @@ export function NewProjectPage() {
           ) : templates.data.items.length === 0 ? (
             <EmptyState
               title="No templates are published yet"
-              description="Project creation is unavailable until a reviewed garment template is published. You can return to your projects."
+              description="Starting an outfit is unavailable until a reviewed garment is published. You can return to your outfit projects."
               action={
                 <Button asChild variant="outline" className="min-h-11">
-                  <Link to="/tailor">Back to projects</Link>
+                  <Link to="/tailor">Back to my outfit projects</Link>
                 </Button>
               }
             />
@@ -114,7 +114,7 @@ export function NewProjectPage() {
             <RadioGroup
               value={templateKey}
               onValueChange={setTemplateKey}
-              aria-label="Garment template"
+              aria-label="What are you making?"
             >
               {templates.data.items.map((t) => {
                 const key = `${t.id}@${t.version}`;
@@ -193,7 +193,7 @@ export function NewProjectPage() {
             className="min-h-11"
             disabled={create.isPending || templates.data?.items.length === 0}
           >
-            {create.isPending ? "Creating project" : "Create project"}
+            {create.isPending ? "Starting your outfit" : "Start outfit"}
           </Button>
         </div>
       </form>

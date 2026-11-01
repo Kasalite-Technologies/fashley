@@ -1,12 +1,12 @@
 export type ReviewStatus = "awaiting_review" | "changes_requested" | "design_approved" | "accepted";
 
 export const WORKSPACE_STEPS = [
-  { id: "overview", label: "Overview" },
+  { id: "overview", label: "Your outfit" },
   { id: "fabric", label: "Fabric" },
   { id: "design", label: "Design" },
   { id: "measurements", label: "Measurements" },
   { id: "brief", label: "Brief" },
-  { id: "handoff", label: "Handoff" },
+  { id: "handoff", label: "Send to tailor" },
 ] as const;
 
 export type WorkspaceStep = (typeof WORKSPACE_STEPS)[number]["id"];
