@@ -103,6 +103,7 @@ export function MeasurementField({
   error,
   onChange,
   onSourceChange,
+  showSource = false,
 }: {
   name: string;
   label: string;
@@ -116,6 +117,7 @@ export function MeasurementField({
   error?: string | null;
   onChange: (value: string) => void;
   onSourceChange?: (source: string) => void;
+  showSource?: boolean;
 }) {
   const autoId = useId().replace(/[^A-Za-z0-9_-]/g, "");
   const inputId = `measurement-${name}-${autoId}`;
@@ -133,7 +135,7 @@ export function MeasurementField({
           {kind === "body" ? "Body measurement" : "Garment measurement"}
         </Badge>
         <Badge variant="secondary">
-          {verificationStatus === "verified" ? "Verified by reviewer" : "Not verified"}
+          {verificationStatus === "verified" ? "Verified by reviewer" : "Tailor will confirm"}
         </Badge>
       </div>
       {guidance ? (
@@ -155,22 +157,28 @@ export function MeasurementField({
           placeholder="Leave blank if not measured"
         />
         <span className="text-sm text-muted-foreground">{unit}</span>
-        <Label htmlFor={`${inputId}-source`} className="sr-only">
-          Source for {label}
-        </Label>
-        <select
-          id={`${inputId}-source`}
-          value={source}
-          onChange={(e) => onSourceChange?.(e.target.value)}
-          className="min-h-11 rounded-md border border-input bg-background px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-        >
-          <option value="customer_manual">Entered by customer</option>
-          <option value="tailor_manual">Entered by tailor</option>
-        </select>
+        {showSource ? (
+          <>
+            <Label htmlFor={`${inputId}-source`} className="sr-only">
+              Source for {label}
+            </Label>
+            <select
+              id={`${inputId}-source`}
+              value={source}
+              onChange={(e) => onSourceChange?.(e.target.value)}
+              className="min-h-11 rounded-md border border-input bg-background px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            >
+              <option value="customer_manual">Entered by customer</option>
+              <option value="tailor_manual">Entered by tailor</option>
+            </select>
+          </>
+        ) : null}
       </div>
-      <p className="text-xs text-muted-foreground">
-        Source: {source === "tailor_manual" ? "Tailor manual entry" : "Customer manual entry"}
-      </p>
+      {showSource ? (
+        <p className="text-xs text-muted-foreground">
+          Source: {source === "tailor_manual" ? "Tailor manual entry" : "Customer manual entry"}
+        </p>
+      ) : null}
       {error ? (
         <p id={errorId} role="alert" className="text-sm text-destructive">
           {error}

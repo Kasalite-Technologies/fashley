@@ -151,7 +151,55 @@ describe("MeasurementField error linking", () => {
     expect(
       document.getElementById(describedBy.split(" ").find((id) => id.includes("error")) ?? ""),
     ).toHaveTextContent("Enter a number");
-    expect(screen.getByText("Not verified")).toBeInTheDocument();
+    expect(screen.getByText("Tailor will confirm")).toBeInTheDocument();
+  });
+
+  it("hides the source selector by default and shows it only with showSource", () => {
+    const { rerender } = render(
+      <MeasurementField
+        name="bust"
+        label="Bust"
+        kind="body"
+        unit="cm"
+        value="92"
+        source="customer_manual"
+        onChange={() => {}}
+      />,
+    );
+    expect(screen.queryByLabelText(/Source for Bust/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Source:/)).not.toBeInTheDocument();
+    expect(screen.getByText("Tailor will confirm")).toBeInTheDocument();
+    rerender(
+      <MeasurementField
+        name="bust"
+        label="Bust"
+        kind="body"
+        unit="cm"
+        value="92"
+        source="tailor_manual"
+        showSource
+        onChange={() => {}}
+        onSourceChange={() => {}}
+      />,
+    );
+    expect(screen.getByLabelText(/Source for Bust/)).toBeInTheDocument();
+    expect(screen.getByText(/Source: Tailor manual entry/)).toBeInTheDocument();
+  });
+
+  it("shows the verified badge wording when verified", () => {
+    render(
+      <MeasurementField
+        name="bust"
+        label="Bust"
+        kind="body"
+        unit="cm"
+        value="92"
+        source="customer_manual"
+        verificationStatus="verified"
+        onChange={() => {}}
+      />,
+    );
+    expect(screen.getByText("Verified by reviewer")).toBeInTheDocument();
   });
 });
 
