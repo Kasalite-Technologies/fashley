@@ -103,6 +103,7 @@ export const jobResultSchema = z.discriminatedUnion("type", [
     .object({
       type: z.literal("generate_concept"),
       asset: assetSchema,
+      assets: z.array(assetSchema).min(1).max(4),
       inputSnapshot: projectInputSchema,
       modelId: z.string().min(1).max(200),
       promptVersion: z.string().min(1).max(100),

@@ -417,6 +417,7 @@ export function WorkspacePage() {
   const activeMeasurementUnit: MeasurementDisplayUnit =
     measurementUnitOverride ?? defaultMeasurementUnit;
   const conceptResult = job.data?.result?.type === "generate_concept" ? job.data.result : null;
+  const conceptAssets = conceptResult?.assets ?? (conceptResult ? [conceptResult.asset] : []);
   const analyzeResult =
     analyzeJob.data?.result?.type === "analyze_fabric" ? analyzeJob.data.result : null;
   const fabricAnalysis =
@@ -878,12 +879,13 @@ export function WorkspacePage() {
               </p>
             )}
             <p className="text-sm">
-              Generating a concept uses {me.data?.jobQuotes.generate_concept ?? 0} pilot credit(s).
-              It saves and locks your current inputs first, so the result always matches a saved
+              Generating previews uses {me.data?.jobQuotes.generate_concept ?? 0} pilot credit(s).
+              It saves and locks your current inputs first, so the results always match a saved
               version.
             </p>
             <p className="text-sm text-muted-foreground">
-              Locking saves this exact version. Your brief is made from it. You can still make a new
+              You get up to four previews of your outfit in different styles, all in your fabric.
+              Pick the one you like. Locking saves this exact version, and you can still make a new
               version later.
             </p>
             <Button
@@ -892,7 +894,7 @@ export function WorkspacePage() {
               disabled={!input.fabric.selection}
               onClick={() => void runSequence("concept")}
             >
-              Generate concept
+              Generate up to 4 previews
             </Button>
             {!input.fabric.selection ? (
               <p className="text-sm text-muted-foreground">
@@ -905,34 +907,51 @@ export function WorkspacePage() {
               <JobStatusPanel job={job.data} {...jobPanelHandlers(() => job.refetch())} />
             ) : null}
             <ConceptViewer
-              conceptAssetId={conceptResult?.asset.id ?? input.selectedConceptAssetId}
+              conceptAssetId={input.selectedConceptAssetId ?? conceptAssets[0]?.id ?? null}
               fabricAssetId={input.fabric.selection?.cropAssetId ?? null}
               frozenLabels={frozenLabels}
               assetUrl={(id) => tailorApi.ownerAssetUrl(id)}
             />
-            {conceptResult ? (
-              <div className="flex flex-wrap items-center gap-2">
-                <Button
-                  type="button"
-                  className="min-h-11"
-                  disabled={
-                    selectingConcept || input.selectedConceptAssetId === conceptResult.asset.id
-                  }
-                  onClick={() => void selectConcept(conceptResult.asset.id)}
-                >
-                  {selectingConcept
-                    ? "Saving selection"
-                    : input.selectedConceptAssetId === conceptResult.asset.id
-                      ? "Concept selected"
-                      : "Use this concept"}
-                </Button>
-                {input.selectedConceptAssetId === conceptResult.asset.id ? (
-                  <Badge variant="secondary">Selected concept</Badge>
+            {conceptAssets.length ? (
+              <div className="space-y-3">
+                <h3 className="text-sm font-semibold">
+                  Your style previews ({conceptAssets.length} of up to 4)
+                </h3>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  {conceptAssets.map((asset, i) => (
+                    <figure key={asset.id} className="space-y-2">
+                      <img
+                        src={tailorApi.ownerAssetUrl(asset.id)}
+                        alt={`Generated outfit style preview ${i + 1}`}
+                        className="aspect-square w-full rounded-md border object-cover"
+                      />
+                      <figcaption className="text-sm text-muted-foreground">
+                        Style preview {i + 1}
+                      </figcaption>
+                      <Button
+                        type="button"
+                        className="min-h-11"
+                        disabled={selectingConcept || input.selectedConceptAssetId === asset.id}
+                        onClick={() => void selectConcept(asset.id)}
+                      >
+                        {input.selectedConceptAssetId === asset.id
+                          ? "Selected preview"
+                          : "Use this preview"}
+                      </Button>
+                    </figure>
+                  ))}
+                </div>
+                {conceptResult?.warnings.length ? (
+                  <ul className="list-disc pl-5 text-sm text-muted-foreground">
+                    {conceptResult.warnings.map((w) => (
+                      <li key={w}>{w}</li>
+                    ))}
+                  </ul>
                 ) : null}
               </div>
             ) : input.selectedConceptAssetId ? (
               <p className="flex flex-wrap items-center gap-2 text-sm">
-                <Badge variant="secondary">Selected concept</Badge>
+                <Badge variant="secondary">Selected preview</Badge>
                 Saved selection for this project.
               </p>
             ) : null}
@@ -1192,14 +1211,19 @@ export function WorkspacePage() {
         ) : null}
 
         {step === "handoff" ? (
-          <section className="max-w-2xl space-y-4" aria-label="Send to tailor">
+          <section className="max-w-2xl space-y-4" aria-label="Share with a tailor, optional">
+            <p className="text-sm">
+              This step is optional. Your design stays saved in your project whether or not you
+              share it with a tailor.
+            </p>
             {project.data.project.latestBriefId ? (
               <>
                 <p className="text-sm">
-                  Your locked brief is ready to open, print and send to your tailor for review.
+                  If you want this outfit made, you can open your locked brief and choose to share
+                  it with your tailor.
                 </p>
                 <p className="text-sm text-muted-foreground">
-                  Your tailor gets a link to this brief only — not your account.
+                  Your tailor gets a link to this brief only, not your account.
                 </p>
                 <Button asChild className="min-h-11">
                   <Link
@@ -1207,18 +1231,18 @@ export function WorkspacePage() {
                     params={{ projectId }}
                     search={{ step: "overview" }}
                   >
-                    Open brief and send to tailor
+                    Open brief
                   </Link>
                 </Button>
               </>
             ) : (
               <>
                 <p className="text-sm">
-                  There is no locked brief yet. Make and lock one in the Brief step, then send it
-                  from the brief page.
+                  There is no locked brief yet. If you want to share this design with a tailor,
+                  make and lock one in the Brief step first. You do not have to share it.
                 </p>
                 <p className="text-sm text-muted-foreground">
-                  Your tailor gets a link to this brief only — not your account.
+                  Your tailor gets a link to this brief only, not your account.
                 </p>
                 <Button
                   type="button"

@@ -62,6 +62,7 @@ describe("fixture adapter (fixture evidence)", () => {
     const done = await api.getJob(started.job.id);
     expect(done.state).toBe("completed");
     expect(done.result?.type).toBe("generate_concept");
+    if (done.result?.type === "generate_concept") expect(done.result.assets).toHaveLength(4);
     // Reload recovery source: the project now reports this job as latest.
     expect((await api.getProject(detail.project.id)).latestJob?.id).toBe(started.job.id);
   });

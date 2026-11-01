@@ -337,6 +337,13 @@ export function createFixtureTailorApi(): TailorApi {
           ? {
               type: "generate_concept",
               asset: clone(fixtureConceptAsset),
+              assets: [
+                clone(fixtureConceptAsset),
+                ...[2, 3, 4].map((n) => ({
+                  ...clone(fixtureConceptAsset),
+                  id: `${fixtureConceptAsset.id}_${n}`,
+                })),
+              ],
               inputSnapshot: clone(fixtureInputComplete),
               modelId: "fixture-model",
               promptVersion: "fixture-v1",

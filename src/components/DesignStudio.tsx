@@ -1,12 +1,11 @@
 import { Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import { Camera, ImagePlus, RefreshCw, Sparkles, AlertTriangle, Bookmark, Share2, Loader2, ShoppingBag, Eye, Download, Minus, Plus } from "lucide-react";
+import { Camera, ImagePlus, RefreshCw, Sparkles, AlertTriangle, Bookmark, Share2, Loader2, Eye, Download, Minus, Plus } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/use-auth";
 import { prepareFabric, dataUrlToBlob, type FabricCheck } from "@/lib/fabric";
 import { streamImage } from "@/lib/stream-image";
-import { suggestAccessories, type Accessories } from "@/lib/accessories.functions";
 import { SiteHeader } from "@/components/SiteHeader";
 import { DesignPreview } from "@/components/DesignPreview";
 import { BackButton } from "@/components/BackButton";
@@ -65,10 +64,6 @@ export function DesignStudio({ kind = "outfits" }: { kind?: DesignKind }) {
   const [notes, setNotes] = useState("");
   const [results, setResults] = useState<DesignResult[]>([]);
   const [running, setRunning] = useState(false);
-  const [selected, setSelected] = useState<number | null>(null);
-  const [accessories, setAccessories] = useState<Record<number, Accessories>>({});
-  const [accLoading, setAccLoading] = useState(false);
-  const [accError, setAccError] = useState(false);
   const [elapsed, setElapsed] = useState(0);
   useEffect(() => { if (!running) return; setElapsed(0); const timer=setInterval(()=>setElapsed(t=>t+1),1000); return ()=>clearInterval(timer); }, [running]);
   const [saved, setSaved] = useState<Record<number, boolean>>({});
@@ -98,7 +93,6 @@ export function DesignStudio({ kind = "outfits" }: { kind?: DesignKind }) {
   async function runOne(index: number, preferences: DesignPreferences) {
     if (!fabric || !session) return;
     setSaved((s) => ({ ...s, [index]: false }));
-    setAccessories((a) => { const next = { ...a }; delete next[index]; return next; });
     setResults((r) => r.map((x, i) => (i === index ? { src: "", final: false, preferences } : x)));
     const form = new FormData();
     form.append("image", fabric.file);
@@ -128,8 +122,6 @@ export function DesignStudio({ kind = "outfits" }: { kind?: DesignKind }) {
     const preferences = currentPreferences();
     const variants = Array.from({ length: count }, (_, i) => i);
     setResults(variants.map(() => ({ src: "", final: false, preferences })));
-    setSelected(null);
-    setAccessories({});
     setSaved({});
     setRunning(true);
     try { await Promise.all(variants.map((_, i) => runOne(i, preferences))); }
@@ -149,24 +141,6 @@ export function DesignStudio({ kind = "outfits" }: { kind?: DesignKind }) {
     finally { try { await coinAccount.refetch(); } finally { busyRef.current = false; setRunning(false); } }
   }
 
-  async function getAccessories(i: number) {
-    const result = results[i];
-    if (!result?.final) return;
-    setSelected(i);
-    if (accessories[i]) return;
-    setAccLoading(true);
-    setAccError(false);
-    try {
-      const acc = await suggestAccessories({
-        data: { category: result.preferences.category, occasion: result.preferences.occasion, style: result.preferences.style, fabricNotes: result.preferences.notes, imageDataUrl: result.src },
-      });
-      setAccessories((a) => ({ ...a, [i]: acc }));
-    } catch (e) {
-      setAccError(true);
-    }
-    setAccLoading(false);
-  }
-
   async function save(i: number) {
     const result = results[i];
     if (!session || !result?.final || saved[i] || savingRef.current.has(i) || busyRef.current) return;
@@ -181,7 +155,7 @@ export function DesignStudio({ kind = "outfits" }: { kind?: DesignKind }) {
     const { error } = await supabase.from("designs").insert({
       image_path: path,
       ...designMetadata(result.preferences),
-      accessories: (accessories[i] ?? null) as never,
+      accessories: null as never,
     });
     if (error) { await supabase.storage.from("designs").remove([path]); toast.error(error.message); return; }
     setSaved((s) => ({ ...s, [i]: true }));
@@ -216,7 +190,6 @@ export function DesignStudio({ kind = "outfits" }: { kind?: DesignKind }) {
 
   if (loading) return <div><SiteHeader/><main className="mx-auto max-w-6xl px-5 py-12" role="status">Loading your design studio…</main></div>;
 
-  const sel = selected !== null ? accessories[selected] : undefined;
   const detailResult = detail !== null ? results[detail] : undefined;
   const savingAny = Object.values(saving).some(Boolean);
 
@@ -321,12 +294,12 @@ export function DesignStudio({ kind = "outfits" }: { kind?: DesignKind }) {
                 {running && <div role="status" aria-live="polite" className="mb-4 space-y-2"><p className="flex items-center gap-2 text-sm"><Loader2 className="h-4 w-4 animate-spin"/>{elapsed < 10 ? 'Reading your fabric photo…' : elapsed < 35 ? 'Drawing your design ideas…' : 'Adding the pattern and details…'}</p><p className="text-xs text-muted-foreground">{results.filter(r=>r.final).length} of {results.length} designs complete · {elapsed}s elapsed. This usually takes 30 to 90 seconds.</p></div>}
                 {!running && (
                   <div className="mb-3 flex justify-end">
-                    <Button size="sm" variant="ghost" className="text-muted-foreground" onClick={() => { setResults([]); setSelected(null); setAccessories({}); setSaved({}); }}>Clear designs</Button>
+                    <Button size="sm" variant="ghost" className="text-muted-foreground" onClick={() => { setResults([]); setSaved({}); }}>Clear designs</Button>
                   </div>
                 )}
                 <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                   {results.map((r, i) => (
-                    <div key={i} className={cn("rounded-2xl border bg-card p-2", selected === i && "ring-2 ring-primary")}>
+                    <div key={i} className="rounded-2xl border bg-card p-2">
                       <div className={cn("relative overflow-hidden rounded-lg bg-muted", kind === "outfits" ? "aspect-[2/3]" : "aspect-square")}>
                         {r.src ? (
                           <img src={r.src} alt={`${options.title} concept ${i + 1}`} className={cn("h-full w-full object-cover transition-[filter] duration-500", r.final ? "blur-0" : "blur-2xl")} />
@@ -344,9 +317,6 @@ export function DesignStudio({ kind = "outfits" }: { kind?: DesignKind }) {
                         <div className="mt-2 flex flex-wrap gap-1">
                           <Button size="icon" variant="ghost" aria-label="View design" disabled={running} onClick={() => setDetail(i)}><Eye className="h-4 w-4" /></Button>
                           <Button size="sm" variant="outline" onClick={() => download(i)}><Download className="h-4 w-4" />Download image</Button>
-                          {kind === "outfits" && <Button size="sm" variant={selected === i ? "default" : "outline"} onClick={() => getAccessories(i)}>
-                            <ShoppingBag className="mr-1 h-3.5 w-3.5" /> Style
-                          </Button>}
                           <Button size="icon" variant="ghost" aria-label="Save" disabled={saved[i] || saving[i] || running} onClick={() => save(i)}>
                             <Bookmark className={cn("h-4 w-4", saved[i] && "fill-current")} />
                           </Button>
@@ -364,35 +334,7 @@ export function DesignStudio({ kind = "outfits" }: { kind?: DesignKind }) {
                   ))}
                 </div>
 
-                {selected !== null && (
-                  <div className="mt-8 rounded-2xl bg-sand/50 p-6">
-                    <h2 className="text-3xl">Shoes and bags to match</h2>
-                    {accLoading && !sel ? (
-                      <p className="mt-4 flex items-center gap-2 text-sm text-muted-foreground"><Loader2 className="h-4 w-4 animate-spin" /> Finding shoes and bags…</p>
-                    ) : accError ? <div className="mt-4"><p role="alert">We couldn’t find matching accessories. Try again in a moment.</p><Button className="mt-3" variant="outline" onClick={()=>getAccessories(selected)}>Retry suggestions</Button></div> : sel ? (
-                      <>
-                        <div className="mt-4 grid gap-6 md:grid-cols-2">
-                          {(["shoes", "bags"] as const).map((k) => (
-                            <div key={k}>
-                              <p className="text-xs uppercase tracking-widest text-muted-foreground">{k === "shoes" ? "Shoes" : "Handbags"}</p>
-                              <ul className="mt-2 space-y-3">
-                                {sel[k].map((it) => (
-                                  <li key={it.name} className="rounded-xl bg-card p-3">
-                                    <p className="font-medium">{it.name} <span className="text-muted-foreground">· {it.color}</span></p>
-                                    <p className="text-sm text-muted-foreground">{it.why}</p>
-                                  </li>
-                                ))}
-                              </ul>
-                            </div>
-                          ))}
-                        </div>
-                        <p className="mt-4 font-display text-xl italic">“{sel.tip}”</p>
-                        <p className="mt-2 text-xs text-muted-foreground">Save this design now to keep these suggestions with it.</p>
-                      </>
-                    ) : null}
-                  </div>
-                )}
-                <p className="mt-6 text-xs text-muted-foreground">These designs are ideas, not sewing patterns. Fit is not guaranteed. Check the design with a tailor or craftsperson before making it.</p>
+                <p className="mt-6 text-xs text-muted-foreground">These designs are ideas, not sewing patterns. Fit is not guaranteed. Check the design with a tailor or craftsperson before making it. Outfits, shoes and bags are designed separately: use the design type switch above to start a shoe or bag design of its own.</p>
               </>
             )}
           </section>

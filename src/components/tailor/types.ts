@@ -5,8 +5,8 @@ export const WORKSPACE_STEPS = [
   { id: "fabric", label: "Fabric" },
   { id: "design", label: "Design" },
   { id: "measurements", label: "Measurements" },
-  { id: "brief", label: "Brief" },
-  { id: "handoff", label: "Send to tailor" },
+  { id: "brief", label: "Brief (optional)" },
+  { id: "handoff", label: "Share (optional)" },
 ] as const;
 
 export type WorkspaceStep = (typeof WORKSPACE_STEPS)[number]["id"];

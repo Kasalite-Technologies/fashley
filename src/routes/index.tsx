@@ -21,13 +21,13 @@ export const Route = createFileRoute("/")({
       {
         name: "description",
         content:
-          "Upload a photo of your fabric and preview outfit, bag and shoe ideas in your own print. When you are ready, a tailor checks your measurements and the brief before anything is made.",
+          "Upload a photo of your fabric, choose an outfit, a bag or a shoe, and preview up to four styles in your own print. Keep the design for yourself, or share it with a tailor if you want it made.",
       },
       { property: "og:title", content: "Fashley | See what your fabric could become" },
       {
         property: "og:description",
         content:
-          "Upload a photo of your fabric and preview outfit, bag and shoe ideas in your own print. When you are ready, a tailor checks your measurements and the brief before anything is made.",
+          "Upload a photo of your fabric, choose an outfit, a bag or a shoe, and preview up to four styles in your own print. Keep the design for yourself, or share it with a tailor if you want it made.",
       },
       { property: "og:image", content: "https://fashley.lovable.app/fashley-share.jpg" },
       { name: "twitter:image", content: "https://fashley.lovable.app/fashley-share.jpg" },
@@ -40,33 +40,33 @@ export const Route = createFileRoute("/")({
 });
 
 const steps = [
+  ["Pick what to make", "Choose an outfit, a bag or a shoe. Each one is designed separately."],
   ["Your fabric", "Start with a photo of the fabric you already have."],
-  ["Design idea", "See AI outfit concepts in your print and pick a direction."],
-  ["Your measurements", "Add the measurements you know. Your tailor checks them with you."],
-  ["Tailor brief", "Send your tailor a brief with the design and measurements together."],
-  ["Tailor approves", "Your tailor reviews and approves the brief before any sewing starts."],
+  ["Up to 4 previews", "See up to four style previews in your print and compare them."],
+  ["Pick your favourite", "Save the preview you like and keep designing if you want more."],
+  ["Only if you want it made", "Add measurements and share the design with a tailor. This part is your choice."],
 ] as const;
 
 const faqs = [
   {
     q: "Is the preview the final garment?",
-    a: "No. A preview shows print and shape ideas only. Your tailor confirms what can be made from your fabric before anything is cut or sewn.",
+    a: "No. A preview shows print and shape ideas only. If you decide to have the outfit made, a tailor confirms what can be made from your fabric before anything is cut or sewn.",
   },
   {
-    q: "Who checks my measurements?",
-    a: "You enter your measurements, and your tailor verifies them before making the outfit. Correct any measurement with your tailor if it does not look right.",
+    q: "Do outfits, bags and shoes come together?",
+    a: "No. You pick one design type at a time: an outfit, a bag or a shoe. Each design is created in its own studio or project, with its own fabric photo and previews.",
+  },
+  {
+    q: "Do I have to send my design to a tailor?",
+    a: "No. Generating and saving a design does not send it anywhere. Sharing with a tailor is a separate step you choose only if you want the outfit made.",
   },
   {
     q: "Is fit guaranteed?",
-    a: "No. Measurements alone cannot guarantee fit. Fit depends on the fabric, the style, and how the garment is made, which is why your tailor verifies your measurements and the brief first.",
+    a: "No. Measurements alone cannot guarantee fit. Fit depends on the fabric, the style, and how the garment is made. If you share your design with a tailor, they verify your measurements with you first.",
   },
   {
     q: "Who sees my fabric photos?",
-    a: "Your fabric photos are private to your account. A tailor sees only the brief you choose to send through its link.",
-  },
-  {
-    q: "What happens if my tailor requests changes?",
-    a: "You see the tailor's note, update the design or measurements, and a new brief version is created. Your tailor reviews the new version before anything is made.",
+    a: "Your fabric photos are private to your account. A tailor sees only the design you choose to share through its link.",
   },
 ] as const;
 
@@ -91,9 +91,9 @@ function Index() {
                 See what your fabric could become
               </h1>
               <p className="mt-6 max-w-md text-lg leading-relaxed text-muted-foreground">
-                Upload a photo of your fabric and preview outfit, bag and shoe ideas in your own
-                print. When you are ready, a tailor checks your measurements and the brief before
-                anything is made.
+                Upload a photo of your fabric, pick an outfit, a bag or a shoe, and preview up to
+                four styles in your own print. Keep the design for yourself, or share it with a
+                tailor if you want it made.
               </p>
               <div className="mt-8 flex flex-wrap gap-3">
                 <Button asChild size="lg">
@@ -106,8 +106,8 @@ function Index() {
                 </Button>
               </div>
               <p className="mt-4 max-w-md text-sm text-muted-foreground">
-                Uploading your fabric starts an outfit project with a tailor. The design studios are
-                for trying print ideas, with no tailor involved.
+                Nothing is sent to a tailor unless you choose to share it. Outfits, bags and shoes
+                are each designed separately.
               </p>
             </div>
 
@@ -145,20 +145,20 @@ function Index() {
             <article className="rounded-lg border border-border bg-card p-6">
               <h2 className="font-sans text-xl font-semibold tracking-tight">I have fabric</h2>
               <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                Start an outfit project, add your measurements, and send your tailor a brief to
-                review before anything is made.
+                Start an outfit project and preview up to four styles in your fabric. Add
+                measurements and share it with a tailor only if you want it made.
               </p>
               <Button asChild variant="outline" className="mt-4">
                 <Link to="/tailor">
-                  Make an outfit with a tailor <ArrowRight />
+                  Start an outfit project <ArrowRight />
                 </Link>
               </Button>
             </article>
             <article className="rounded-lg border border-border bg-card p-6">
               <h2 className="font-sans text-xl font-semibold tracking-tight">I design</h2>
               <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                Try a print across outfits, shoes, and bags in the design studios, and save each
-                version with the choices that produced it.
+                Work on one design type at a time in its own studio: outfits, shoes or bags, each
+                with its own fabric photo, previews and saved versions.
               </p>
               <Button asChild variant="outline" className="mt-4">
                 <Link to="/studio">
@@ -185,73 +185,98 @@ function Index() {
               ))}
             </ol>
             <p className="mt-8 max-w-2xl text-sm leading-relaxed text-muted-foreground">
-              AI concepts are previews only, not sewing patterns or a promise of fit. Measurements
-              are entered by you and verified by your tailor.
+              AI previews are design ideas only, not sewing patterns or a promise of fit.
+              Measurements are entered by you, and only matter if you choose to have an outfit
+              made.
             </p>
           </div>
         </section>
 
-        {/* 3. Fabric to concept proof */}
+        {/* 3. Separate design types */}
         <section className="mx-auto max-w-6xl px-5 py-14">
-          <SectionHeading>One fabric, three previews</SectionHeading>
+          <SectionHeading>Pick one: outfit, bag or shoe</SectionHeading>
           <p className="mt-4 max-w-2xl leading-relaxed text-muted-foreground">
-            The same print, shown as an outfit, a bag, and a shoe. Each image below is an AI preview
-            example. Previews show print and shape ideas, not the finished garment.
+            Each design type is made on its own. You upload your fabric for the one you picked,
+            and Fashley generates up to four style previews for that item only. An outfit design
+            does not also generate a bag or shoes.
           </p>
-          <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            <figure>
-              <img
-                src={fabricPrint}
-                alt="Example fabric print, the source for the three previews next to it"
-                width={1600}
-                height={1600}
-                loading="lazy"
-                className="aspect-square w-full rounded-lg border border-border object-cover"
-              />
-              <figcaption className="mt-2 text-sm text-muted-foreground">
-                Source fabric. Example photo.
-              </figcaption>
-            </figure>
-            <figure>
+          <div className="mt-8 grid gap-6 md:grid-cols-3">
+            <article className="rounded-lg border border-border bg-card p-6">
               <img
                 src={outfitConcept}
-                alt="Example AI preview of an outfit in the source fabric print"
+                alt="Example AI preview of an outfit made from an example fabric print"
                 width={1120}
                 height={2240}
                 loading="lazy"
-                className="aspect-square w-full rounded-lg border border-border object-cover"
+                className="aspect-square w-full rounded-md border border-border object-cover"
               />
-              <figcaption className="mt-2 text-sm text-muted-foreground">
-                Outfit. AI preview example.
-              </figcaption>
-            </figure>
-            <figure>
+              <h3 className="mt-4 font-sans text-xl font-semibold tracking-tight">Outfit</h3>
+              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                Upload your fabric and preview up to four outfit styles in your print, then pick
+                your favourite. Example AI preview.
+              </p>
+              <Button asChild variant="outline" className="mt-4">
+                <Link to="/tailor">
+                  Start an outfit <ArrowRight />
+                </Link>
+              </Button>
+            </article>
+            <article className="rounded-lg border border-border bg-card p-6">
               <img
                 src={bagConcept}
-                alt="Example AI preview of a bag in the source fabric print"
+                alt="Example AI preview of a bag made from an example fabric print"
                 width={1920}
                 height={1280}
                 loading="lazy"
-                className="aspect-square w-full rounded-lg border border-border object-cover"
+                className="aspect-square w-full rounded-md border border-border object-cover"
               />
-              <figcaption className="mt-2 text-sm text-muted-foreground">
-                Bag. AI preview example, studio concept only.
-              </figcaption>
-            </figure>
-            <figure>
+              <h3 className="mt-4 font-sans text-xl font-semibold tracking-tight">Bag</h3>
+              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                A separate studio for bags. Your bag design starts with its own fabric photo and
+                its own previews. Example AI preview.
+              </p>
+              <Button asChild variant="outline" className="mt-4">
+                <Link to="/bag-design">
+                  Open bag studio <ArrowUpRight />
+                </Link>
+              </Button>
+            </article>
+            <article className="rounded-lg border border-border bg-card p-6">
               <img
                 src={shoeConcept}
-                alt="Example AI preview of a shoe in the source fabric print"
+                alt="Example AI preview of shoes made from an example fabric print"
                 width={1920}
                 height={1280}
                 loading="lazy"
-                className="aspect-square w-full rounded-lg border border-border object-cover"
+                className="aspect-square w-full rounded-md border border-border object-cover"
               />
-              <figcaption className="mt-2 text-sm text-muted-foreground">
-                Shoe. AI preview example, studio concept only.
-              </figcaption>
-            </figure>
+              <h3 className="mt-4 font-sans text-xl font-semibold tracking-tight">Shoe</h3>
+              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                A separate studio for shoes. Your shoe design starts with its own fabric photo and
+                its own previews. Example AI preview.
+              </p>
+              <Button asChild variant="outline" className="mt-4">
+                <Link to="/shoe-design">
+                  Open shoe studio <ArrowUpRight />
+                </Link>
+              </Button>
+            </article>
           </div>
+          <figure className="mt-8 flex items-start gap-4">
+            <img
+              src={fabricPrint}
+              alt="Example fabric print"
+              width={1600}
+              height={1600}
+              loading="lazy"
+              className="h-20 w-20 rounded-md border border-border object-cover"
+            />
+            <figcaption className="text-sm leading-relaxed text-muted-foreground">
+              Every design starts from a fabric photo like this example. The examples on this page
+              use one print family to show the idea; your previews come from your own fabric.
+              Previews show print and shape ideas, not the finished item.
+            </figcaption>
+          </figure>
         </section>
 
         {/* 4. For designers */}
@@ -259,10 +284,10 @@ function Index() {
           <div className="mx-auto max-w-6xl px-5 py-14">
             <SectionHeading>For designers</SectionHeading>
             <p className="mt-4 max-w-2xl leading-relaxed text-muted-foreground">
-              Test a print across garments and accessories before you commit to a direction. Each
-              saved version keeps the choices that produced it, so you can compare versions and
-              return to one later. These are design studios for outfits, shoes, and bags. Only
-              outfit projects go to a tailor.
+              Explore one design type at a time before you commit to a direction. Each studio
+              keeps its own fabric, previews and saved versions, so you can compare versions and
+              return to one later. Outfits, shoes and bags are designed separately, never bundled
+              into one generation.
             </p>
             <ul className="mt-6 flex flex-wrap gap-3">
               <li>
@@ -290,17 +315,18 @@ function Index() {
           </div>
         </section>
 
-        {/* 5. Measurements and the tailor check */}
-        <section id="tailor-check" className="mx-auto max-w-6xl scroll-mt-24 px-5 py-14">
-          <SectionHeading>Measurements and the tailor check</SectionHeading>
+        {/* 5. Measurements, only if you want it made */}
+        <section id="measurements" className="mx-auto max-w-6xl scroll-mt-24 px-5 py-14">
+          <SectionHeading>Measurements, only if you want it made</SectionHeading>
           <div className="mt-4 max-w-2xl space-y-4 leading-relaxed text-muted-foreground">
             <p>
-              You type your own measurements, in centimetres or inches, and they are saved with your
-              outfit project.
+              Designing does not need measurements. If you decide to have an outfit made, you can
+              type your own measurements, in centimetres or inches, and save them with your outfit
+              project.
             </p>
             <p>
-              Your tailor verifies your measurements before making anything. If a measurement looks
-              wrong, you correct it together and the brief is updated.
+              If you share the design with a tailor, they verify your measurements with you before
+              making anything. If a measurement looks wrong, you correct it together.
             </p>
             <p>
               Fashley does not guarantee fit from measurements alone. Fit also depends on the
@@ -309,80 +335,41 @@ function Index() {
           </div>
         </section>
 
-        {/* 6. The versioned brief */}
-        <section id="brief" className="border-y border-border bg-muted/50">
-          <div className="mx-auto max-w-6xl scroll-mt-24 px-5 py-14">
-            <SectionHeading>A brief the tailor can say yes or no to</SectionHeading>
+        {/* 6. Sharing is your choice */}
+        <section className="border-y border-border bg-muted/50">
+          <div className="mx-auto max-w-6xl px-5 py-14">
+            <SectionHeading>Your design, your choice</SectionHeading>
             <p className="mt-4 max-w-2xl leading-relaxed text-muted-foreground">
-              An outfit project becomes a brief: the design and your measurements in one place. Your
-              tailor reviews each version and can approve the design, request changes, or accept the
-              job. If changes are requested, you update the project and a new version is sent. The
-              tailor flow covers outfits only.
+              When you generate a design, it is yours. Nothing is sent to a tailor automatically,
+              and you do not need a tailor to design, preview or save your ideas.
             </p>
-
-            <article
-              aria-label="Example tailor brief"
-              className="mt-8 max-w-2xl rounded-lg border border-border bg-card p-6"
-            >
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <h3 className="font-sans text-lg font-semibold tracking-tight">Tailor brief</h3>
-                <span className="rounded-md border border-border bg-background px-2 py-1 font-mono text-xs text-foreground">
-                  Example
-                </span>
-              </div>
-
-              <div className="mt-6 space-y-6">
-                <div>
-                  <p className="font-mono text-xs text-muted-foreground">Brief v1</p>
-                  <dl className="mt-2 space-y-1 text-sm">
-                    <div className="flex gap-2">
-                      <dt className="font-medium">Design:</dt>
-                      <dd className="text-muted-foreground">
-                        Outfit preview in your fabric print, with the style choices you picked.
-                      </dd>
-                    </div>
-                    <div className="flex gap-2">
-                      <dt className="font-medium">Measurements:</dt>
-                      <dd className="text-muted-foreground">
-                        The measurements you entered, saved with this version.
-                      </dd>
-                    </div>
-                  </dl>
-                  <p className="mt-3 rounded-md bg-muted p-3 text-sm text-muted-foreground">
-                    Example tailor note: &ldquo;Please confirm the sleeve length before I
-                    start.&rdquo; This note is an example, not a real customer message.
-                  </p>
-                </div>
-
-                <div className="border-t border-border pt-6">
-                  <p className="font-mono text-xs text-muted-foreground">Brief v2</p>
-                  <p className="mt-2 text-sm text-muted-foreground">
-                    Updated after the tailor note, with the corrected measurement. The tailor
-                    reviews this version before anything is made.
-                  </p>
-                </div>
-              </div>
-
-              <div className="mt-6 border-t border-border pt-6">
-                <p className="text-sm font-medium">What the tailor can do with a brief</p>
-                <ul className="mt-3 flex flex-wrap gap-2">
-                  {["Approve design", "Request changes", "Accept the job"].map((state) => (
-                    <li
-                      key={state}
-                      className="rounded-md border border-border bg-background px-2.5 py-1 text-xs font-medium"
-                    >
-                      {state}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </article>
-
-            <Button asChild className="mt-8">
-              <Link to="/tailor">
-                Start an outfit project <ArrowRight />
-              </Link>
-            </Button>
+            <div className="mt-8 grid gap-6 md:grid-cols-2">
+              <article className="rounded-lg border border-border bg-card p-6">
+                <h3 className="font-sans text-xl font-semibold tracking-tight">
+                  Keep it for yourself
+                </h3>
+                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                  Save your favourite preview, come back to it later, or generate a new set of
+                  styles from the same fabric. That is a complete design on its own.
+                </p>
+              </article>
+              <article className="rounded-lg border border-border bg-card p-6">
+                <h3 className="font-sans text-xl font-semibold tracking-tight">
+                  Or share it with a tailor
+                </h3>
+                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                  If you want the outfit made, you can choose to share the design and your
+                  measurements with your own tailor through a private link. Sharing is a separate
+                  step, and it only happens when you start it. This applies to outfits only; bag
+                  and shoe designs stay in their studios.
+                </p>
+                <Button asChild variant="outline" className="mt-4">
+                  <Link to="/tailor">
+                    Start an outfit project <ArrowRight />
+                  </Link>
+                </Button>
+              </article>
+            </div>
           </div>
         </section>
 
@@ -390,14 +377,15 @@ function Index() {
         <section className="mx-auto max-w-6xl px-5 py-14">
           <SectionHeading>The studios</SectionHeading>
           <p className="mt-4 max-w-2xl leading-relaxed text-muted-foreground">
-            Studio results are design concepts. Shoes and bags exist only as studio concepts, with
-            no tailor brief or ordering.
+            One studio per design type. Each studio starts with its own fabric photo and generates
+            its own set of up to four previews. Studio results are design concepts, with no
+            ordering.
           </p>
           <div className="mt-8 grid gap-6 md:grid-cols-3">
             <article className="rounded-lg border border-border bg-card p-6">
               <h3 className="font-sans text-xl font-semibold tracking-tight">Outfit studio</h3>
               <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                See outfit ideas in your fabric print and pick a direction.
+                See up to four outfit ideas in your fabric print and pick a direction.
               </p>
               <Button asChild variant="outline" className="mt-4">
                 <Link to="/studio">
@@ -408,7 +396,7 @@ function Index() {
             <article className="rounded-lg border border-border bg-card p-6">
               <h3 className="font-sans text-xl font-semibold tracking-tight">Shoe studio</h3>
               <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                Try your print on shoe shapes as a design concept.
+                Try your print on shoe shapes only, as its own design concept.
               </p>
               <Button asChild variant="outline" className="mt-4">
                 <Link to="/shoe-design">
@@ -420,7 +408,7 @@ function Index() {
             <article className="rounded-lg border border-border bg-card p-6">
               <h3 className="font-sans text-xl font-semibold tracking-tight">Bag studio</h3>
               <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                Try your print on bag shapes as a design concept.
+                Try your print on bag shapes only, as its own design concept.
               </p>
               <Button asChild variant="outline" className="mt-4">
                 <Link to="/bag-design">
@@ -455,8 +443,8 @@ function Index() {
         <section className="mx-auto max-w-6xl px-5 py-16">
           <SectionHeading>Start with the fabric you already have</SectionHeading>
           <p className="mt-4 max-w-2xl leading-relaxed text-muted-foreground">
-            Upload a photo of your fabric to start an outfit project. Your tailor checks your
-            measurements and the brief before anything is made.
+            Upload a photo of your fabric, pick an outfit, a bag or a shoe, and see up to four
+            styles in your print. What you do with the design afterwards is up to you.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <Button asChild size="lg">
@@ -465,7 +453,7 @@ function Index() {
               </Link>
             </Button>
             <Button asChild size="lg" variant="outline">
-              <a href="#tailor-check">See how the tailor check works</a>
+              <a href="#measurements">How measurements work</a>
             </Button>
           </div>
         </section>
