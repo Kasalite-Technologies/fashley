@@ -94,12 +94,12 @@ function Index() {
               </p>
               <div className="mt-8 flex flex-wrap gap-3">
                 <Button asChild size="lg">
-                  <Link to="/tailor">
-                    Upload your fabric <ArrowRight />
+                  <Link to="/studio">
+                    Open the design studio <ArrowRight />
                   </Link>
                 </Button>
                 <Button asChild size="lg" variant="outline">
-                  <Link to="/studio">Open the studios</Link>
+                  <Link to="/tailor">Start an outfit project</Link>
                 </Button>
               </div>
             </div>
@@ -199,7 +199,7 @@ function Index() {
               </p>
               <Button asChild variant="outline" className="mt-4">
                 <Link to="/tailor">
-                  Start an outfit <ArrowRight />
+                  Start an outfit project <ArrowRight />
                 </Link>
               </Button>
             </article>
@@ -395,8 +395,8 @@ function Index() {
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <Button asChild size="lg">
-              <Link to="/tailor">
-                Upload your fabric <ArrowRight />
+              <Link to="/studio">
+                Open the design studio <ArrowRight />
               </Link>
             </Button>
             <Button asChild size="lg" variant="outline">

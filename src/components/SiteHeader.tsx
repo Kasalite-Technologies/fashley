@@ -12,22 +12,22 @@ import logoUrl from '@/assets/logo.png';
 const links=[['Home','/'],['Discover','/discover'],['Studio','/studio'],['Wardrobe','/wardrobe'],['Shop','/shop']] as const;
 
 function SignInLink({ mobile }: { mobile?: boolean | undefined }) {
-  if (mobile) return <SheetClose asChild><Button asChild><Link to="/tailor">Sign in</Link></Button></SheetClose>;
-  return <Button asChild variant="outline" size="sm"><Link to="/tailor">Sign in</Link></Button>;
+  if (mobile) return <SheetClose asChild><Button asChild><Link to="/studio">Sign in</Link></Button></SheetClose>;
+  return <Button asChild variant="outline" size="sm"><Link to="/studio">Sign in</Link></Button>;
 }
 
 function ClerkSignInLink({ mobile }: { mobile?: boolean | undefined }) {
   const { isLoaded, isSignedIn } = useClerkAuth();
   const signedIn = isLoaded && isSignedIn;
-  const label = signedIn ? 'My outfit projects' : 'Sign in';
-  if (mobile) return <SheetClose asChild><Button asChild><Link to="/tailor">{label}</Link></Button></SheetClose>;
-  return <Button asChild variant="outline" size="sm"><Link to="/tailor">{label}</Link></Button>;
+  const label = signedIn ? 'Open design studio' : 'Sign in';
+  if (mobile) return <SheetClose asChild><Button asChild><Link to="/studio">{label}</Link></Button></SheetClose>;
+  return <Button asChild variant="outline" size="sm"><Link to="/studio">{label}</Link></Button>;
 }
 
-// ClerkProvider is only mounted (by TailorClerkProvider in the root route)
-// when a publishable key exists, so the Clerk hook must only run in that
-// case. When Clerk is not configured, fall back to a plain /tailor link,
-// which fails closed with a "not configured" notice on that page.
+// The design studio is the default destination after sign-in, not the
+// tailor project list. ClerkProvider is only mounted (by
+// TailorClerkProvider in the root route) when a publishable key exists, so
+// the Clerk hook must only run in that case; otherwise use the plain link.
 function AuthLink({ mobile }: { mobile?: boolean | undefined }) {
   if (!clerkConfigured) return <SignInLink mobile={mobile} />;
   return <ClerkSignInLink mobile={mobile} />;
