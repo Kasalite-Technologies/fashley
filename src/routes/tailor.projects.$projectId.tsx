@@ -23,6 +23,15 @@ import {
   seededJobIds,
   withoutSelectedConcept,
 } from "@/components/tailor/jobRecovery";
+import {
+  convertMeasurementValue,
+  countFilledMeasurements,
+  isMeasurementsComplete,
+  measurementInputError,
+  measurementValueMm,
+  type MeasurementDisplayUnit,
+  type MeasurementEnteredUnit,
+} from "@/components/tailor/measurementHelpers";
 import { normalizeStep, type WorkspaceStep } from "@/components/tailor/types";
 import {
   IdempotencyKeyKeeper,
@@ -85,6 +94,8 @@ export function WorkspacePage() {
   const [checks, setChecks] = useState<Checks | null>(null);
   const [briefJobId, setBriefJobId] = useState<string | null>(null);
   const [compiledBriefId, setCompiledBriefId] = useState<string | null>(null);
+  const [measurementUnitOverride, setMeasurementUnitOverride] =
+    useState<MeasurementDisplayUnit | null>(null);
   const [selectingConcept, setSelectingConcept] = useState(false);
   const terminalHandled = useRef(new Set<string>());
 
@@ -396,7 +407,15 @@ export function WorkspacePage() {
   const completed: WorkspaceStep[] = [];
   if (input.fabric.selection) completed.push("fabric");
   if (input.selectedConceptAssetId) completed.push("design");
-  if (input.measurements.some((m) => m.valueMm)) completed.push("measurements");
+  if (isMeasurementsComplete(input.measurements, template.data?.measurementFields ?? null))
+    completed.push("measurements");
+  const defaultMeasurementUnit: MeasurementDisplayUnit =
+    (template.data?.measurementFields.find((f) => f.unit === "cm" || f.unit === "in")
+      ?.unit as MeasurementDisplayUnit | undefined) ??
+    me.data?.preferences.measurementUnit ??
+    "cm";
+  const activeMeasurementUnit: MeasurementDisplayUnit =
+    measurementUnitOverride ?? defaultMeasurementUnit;
   const conceptResult = job.data?.result?.type === "generate_concept" ? job.data.result : null;
   const analyzeResult =
     analyzeJob.data?.result?.type === "analyze_fabric" ? analyzeJob.data.result : null;
@@ -931,76 +950,115 @@ export function WorkspacePage() {
               brief only when you choose to share them.
             </p>
             {template.data ? (
-              template.data.measurementFields.map((field) => {
-                const existing = input.measurements.find((m) => m.name === field.name);
-                return (
-                  <MeasurementField
-                    key={field.name}
-                    name={field.name}
-                    label={field.label}
-                    kind={field.kind}
-                    required={field.required}
-                    unit={field.unit}
-                    guidance={field.guidance}
-                    value={existing?.enteredValue ?? ""}
-                    source={
-                      existing?.source === "tailor_manual" ? "tailor_manual" : "customer_manual"
-                    }
-                    verificationStatus="unverified"
-                    onChange={(raw) => {
-                      const parsed = raw.trim() === "" ? null : Number(raw);
-                      const valueMm =
-                        parsed === null || Number.isNaN(parsed)
-                          ? null
-                          : Math.round(
-                              parsed * (field.unit === "cm" ? 10 : field.unit === "in" ? 25.4 : 1),
-                            );
-                      const next: ProjectInput["measurements"][number] = {
-                        name: field.name,
-                        kind: field.kind,
-                        valueMm,
-                        enteredValue: raw || null,
-                        enteredUnit: field.unit,
-                        source:
-                          existing?.source === "tailor_manual"
-                            ? "tailor_manual"
-                            : "customer_manual",
-                        sourceAssetId: null,
-                        recordedAt: raw ? new Date().toISOString() : null,
-                      };
-                      update({
-                        ...input,
-                        measurements: [
-                          ...input.measurements.filter((m) => m.name !== field.name),
-                          ...(raw ? [next] : []),
-                        ],
-                      });
-                    }}
-                    onSourceChange={(source) => {
-                      if (!existing) return;
-                      update({
-                        ...input,
-                        measurements: input.measurements.map((m) =>
-                          m.name === field.name
-                            ? {
-                                ...m,
-                                source: source as ProjectInput["measurements"][number]["source"],
-                              }
-                            : m,
-                        ),
-                      });
-                    }}
-                  />
-                );
-              })
+              <>
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="text-sm font-medium" id="measurement-unit-label">
+                    Unit
+                  </span>
+                  <div role="group" aria-labelledby="measurement-unit-label" className="flex gap-1">
+                    {(["cm", "in"] as const).map((u) => (
+                      <Button
+                        key={u}
+                        type="button"
+                        size="sm"
+                        variant={activeMeasurementUnit === u ? "default" : "outline"}
+                        aria-pressed={activeMeasurementUnit === u}
+                        className="min-h-11 min-w-11"
+                        onClick={() => setMeasurementUnitOverride(u)}
+                      >
+                        {u}
+                      </Button>
+                    ))}
+                  </div>
+                  <span className="text-sm text-muted-foreground">
+                    {countFilledMeasurements(input.measurements, template.data.measurementFields)}{" "}
+                    of {template.data.measurementFields.length} measurements filled
+                  </span>
+                </div>
+                {template.data.measurementFields.map((field) => {
+                  const existing = input.measurements.find((m) => m.name === field.name);
+                  const storedUnit: MeasurementEnteredUnit =
+                    existing?.enteredUnit ?? field.unit;
+                  // Before the user toggles, each field keeps its template/stored unit;
+                  // after toggling, the chosen unit applies to the whole step.
+                  const displayUnit: MeasurementEnteredUnit =
+                    measurementUnitOverride ?? storedUnit;
+                  return (
+                    <MeasurementField
+                      key={field.name}
+                      name={field.name}
+                      label={field.label}
+                      kind={field.kind}
+                      required={field.required}
+                      unit={displayUnit}
+                      guidance={field.guidance}
+                      value={
+                        existing?.enteredValue
+                          ? convertMeasurementValue(
+                              existing.enteredValue,
+                              storedUnit,
+                              displayUnit,
+                            )
+                          : ""
+                      }
+                      source={
+                        existing?.source === "tailor_manual" ? "tailor_manual" : "customer_manual"
+                      }
+                      verificationStatus="unverified"
+                      error={measurementInputError(existing?.enteredValue)}
+                      onChange={(raw) => {
+                        const enteredUnit = displayUnit as ProjectInput["measurements"][number]["enteredUnit"];
+                        const next: ProjectInput["measurements"][number] = {
+                          name: field.name,
+                          kind: field.kind,
+                          valueMm: measurementValueMm(raw, displayUnit),
+                          enteredValue: raw || null,
+                          enteredUnit,
+                          source:
+                            existing?.source === "tailor_manual"
+                              ? "tailor_manual"
+                              : "customer_manual",
+                          sourceAssetId: null,
+                          recordedAt: raw ? new Date().toISOString() : null,
+                        };
+                        update({
+                          ...input,
+                          measurements: [
+                            ...input.measurements.filter((m) => m.name !== field.name),
+                            ...(raw ? [next] : []),
+                          ],
+                        });
+                      }}
+                    />
+                  );
+                })}
+              </>
             ) : (
               <p className="text-sm text-muted-foreground">
                 Choose what you are making to see its measurements.
               </p>
             )}
-            <Button type="button" className="min-h-11" onClick={() => void runSequence("checks")}>
-              Save and check requirements
-            </Button>
+            <div className="flex flex-wrap items-center gap-2">
+              <Button
+                type="button"
+                className="min-h-11"
+                disabled={saveMutation.isPending}
+                onClick={() => saveMutation.mutate()}
+              >
+                {saveMutation.isPending ? "Saving" : "Save measurements"}
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                className="min-h-11"
+                onClick={() => void runSequence("checks")}
+              >
+                Lock this version and check requirements
+              </Button>
+            </div>
+            <p className="text-sm text-muted-foreground">
+              Locking saves an exact version; the brief and checks are made from it.
+            </p>
             {checks ? (
               <div className="space-y-3">
                 <ConstraintCard constraint={checks.constraint} />
@@ -1026,6 +1084,10 @@ export function WorkspacePage() {
             <p className="text-sm text-muted-foreground">
               Locking saves this exact version. Your brief is made from it. You can still make a new
               version later.
+            </p>
+            <p className="text-sm">
+              Your tailor can approve the design from this brief. They can only accept the job once
+              the required measurements are filled in and checked by them.
             </p>
             {input.customerQuestions.map((q, index) => (
               <div key={index} className="flex items-start gap-2">
