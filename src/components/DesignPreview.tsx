@@ -25,8 +25,8 @@ type Preview = {
 const previews: Record<DesignKind, Preview> = {
   outfits: {
     eyebrow: 'Outfit studio',
-    title: 'One fabric photo, three outfit ideas',
-    intro: 'Take a photo of your wax print. Fashley shows it as a dress, a jumpsuit and a skirt set.',
+    title: 'One fabric photo, up to four outfit designs',
+    intro: 'Take a photo of your wax print. See it as a dress, a jumpsuit, a skirt set, and more.',
     fabric: { src: waxFabric, alt: 'Turquoise, yellow and magenta wax print fabric', caption: 'Your wax print' },
     designs: [
       { src: dress, alt: 'Dress in the example wax print', caption: 'Fitted dress' },
@@ -36,7 +36,7 @@ const previews: Record<DesignKind, Preview> = {
     steps: [
       ['Photograph your fabric', 'Lay the cloth flat in good light and take one clear photo.'],
       ['Pick a cut and occasion', 'Choose a style, such as kaba and slit or a short dress.'],
-      ['Compare the outfits', 'See two to four outfits and keep the one for your tailor.'],
+      ['Compare the outfits', 'See up to four outfits and save the one you like.'],
     ],
   },
   shoes: {
@@ -51,7 +51,7 @@ const previews: Record<DesignKind, Preview> = {
     steps: [
       ['Add your print', 'Upload a photo of kente, Ankara or leather.'],
       ['Choose the shoe', 'Pick a heel, boot, sandal or sneaker and the sole you want.'],
-      ['Set the trim', 'Choose zips, buckles or laces, then show the shoemaker.'],
+      ['Set the trim', 'Choose zips, buckles or laces, then save the one you like.'],
     ],
   },
   bags: {
@@ -66,7 +66,7 @@ const previews: Record<DesignKind, Preview> = {
     steps: [
       ['Show us the cloth', 'Upload adire, Ankara or leather in clear light.'],
       ['Pick the bag shape', 'Choose a tote, clutch, crossbody or shoulder bag.'],
-      ['Choose handles and clasp', 'Pick straps and gold or silver hardware for the bag maker.'],
+      ['Choose handles and clasp', 'Pick straps and gold or silver hardware, then save the one you like.'],
     ],
   },
 };
@@ -104,13 +104,14 @@ function WardrobePreview() {
   </main>;
 }
 
-export function DesignPreview({ kind = 'outfits', wardrobe = false }: { kind?: DesignKind; wardrobe?: boolean }) {
+export function DesignPreview({ kind = 'outfits', wardrobe = false, cta }: { kind?: DesignKind; wardrobe?: boolean; cta?: React.ReactNode }) {
   if (wardrobe) return <WardrobePreview />;
   const p = previews[kind];
   return <main className="mx-auto max-w-6xl px-5 py-12">
     <p className="text-xs uppercase tracking-widest text-muted-foreground">{p.eyebrow}</p>
     <h1 className="mt-3 text-4xl sm:text-5xl">{p.title}</h1>
     <p className="mt-3 max-w-xl text-muted-foreground">{p.intro}</p>
+    {cta}
     <div className="mt-8 grid gap-8 md:grid-cols-[220px_1fr]">
       <figure><img src={p.fabric.src} width={384} height={384} alt={p.fabric.alt} className="aspect-square w-full rounded-lg object-cover" /><figcaption className="mt-2 text-sm">{p.fabric.caption}</figcaption></figure>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">{p.designs.map((d) => <figure key={d.src}><img src={d.src} width={384} height={384} loading="lazy" alt={d.alt} className="aspect-square w-full rounded-lg object-cover" /><figcaption className="mt-2 text-sm">{d.caption}</figcaption></figure>)}</div>
