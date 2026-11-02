@@ -24,6 +24,11 @@ function GoogleIcon() {
   );
 }
 
+const GLASS_WRAPPER =
+  "rounded-2xl border border-border bg-foreground/5 backdrop-blur-sm transition-colors focus-within:border-violet-400/70 focus-within:bg-violet-500/10";
+const GLASS_INPUT =
+  "h-12 rounded-2xl border-0 bg-transparent px-4 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0";
+
 function errorMessage(error: unknown): string {
   const e = error as { longMessage?: string; message?: string } | null;
   return e?.longMessage ?? e?.message ?? "Something went wrong. Try again.";
@@ -168,8 +173,10 @@ function AuthForm({ redirectTo, initialMode }: { redirectTo: AuthRedirect; initi
           : "Create an account to open your design studio.";
 
   return (
-    <div className="flex min-h-dvh flex-col bg-background font-sans text-foreground md:flex-row">
-      <section className="flex flex-1 items-center justify-center p-8">
+    <div className="relative flex min-h-dvh flex-col overflow-hidden bg-background font-sans text-foreground md:flex-row">
+      <div aria-hidden="true" className="pointer-events-none absolute -left-32 top-1/4 h-96 w-96 rounded-full bg-violet-500/20 blur-3xl" />
+      <div aria-hidden="true" className="pointer-events-none absolute -left-16 bottom-0 h-72 w-72 rounded-full bg-amber-400/20 blur-3xl" />
+      <section className="relative flex flex-1 items-center justify-center p-8">
         <div className="w-full max-w-md">
           <Link to="/" className="flex w-fit items-center gap-2" aria-label="Fashley home">
             <img src={logoUrl} alt="" width={36} height={36} className="h-9 w-9 object-contain" />
@@ -182,22 +189,24 @@ function AuthForm({ redirectTo, initialMode }: { redirectTo: AuthRedirect; initi
             <>
               <form className="mt-8 space-y-5" onSubmit={mode === "in" ? submitSignIn : submitSignUp}>
                 <div className="space-y-1.5">
-                  <Label htmlFor="auth-email">Email address</Label>
-                  <Input
-                    id="auth-email"
-                    name="email"
-                    type="email"
-                    autoComplete="email"
-                    required
-                    placeholder="Enter your email address"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="h-12 rounded-md px-4"
-                  />
+                  <Label htmlFor="auth-email" className="text-muted-foreground">Email Address</Label>
+                  <div className={GLASS_WRAPPER}>
+                    <Input
+                      id="auth-email"
+                      name="email"
+                      type="email"
+                      autoComplete="email"
+                      required
+                      placeholder="Enter your email address"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className={GLASS_INPUT}
+                    />
+                  </div>
                 </div>
                 <div className="space-y-1.5">
-                  <Label htmlFor="auth-password">Password</Label>
-                  <div className="relative">
+                  <Label htmlFor="auth-password" className="text-muted-foreground">Password</Label>
+                  <div className={`${GLASS_WRAPPER} relative`}>
                     <Input
                       id="auth-password"
                       name="password"
@@ -207,7 +216,7 @@ function AuthForm({ redirectTo, initialMode }: { redirectTo: AuthRedirect; initi
                       placeholder={mode === "in" ? "Enter your password, or leave blank for an email code" : "Enter your password"}
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      className="h-12 rounded-md px-4 pr-12"
+                      className={`${GLASS_INPUT} pr-12`}
                     />
                     <button
                       type="button"
@@ -228,7 +237,7 @@ function AuthForm({ redirectTo, initialMode }: { redirectTo: AuthRedirect; initi
                         setError("");
                         setNotice("");
                       }}
-                      className="text-muted-foreground underline-offset-4 transition-colors hover:text-foreground hover:underline"
+                      className="text-violet-500 underline-offset-4 transition-colors hover:underline"
                     >
                       Reset password
                     </button>
@@ -237,7 +246,7 @@ function AuthForm({ redirectTo, initialMode }: { redirectTo: AuthRedirect; initi
                 {mode === "up" && <div id="clerk-captcha" />}
                 {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
                 {notice && <p role="status" className="text-sm">{notice}</p>}
-                <Button type="submit" size="lg" className="h-12 w-full rounded-md" disabled={busy || !isLoaded}>
+                <Button type="submit" size="lg" className="h-12 w-full rounded-2xl" disabled={busy || !isLoaded}>
                   {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : mode === "in" ? "Sign In" : "Create Account"}
                 </Button>
               </form>
@@ -247,20 +256,20 @@ function AuthForm({ redirectTo, initialMode }: { redirectTo: AuthRedirect; initi
                 <span className="absolute bg-background px-4 text-sm text-muted-foreground">Or continue with</span>
               </div>
 
-              <Button type="button" variant="outline" size="lg" className="h-12 w-full rounded-md" onClick={() => void google()} disabled={busy || !isLoaded}>
+              <Button type="button" variant="outline" size="lg" className="h-12 w-full rounded-2xl bg-foreground/5 backdrop-blur-sm" onClick={() => void google()} disabled={busy || !isLoaded}>
                 <GoogleIcon /> Continue with Google
               </Button>
 
               <p className="mt-6 text-center text-sm text-muted-foreground">
                 {mode === "in" ? (
                   <>New to Fashley?{" "}
-                    <button type="button" onClick={() => switchMode("up")} className="font-medium text-foreground underline-offset-4 hover:underline">
+                    <button type="button" onClick={() => switchMode("up")} className="font-medium text-violet-500 underline-offset-4 hover:underline">
                       Create Account
                     </button>
                   </>
                 ) : (
                   <>Already have an account?{" "}
-                    <button type="button" onClick={() => switchMode("in")} className="font-medium text-foreground underline-offset-4 hover:underline">
+                    <button type="button" onClick={() => switchMode("in")} className="font-medium text-violet-500 underline-offset-4 hover:underline">
                       Sign In
                     </button>
                   </>
@@ -273,21 +282,23 @@ function AuthForm({ redirectTo, initialMode }: { redirectTo: AuthRedirect; initi
             <form className="mt-8 space-y-5" onSubmit={step === "code" ? submitCode : submitVerify}>
               <div className="space-y-1.5">
                 <Label htmlFor="auth-code">Email code</Label>
-                <Input
-                  id="auth-code"
-                  name="code"
-                  inputMode="numeric"
-                  autoComplete="one-time-code"
-                  required
-                  placeholder="Enter the code from your email"
-                  value={code}
-                  onChange={(e) => setCode(e.target.value)}
-                  className="h-12 rounded-md px-4"
-                />
+                <div className={GLASS_WRAPPER}>
+                  <Input
+                    id="auth-code"
+                    name="code"
+                    inputMode="numeric"
+                    autoComplete="one-time-code"
+                    required
+                    placeholder="Enter the code from your email"
+                    value={code}
+                    onChange={(e) => setCode(e.target.value)}
+                    className={GLASS_INPUT}
+                  />
+                </div>
               </div>
               {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
               {notice && <p role="status" className="text-sm">{notice}</p>}
-              <Button type="submit" size="lg" className="h-12 w-full rounded-md" disabled={busy || !isLoaded}>
+              <Button type="submit" size="lg" className="h-12 w-full rounded-2xl" disabled={busy || !isLoaded}>
                 {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : "Continue"}
               </Button>
               <button
@@ -308,20 +319,22 @@ function AuthForm({ redirectTo, initialMode }: { redirectTo: AuthRedirect; initi
             <form className="mt-8 space-y-5" onSubmit={submitReset}>
               <div className="space-y-1.5">
                 <Label htmlFor="auth-reset-email">Email address</Label>
-                <Input
-                  id="auth-reset-email"
-                  name="email"
-                  type="email"
-                  autoComplete="email"
-                  required
-                  placeholder="Enter your email address"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="h-12 rounded-md px-4"
-                />
+                <div className={GLASS_WRAPPER}>
+                  <Input
+                    id="auth-reset-email"
+                    name="email"
+                    type="email"
+                    autoComplete="email"
+                    required
+                    placeholder="Enter your email address"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className={GLASS_INPUT}
+                  />
+                </div>
               </div>
               {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
-              <Button type="submit" size="lg" className="h-12 w-full rounded-md" disabled={busy || !isLoaded}>
+              <Button type="submit" size="lg" className="h-12 w-full rounded-2xl" disabled={busy || !isLoaded}>
                 {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : "Send reset code"}
               </Button>
               <button
@@ -338,35 +351,39 @@ function AuthForm({ redirectTo, initialMode }: { redirectTo: AuthRedirect; initi
             <form className="mt-8 space-y-5" onSubmit={submitResetCode}>
               <div className="space-y-1.5">
                 <Label htmlFor="auth-reset-code">Reset code</Label>
-                <Input
-                  id="auth-reset-code"
-                  name="code"
-                  inputMode="numeric"
-                  autoComplete="one-time-code"
-                  required
-                  placeholder="Enter the code from your email"
-                  value={code}
-                  onChange={(e) => setCode(e.target.value)}
-                  className="h-12 rounded-md px-4"
-                />
+                <div className={GLASS_WRAPPER}>
+                  <Input
+                    id="auth-reset-code"
+                    name="code"
+                    inputMode="numeric"
+                    autoComplete="one-time-code"
+                    required
+                    placeholder="Enter the code from your email"
+                    value={code}
+                    onChange={(e) => setCode(e.target.value)}
+                    className={GLASS_INPUT}
+                  />
+                </div>
               </div>
               <div className="space-y-1.5">
                 <Label htmlFor="auth-new-password">New password</Label>
-                <Input
-                  id="auth-new-password"
-                  name="password"
-                  type="password"
-                  autoComplete="new-password"
-                  required
-                  placeholder="Enter your new password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="h-12 rounded-md px-4"
-                />
+                <div className={GLASS_WRAPPER}>
+                  <Input
+                    id="auth-new-password"
+                    name="password"
+                    type="password"
+                    autoComplete="new-password"
+                    required
+                    placeholder="Enter your new password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className={GLASS_INPUT}
+                  />
+                </div>
               </div>
               {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
               {notice && <p role="status" className="text-sm">{notice}</p>}
-              <Button type="submit" size="lg" className="h-12 w-full rounded-md" disabled={busy || !isLoaded}>
+              <Button type="submit" size="lg" className="h-12 w-full rounded-2xl" disabled={busy || !isLoaded}>
                 {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : "Set new password"}
               </Button>
               <button
@@ -387,7 +404,7 @@ function AuthForm({ redirectTo, initialMode }: { redirectTo: AuthRedirect; initi
           alt=""
           className="absolute inset-4 h-[calc(100%-2rem)] w-[calc(100%-2rem)] rounded-lg border border-border object-cover"
         />
-        <p className="absolute bottom-8 left-8 rounded-md border border-border bg-background px-3 py-2 text-sm text-muted-foreground">
+        <p className="absolute bottom-8 left-8 rounded-2xl border border-white/20 bg-zinc-900/30 px-4 py-3 text-sm text-white backdrop-blur-xl">
           Example outfit in Ankara print.
         </p>
       </section>
