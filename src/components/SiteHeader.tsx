@@ -10,16 +10,19 @@ import logoUrl from '@/assets/logo.png';
 const links=[['Home','/'],['Discover','/discover'],['Studio','/studio'],['Wardrobe','/wardrobe'],['Shop','/shop']] as const;
 
 function SignInLink({ mobile }: { mobile?: boolean | undefined }) {
-  if (mobile) return <SheetClose asChild><Button asChild><Link to="/studio">Sign in</Link></Button></SheetClose>;
-  return <Button asChild variant="outline" size="sm"><Link to="/studio">Sign in</Link></Button>;
+  if (mobile) return <SheetClose asChild><Button asChild><Link to="/sign-in" search={{ redirectTo: "/studio", mode: "in" }}>Sign in</Link></Button></SheetClose>;
+  return <Button asChild variant="outline" size="sm"><Link to="/sign-in" search={{ redirectTo: "/studio", mode: "in" }}>Sign in</Link></Button>;
 }
 
 function ClerkSignInLink({ mobile }: { mobile?: boolean | undefined }) {
   const { isLoaded, isSignedIn } = useClerkAuth();
   const signedIn = isLoaded && isSignedIn;
-  const label = signedIn ? 'Open design studio' : 'Sign in';
-  if (mobile) return <SheetClose asChild><Button asChild><Link to="/studio">{label}</Link></Button></SheetClose>;
-  return <Button asChild variant="outline" size="sm"><Link to="/studio">{label}</Link></Button>;
+  if (signedIn) {
+    if (mobile) return <SheetClose asChild><Button asChild><Link to="/studio">Open design studio</Link></Button></SheetClose>;
+    return <Button asChild variant="outline" size="sm"><Link to="/studio">Open design studio</Link></Button>;
+  }
+  if (mobile) return <SheetClose asChild><Button asChild><Link to="/sign-in" search={{ redirectTo: "/studio", mode: "in" }}>Sign in</Link></Button></SheetClose>;
+  return <Button asChild variant="outline" size="sm"><Link to="/sign-in" search={{ redirectTo: "/studio", mode: "in" }}>Sign in</Link></Button>;
 }
 
 // The design studio is the default destination after sign-in, not the

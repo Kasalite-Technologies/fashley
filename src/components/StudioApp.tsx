@@ -46,7 +46,16 @@ async function readAsDataUrl(file: File): Promise<string> {
 function SignedOutStudio({ kind }: { kind: DesignKind }) {
   return (
     <>
-      <DesignPreview kind={kind} />
+      <DesignPreview
+        kind={kind}
+        cta={
+          <Button asChild size="lg" className="mt-6">
+            <Link to="/sign-in" search={{ redirectTo: KIND_ROUTES[kind], mode: "in" }}>
+              Sign in to design
+            </Link>
+          </Button>
+        }
+      />
       <section className="mx-auto max-w-md px-5 pb-16">
         <h2 className="font-sans text-2xl font-semibold tracking-tight">Sign in to design</h2>
         <div className="mt-4">
