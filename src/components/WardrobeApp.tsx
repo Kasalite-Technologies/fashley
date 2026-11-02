@@ -3,6 +3,7 @@ import { useAuth } from "@clerk/tanstack-react-start";
 import { Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { SiteHeader } from "@/components/SiteHeader";
+import { StudioShell } from "@/components/StudioShell";
 import { DesignPreview } from "@/components/DesignPreview";
 import { TailorSignInPanel, clerkConfigured } from "@/components/tailor/TailorClerk";
 import { Button } from "@/components/ui/button";
@@ -58,8 +59,7 @@ function Wardrobe() {
   }
 
   return (
-    <main className="mx-auto max-w-6xl px-5 py-12">
-      <h1 className="font-sans text-4xl font-semibold tracking-tight">Your designs</h1>
+    <>
       {error && <p role="alert" className="mt-6 text-sm text-destructive">{error}</p>}
       {items === null && !error && <p className="mt-6 text-sm text-muted-foreground" role="status">Loading your designs…</p>}
       {items !== null && items.length === 0 && (
@@ -84,42 +84,57 @@ function Wardrobe() {
           </article>
         ))}
       </div>
-    </main>
+    </>
   );
 }
 
 function WardrobeGateInner() {
   const { isLoaded, isSignedIn } = useAuth();
   if (!isLoaded) {
-    return <main className="mx-auto max-w-6xl px-5 py-12" role="status">Loading your wardrobe…</main>;
+    return (
+      <>
+        <SiteHeader />
+        <main className="mx-auto max-w-6xl px-5 py-12" role="status">Loading your wardrobe…</main>
+      </>
+    );
   }
   if (!isSignedIn) {
     return (
       <>
+        <SiteHeader />
         <DesignPreview wardrobe />
         <section className="mx-auto max-w-md px-5 pb-16">
           <h2 className="font-sans text-2xl font-semibold tracking-tight">Sign in to see your designs</h2>
           <div className="mt-4">
-            <TailorSignInPanel />
+            <TailorSignInPanel redirectTo="/wardrobe" />
           </div>
         </section>
       </>
     );
   }
-  return <Wardrobe />;
+  return (
+    <StudioShell title="Wardrobe">
+      <Wardrobe />
+    </StudioShell>
+  );
 }
 
 export function WardrobeApp() {
+  if (clerkConfigured) {
+    return (
+      <div className="min-h-screen">
+        <WardrobeGateInner />
+      </div>
+    );
+  }
   return (
     <div className="min-h-screen">
       <SiteHeader />
-      {clerkConfigured ? (
-        <WardrobeGateInner />
-      ) : (
+      {(
         <>
           <DesignPreview wardrobe />
           <section className="mx-auto max-w-md px-5 pb-16">
-            <TailorSignInPanel />
+            <TailorSignInPanel redirectTo="/wardrobe" />
           </section>
         </>
       )}

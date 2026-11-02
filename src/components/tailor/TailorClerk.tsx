@@ -38,14 +38,14 @@ function TailorAuthBridge() {
 export function TailorClerkProvider({ children }: { children: ReactNode }) {
   if (!publishableKey) return <>{children}</>;
   return (
-    <ClerkProvider publishableKey={publishableKey}>
+    <ClerkProvider publishableKey={publishableKey} afterSignOutUrl="/">
       <TailorAuthBridge />
       {children}
     </ClerkProvider>
   );
 }
 
-function ClerkSignInPanel() {
+function ClerkSignInPanel({ redirectTo }: { redirectTo: string }) {
   const { isLoaded, isSignedIn } = useAuth();
   if (!isLoaded) return <p className="text-sm text-muted-foreground">Loading sign-in…</p>;
   if (isSignedIn) {
@@ -55,11 +55,21 @@ function ClerkSignInPanel() {
       </p>
     );
   }
-  return <SignIn routing="hash" />;
+  return (
+    <SignIn
+      routing="hash"
+      fallbackRedirectUrl={redirectTo}
+      signUpFallbackRedirectUrl={redirectTo}
+    />
+  );
 }
 
-/** Sign-in surface for owner pages. Fails closed with an explanation when Clerk is not configured. */
-export function TailorSignInPanel() {
+/**
+ * Sign-in surface for owner pages. After sign-in the user returns to
+ * `redirectTo` (the page they signed in from), never the site root.
+ * Fails closed with an explanation when Clerk is not configured.
+ */
+export function TailorSignInPanel({ redirectTo = "/tailor" }: { redirectTo?: string } = {}) {
   if (!publishableKey) {
     return (
       <Alert role="status">
@@ -72,5 +82,5 @@ export function TailorSignInPanel() {
       </Alert>
     );
   }
-  return <ClerkSignInPanel />;
+  return <ClerkSignInPanel redirectTo={redirectTo} />;
 }
