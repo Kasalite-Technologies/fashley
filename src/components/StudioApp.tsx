@@ -223,15 +223,43 @@ function Studio({ kind }: { kind: DesignKind }) {
         headers: await authHeaders(),
         body: JSON.stringify({ imageDataUrl, preferences, count }),
       });
-      const payload = (await res.json().catch(() => null)) as {
-        data?: { images: { imageBase64: string }[]; warnings?: string[] };
-        error?: { message?: string };
-      } | null;
-      if (!res.ok || !payload?.data) {
+      if (!res.ok || !res.body) {
+        const payload = (await res.json().catch(() => null)) as {
+          error?: { message?: string };
+        } | null;
         throw new Error(payload?.error?.message ?? "Generation failed. Please try again.");
       }
-      setResults(payload.data.images.map((img) => ({ imageBase64: img.imageBase64, preferences })));
-      for (const w of payload.data.warnings ?? []) toast.warning(w);
+      // NDJSON stream: append each design as the provider finishes it, so
+      // the first preview appears in seconds instead of after the slowest.
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
+      let received = 0;
+      let streamError = "";
+      const handleLine = (line: string) => {
+        if (!line.trim()) return;
+        const parsed = JSON.parse(line) as {
+          imageBase64?: string;
+          warnings?: string[];
+          error?: { message?: string };
+        };
+        if (parsed.imageBase64) {
+          received += 1;
+          setResults((prev) => [...prev, { imageBase64: parsed.imageBase64!, preferences }]);
+        }
+        for (const w of parsed.warnings ?? []) toast.warning(w);
+        if (parsed.error?.message) streamError = parsed.error.message;
+      };
+      for (;;) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split("\n");
+        buffer = lines.pop() ?? "";
+        for (const line of lines) handleLine(line);
+      }
+      if (buffer.trim()) handleLine(buffer);
+      if (!received) throw new Error(streamError || "Generation failed. Please try again.");
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Generation failed. Please try again.");
     } finally {
@@ -448,7 +476,7 @@ function Studio({ kind }: { kind: DesignKind }) {
               {/* Skeleton tiles match the result grid, so the layout does not
                   jump when the real designs land. */}
               <div className="mt-4 grid gap-4 sm:grid-cols-2" aria-hidden="true">
-                {Array.from({ length: count }).map((_, i) => (
+                {Array.from({ length: Math.max(0, count - results.length) }).map((_, i) => (
                   <div key={i} className="result-skeleton" />
                 ))}
               </div>

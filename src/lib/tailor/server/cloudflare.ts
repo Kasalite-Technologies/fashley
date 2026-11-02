@@ -80,13 +80,22 @@ export function adaptD1(d1: D1Like): Db {
 
 type SecretBindingLike = string | { get(): Promise<string | null> } | undefined;
 
+const SECRET_TTL_MS = 5 * 60 * 1000;
+
 export function secretResolver(binding: SecretBindingLike): () => Promise<string | null> {
   if (typeof binding === "string") return async () => (binding.length > 0 ? binding : null);
   if (binding && typeof binding.get === "function") {
+    // A Secrets Store get() is a network call. Generation resolves the key
+    // once per image, so cache it briefly (same TTL as the profile cache)
+    // instead of paying that round trip for every image in a batch.
+    let cached: { value: string | null; expiresAt: number } | null = null;
     return async () => {
+      if (cached && cached.expiresAt > Date.now()) return cached.value;
       try {
-        const value = await binding.get();
-        return value && value.length > 0 ? value : null;
+        const raw = await binding.get();
+        const value = raw && raw.length > 0 ? raw : null;
+        cached = { value, expiresAt: Date.now() + SECRET_TTL_MS };
+        return value;
       } catch {
         return null;
       }
@@ -170,9 +179,7 @@ export function createClerkVerifier(
  */
 export interface ImagesBindingLike {
   input(stream: ReadableStream<Uint8Array>): {
-    transform(transform: {
-      trim: { top: number; left: number; width: number; height: number };
-    }): {
+    transform(transform: { trim: { top: number; left: number; width: number; height: number } }): {
       output(options: { format: string }): Promise<{
         image(): ReadableStream<Uint8Array>;
       }>;

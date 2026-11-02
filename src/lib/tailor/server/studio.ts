@@ -76,13 +76,16 @@ function validatePreferences(p: Preferences): Preferences {
 }
 
 function asGenerateResult(raw: unknown): MetaGenerateResult {
-  if (typeof raw !== "object" || raw === null) throw err("PROVIDER_UNAVAILABLE", "Meta provider is unavailable.");
+  if (typeof raw !== "object" || raw === null)
+    throw err("PROVIDER_UNAVAILABLE", "Meta provider is unavailable.");
   const rec = raw as Record<string, unknown>;
   if (typeof rec["imageBase64"] !== "string" || !rec["imageBase64"])
     throw err("PROVIDER_UNAVAILABLE", "Meta provider is unavailable.");
   return {
-    providerRequestId: typeof rec["providerRequestId"] === "string" ? rec["providerRequestId"] : null,
-    modelId: typeof rec["modelId"] === "string" && rec["modelId"] ? rec["modelId"] : "muse-image-1.0",
+    providerRequestId:
+      typeof rec["providerRequestId"] === "string" ? rec["providerRequestId"] : null,
+    modelId:
+      typeof rec["modelId"] === "string" && rec["modelId"] ? rec["modelId"] : "muse-image-1.0",
     imageBase64: rec["imageBase64"],
   };
 }
@@ -132,25 +135,50 @@ export function createStudioHandlers() {
         const meta = deps.meta;
         const req = await body(request, generateSchema);
         const preferences = validatePreferences(req.preferences);
-        const settled = await Promise.allSettled(
-          Array.from({ length: req.count }, (_, i) =>
-            meta
-              .generateConcept({
-                prompt: buildDesignPrompt({ ...preferences, variant: i }),
-                imageDataUrl: req.imageDataUrl,
-              })
-              .then(asGenerateResult),
-          ),
-        );
-        const images = settled
-          .filter(
-            (r): r is PromiseFulfilledResult<MetaGenerateResult> => r.status === "fulfilled",
-          )
-          .map((r) => ({ imageBase64: r.value.imageBase64 }));
-        if (!images.length)
-          throw err("PROVIDER_UNAVAILABLE", "Meta provider is unavailable.");
-        return json(200, {
-          data: { images, warnings: settled.length - images.length > 0 ? ["Some previews could not be generated."] : [] },
+        // Stream NDJSON: one line per finished design, then a done line.
+        // The client renders each preview as it lands instead of waiting
+        // for the slowest image in the batch.
+        const encoder = new TextEncoder();
+        let succeeded = 0;
+        let failed = 0;
+        const stream = new ReadableStream<Uint8Array>({
+          async start(controller) {
+            const send = (line: unknown) =>
+              controller.enqueue(encoder.encode(`${JSON.stringify(line)}\n`));
+            await Promise.allSettled(
+              Array.from({ length: req.count }, (_, i) =>
+                meta
+                  .generateConcept({
+                    prompt: buildDesignPrompt({ ...preferences, variant: i }),
+                    imageDataUrl: req.imageDataUrl,
+                  })
+                  .then(asGenerateResult)
+                  .then((result) => {
+                    succeeded += 1;
+                    send({ imageBase64: result.imageBase64 });
+                  })
+                  .catch(() => {
+                    failed += 1;
+                  }),
+              ),
+            );
+            if (!succeeded) {
+              send({ error: { message: "Meta provider is unavailable." } });
+            } else {
+              send({
+                done: true,
+                warnings: failed > 0 ? ["Some previews could not be generated."] : [],
+              });
+            }
+            controller.close();
+          },
+        });
+        return new Response(stream, {
+          status: 200,
+          headers: {
+            "Content-Type": "application/x-ndjson",
+            "Cache-Control": "no-store",
+          },
         });
       }),
     designs: (request: Request) =>
@@ -158,7 +186,9 @@ export function createStudioHandlers() {
         const deps = resolveTailorHttpDeps();
         const { db, userId } = await owner(deps, request);
         const { results } = await db
-          .prepare("SELECT * FROM studio_designs WHERE user_id = ? ORDER BY created_at DESC LIMIT 100")
+          .prepare(
+            "SELECT * FROM studio_designs WHERE user_id = ? ORDER BY created_at DESC LIMIT 100",
+          )
           .bind(userId)
           .all<StudioDesignRow>();
         return json(200, { data: { items: results.map(toDesign) } });
@@ -176,7 +206,8 @@ export function createStudioHandlers() {
         } catch {
           throw err("INVALID_INPUT", "Image data could not be read.");
         }
-        if (!bytes.length || bytes.length > 12_000_000) throw err("INVALID_INPUT", "Image data could not be read.");
+        if (!bytes.length || bytes.length > 12_000_000)
+          throw err("INVALID_INPUT", "Image data could not be read.");
         const id = newId("sdg");
         const objectKey = `studio/${userId}/${id}.png`;
         await deps.media.putPrivate(objectKey, bytes);
