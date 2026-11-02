@@ -3,10 +3,13 @@ import { FolderOpen, Menu, Plus, UserRound } from "lucide-react";
 import { useState, type ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import "@/styles/workspace.css";
 
-export const TAILOR_BRAND_LABEL = "Fashley — my outfits";
+export const TAILOR_BRAND_LABEL = "Fashley / My outfits";
 
 const NAV = [
+  { to: "/studio" as const, label: "Design studio", icon: Plus },
+  { to: "/wardrobe" as const, label: "Wardrobe", icon: FolderOpen },
   { to: "/tailor" as const, label: "My outfit projects", icon: FolderOpen },
   { to: "/tailor/new" as const, label: "Start a new outfit", icon: Plus },
   { to: "/account" as const, label: "Account", icon: UserRound },
@@ -14,10 +17,15 @@ const NAV = [
 
 function NavLinks({ onNavigate }: { onNavigate?: () => void }) {
   return (
-    <nav aria-label="My outfits" className="flex flex-col gap-1">
+    <nav aria-label="My outfits" className="atelier-nav flex flex-col gap-1">
       {NAV.map((item) => (
         <Button key={item.to} asChild variant="ghost" className="min-h-11 justify-start">
-          <Link to={item.to} onClick={onNavigate}>
+          <Link
+            to={item.to}
+            onClick={onNavigate}
+            activeOptions={{ exact: true }}
+            activeProps={{ className: "bg-accent text-accent-foreground" }}
+          >
             <item.icon className="h-4 w-4" aria-hidden="true" /> {item.label}
           </Link>
         </Button>
@@ -37,13 +45,20 @@ export function TailorAppShell({
 }) {
   const [open, setOpen] = useState(false);
   return (
-    <div className="mx-auto w-full max-w-6xl px-4 py-6 sm:px-6">
-      <div className="flex gap-8">
-        <aside className="hidden w-52 shrink-0 md:block" aria-label="My outfits navigation">
-          <p className="mb-4 text-sm font-semibold">{TAILOR_BRAND_LABEL}</p>
+    <div className="atelier workspace-shell">
+      <div className="workspace-layout">
+        <aside className="workspace-sidebar hidden md:block" aria-label="My outfits navigation">
+          <Link to="/" className="workspace-brand">
+            Fashley
+          </Link>
           <NavLinks />
+          <p className="workspace-sidebar-note">
+            From the first idea
+            <br />
+            to the final fitting.
+          </p>
         </aside>
-        <div className="min-w-0 flex-1">
+        <main className="workspace-main min-w-0 flex-1">
           <header className="mb-6 flex flex-wrap items-center gap-3">
             <Sheet open={open} onOpenChange={setOpen}>
               <SheetTrigger asChild>
@@ -57,7 +72,7 @@ export function TailorAppShell({
                   <Menu className="h-5 w-5" aria-hidden="true" />
                 </Button>
               </SheetTrigger>
-              <SheetContent side="left">
+              <SheetContent side="left" className="atelier">
                 <SheetTitle>{TAILOR_BRAND_LABEL}</SheetTitle>
                 <div className="mt-6">
                   <NavLinks onNavigate={() => setOpen(false)} />
@@ -82,9 +97,9 @@ export function TailorAppShell({
               </ol>
             </nav>
           </header>
-          <h1 className="text-3xl">{title}</h1>
+          <h1 className="workspace-title">{title}</h1>
           <div className="mt-6">{children}</div>
-        </div>
+        </main>
       </div>
     </div>
   );

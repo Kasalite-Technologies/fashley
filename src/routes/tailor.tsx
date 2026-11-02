@@ -88,8 +88,11 @@ export function DashboardPage() {
 
   return (
     <TailorAppShell title="My outfit projects">
-      <div className="space-y-6">
-        <div className="flex flex-wrap items-center gap-3">
+      <div className="project-dashboard space-y-6">
+        <div className="dashboard-intro flex flex-wrap items-center gap-3">
+          <p>
+            Fabric, measurements, and the conversation with your tailor. Keep each outfit together.
+          </p>
           <Button asChild className="min-h-11">
             <Link to="/tailor/new">Start a new outfit</Link>
           </Button>
@@ -99,7 +102,7 @@ export function DashboardPage() {
         </div>
 
         <form
-          className="grid gap-4 sm:grid-cols-3"
+          className="project-filters"
           onSubmit={(e) => e.preventDefault()}
           aria-label="Filter my outfit projects"
         >
@@ -109,61 +112,89 @@ export function DashboardPage() {
               id="project-search"
               value={queryText}
               maxLength={100}
+              placeholder="Search by outfit name"
               onChange={(e) => setQueryText(e.target.value)}
-              className="min-h-11"
+              className="min-h-11 rounded-full px-4"
             />
           </div>
-          <div className="space-y-1.5">
-            <Label htmlFor="project-status">Outfit status</Label>
-            <select
-              id="project-status"
-              value={search.status}
-              className="min-h-11 w-full rounded-md border border-input bg-background px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-              onChange={(e) =>
-                void navigate({
-                  to: "/tailor",
-                  search: (prev) => {
-                    const { cursor: _cursor, ...rest } = prev;
-                    return { ...rest, status: e.target.value };
-                  },
-                })
-              }
-            >
-              <option value="all">All</option>
-              <option value="active">Active</option>
-              <option value="archived">Archived</option>
-            </select>
+          {/* Same chip pattern as the studio: few options, so show them
+              instead of hiding them in dropdowns. */}
+          <div className="filter-row">
+            <p id="project-status-label">Outfit status</p>
+            <div className="chip-group" role="group" aria-labelledby="project-status-label">
+              {(
+                [
+                  ["all", "All"],
+                  ["active", "Active"],
+                  ["archived", "Archived"],
+                ] as const
+              ).map(([value, label]) => (
+                <button
+                  key={value}
+                  type="button"
+                  className="chip"
+                  aria-pressed={search.status === value}
+                  onClick={() =>
+                    void navigate({
+                      to: "/tailor",
+                      search: (prev) => {
+                        const { cursor: _cursor, ...rest } = prev;
+                        return { ...rest, status: value };
+                      },
+                    })
+                  }
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
           </div>
-          <div className="space-y-1.5">
-            <Label htmlFor="project-review-status">Tailor review</Label>
-            <select
-              id="project-review-status"
-              value={search.reviewStatus}
-              className="min-h-11 w-full rounded-md border border-input bg-background px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-              onChange={(e) =>
-                void navigate({
-                  to: "/tailor",
-                  search: (prev) => {
-                    const { cursor: _cursor, ...rest } = prev;
-                    return { ...rest, reviewStatus: e.target.value };
-                  },
-                })
-              }
-            >
-              <option value="all">All</option>
-              <option value="awaiting_review">Sent to tailor — waiting</option>
-              <option value="changes_requested">Tailor asked for changes</option>
-              <option value="design_approved">Tailor approved the design</option>
-              <option value="accepted">Tailor approved the brief</option>
-            </select>
+          <div className="filter-row">
+            <p id="project-review-label">Tailor review</p>
+            <div className="chip-group" role="group" aria-labelledby="project-review-label">
+              {(
+                [
+                  ["all", "All"],
+                  ["awaiting_review", "Sent to tailor, waiting"],
+                  ["changes_requested", "Tailor asked for changes"],
+                  ["design_approved", "Tailor approved the design"],
+                  ["accepted", "Tailor approved the brief"],
+                ] as const
+              ).map(([value, label]) => (
+                <button
+                  key={value}
+                  type="button"
+                  className="chip"
+                  aria-pressed={search.reviewStatus === value}
+                  onClick={() =>
+                    void navigate({
+                      to: "/tailor",
+                      search: (prev) => {
+                        const { cursor: _cursor, ...rest } = prev;
+                        return { ...rest, reviewStatus: value };
+                      },
+                    })
+                  }
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
           </div>
         </form>
 
         {me.data ? (
-          <p className="text-sm text-muted-foreground">
-            Pilot credits: {me.data.credits.available} available, {me.data.credits.reserved}{" "}
-            reserved. Credits are part of this pilot. There is no top-up in this version.
-          </p>
+          <div className="credits-stats" aria-label="Pilot credits">
+            <div className="credit-stat">
+              <strong>{me.data.credits.available}</strong>
+              <span>credits available</span>
+            </div>
+            <div className="credit-stat">
+              <strong>{me.data.credits.reserved}</strong>
+              <span>reserved</span>
+            </div>
+            <p>Credits are part of this pilot. There is no top-up in this version.</p>
+          </div>
         ) : null}
 
         {projects.isPending ? (
@@ -171,9 +202,9 @@ export function DashboardPage() {
             className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
             aria-label="Loading outfit projects"
           >
-            <Skeleton className="h-44" />
-            <Skeleton className="h-44" />
-            <Skeleton className="h-44" />
+            <Skeleton className="h-44 rounded-3xl" />
+            <Skeleton className="h-44 rounded-3xl" />
+            <Skeleton className="h-44 rounded-3xl" />
           </div>
         ) : projects.isError ? (
           <PageError error={projects.error} onRetry={() => void projects.refetch()} />
@@ -208,7 +239,7 @@ export function DashboardPage() {
           )
         ) : (
           <>
-            <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <ul className="project-grid">
               {projects.data.items.map((project) => (
                 <li key={project.id}>
                   <ProjectCard

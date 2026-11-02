@@ -1,0 +1,139 @@
+/* Tubelight header, adapted from 21st.dev's Tubelight Navbar by Ayushmaan
+   Singh: links live in a floating pill and a lit indicator slides to the
+   active page. The lamp glow is the one accent; everything else stays
+   paper and ink so it works over every page background. */
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  background: color-mix(in srgb, #faf6ef 94%, transparent);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid #e3d8c6;
+  font-family: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+}
+.site-header-inner {
+  max-width: 1280px;
+  margin-inline: auto;
+  padding: 12px 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+.site-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  text-decoration: none;
+  color: #241d16;
+  min-height: 44px;
+}
+.site-logo img {
+  width: 34px;
+  height: 34px;
+  object-fit: contain;
+}
+.site-logo span {
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+.tubelight {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  background: #f1e9db;
+  border: 1px solid #ddd0ba;
+  border-radius: 999px;
+  padding: 5px;
+}
+.tube-indicator {
+  position: absolute;
+  top: 5px;
+  bottom: 5px;
+  border-radius: 999px;
+  background: #241d16;
+  transition:
+    left 380ms cubic-bezier(0.23, 1, 0.32, 1),
+    width 380ms cubic-bezier(0.23, 1, 0.32, 1),
+    opacity 200ms ease;
+}
+.tube-indicator::before {
+  content: "";
+  position: absolute;
+  top: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 42%;
+  height: 3px;
+  border-radius: 999px;
+  background: #c96f3b;
+  box-shadow:
+    0 0 12px 2px rgb(201 111 59 / 0.55),
+    0 0 26px 6px rgb(201 111 59 / 0.25);
+}
+.tube-item {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+}
+.tube-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 38px;
+  padding: 8px 16px;
+  border-radius: 999px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #6f6255;
+  text-decoration: none;
+  transition: color 220ms ease;
+  white-space: nowrap;
+}
+.tube-link:hover {
+  color: #241d16;
+}
+.tube-link[data-active="true"] {
+  color: #faf6ef;
+}
+.tube-link[data-active="true"]:hover {
+  color: #faf6ef;
+}
+.site-header :is(a[href], button) {
+  cursor: pointer;
+}
+.site-header :is(a, button):focus-visible {
+  outline: 2px solid #9a4a28;
+  outline-offset: 3px;
+}
+.site-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.site-mobile-actions {
+  display: none;
+  align-items: center;
+  gap: 10px;
+}
+@media (max-width: 900px) {
+  .site-header-inner {
+    padding: 10px 20px;
+  }
+  .tubelight {
+    display: none;
+  }
+  .site-actions {
+    display: none;
+  }
+  .site-mobile-actions {
+    display: flex;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tube-indicator,
+  .tube-link {
+    transition: none !important;
+  }
+}

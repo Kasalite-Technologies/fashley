@@ -5,6 +5,7 @@ import { UserButton } from "@clerk/tanstack-react-start";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import logoUrl from "@/assets/logo.png";
+import "@/styles/workspace.css";
 
 export const STUDIO_BRAND_LABEL = "Fashley Studio";
 
@@ -19,13 +20,14 @@ const NAV = [
 
 function NavLinks({ onNavigate }: { onNavigate?: () => void }) {
   return (
-    <nav aria-label="Studio" className="flex flex-col gap-1">
+    <nav aria-label="Studio" className="atelier-nav flex flex-col gap-1">
       {NAV.map((item) => (
         <Button key={item.to} asChild variant="ghost" className="min-h-11 justify-start">
           <Link
             to={item.to}
             onClick={onNavigate}
-            activeProps={{ className: "bg-accent text-accent-foreground" }}
+            activeProps={{ className: "nav-active" }}
+            activeOptions={{ exact: true }}
           >
             <item.icon className="h-4 w-4" aria-hidden="true" /> {item.label}
           </Link>
@@ -44,17 +46,17 @@ function NavLinks({ onNavigate }: { onNavigate?: () => void }) {
 export function StudioShell({ title, children }: { title: string; children: ReactNode }) {
   const [open, setOpen] = useState(false);
   return (
-    <div className="mx-auto w-full max-w-6xl px-4 py-6 sm:px-6">
-      <div className="flex gap-8">
-        <aside className="hidden w-56 shrink-0 md:block" aria-label="Studio navigation">
+    <div className="atelier workspace-shell">
+      <div className="workspace-layout">
+        <aside className="workspace-sidebar hidden md:block" aria-label="Studio navigation">
           <Link to="/studio" className="mb-6 flex items-center gap-2">
             <img src={logoUrl} alt="" width={32} height={32} className="h-8 w-8 object-contain" />
             <span className="text-sm font-semibold">{STUDIO_BRAND_LABEL}</span>
           </Link>
           <NavLinks />
         </aside>
-        <div className="min-w-0 flex-1">
-          <header className="mb-6 flex items-center gap-3">
+        <main className="workspace-main min-w-0 flex-1">
+          <header className="workspace-heading flex items-center gap-3">
             <Sheet open={open} onOpenChange={setOpen}>
               <SheetTrigger asChild>
                 <Button
@@ -67,20 +69,18 @@ export function StudioShell({ title, children }: { title: string; children: Reac
                   <Menu className="h-5 w-5" aria-hidden="true" />
                 </Button>
               </SheetTrigger>
-              <SheetContent side="left">
+              <SheetContent side="left" className="atelier">
                 <SheetTitle>{STUDIO_BRAND_LABEL}</SheetTitle>
                 <div className="mt-6">
                   <NavLinks onNavigate={() => setOpen(false)} />
                 </div>
               </SheetContent>
             </Sheet>
-            <h1 className="min-w-0 flex-1 truncate font-sans text-2xl font-semibold tracking-tight">
-              {title}
-            </h1>
+            <h1 className="min-w-0 flex-1">{title}</h1>
             <UserButton />
           </header>
           {children}
-        </div>
+        </main>
       </div>
     </div>
   );

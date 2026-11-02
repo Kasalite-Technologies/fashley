@@ -11,7 +11,6 @@ Turn fabric into garment concepts, capture measurements, and prepare a versioned
 - Private Cloudflare R2 storage for media.
 - Cloudflare Workflows for durable jobs.
 - Meta Model API for model inference.
-- Vercel Geist as the strict design system.
 
 Supabase is not the target stack. This repository currently contains an imported application with legacy Supabase integrations, PostgreSQL Drizzle schemas/migrations, and Lovable tooling. Their replacement has not been implemented yet. Do not treat those integrations as the new setup or run the old migrations against D1.
 

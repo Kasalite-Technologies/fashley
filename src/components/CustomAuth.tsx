@@ -25,7 +25,7 @@ function GoogleIcon() {
 }
 
 const GLASS_WRAPPER =
-  "rounded-2xl border border-border bg-foreground/5 backdrop-blur-sm transition-colors focus-within:border-violet-400/70 focus-within:bg-violet-500/10";
+  "rounded-2xl border border-border bg-foreground/5 backdrop-blur-sm transition-colors focus-within:border-primary/60 focus-within:bg-primary/5";
 const GLASS_INPUT =
   "h-12 rounded-2xl border-0 bg-transparent px-4 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0";
 
@@ -174,8 +174,6 @@ function AuthForm({ redirectTo, initialMode }: { redirectTo: AuthRedirect; initi
 
   return (
     <div className="relative flex min-h-dvh flex-col overflow-hidden bg-background font-sans text-foreground md:flex-row">
-      <div aria-hidden="true" className="pointer-events-none absolute -left-32 top-1/4 h-96 w-96 rounded-full bg-violet-500/20 blur-3xl" />
-      <div aria-hidden="true" className="pointer-events-none absolute -left-16 bottom-0 h-72 w-72 rounded-full bg-amber-400/20 blur-3xl" />
       <section className="relative flex flex-1 items-center justify-center p-8">
         <div className="w-full max-w-md">
           <Link to="/" className="flex w-fit items-center gap-2" aria-label="Fashley home">
@@ -237,7 +235,7 @@ function AuthForm({ redirectTo, initialMode }: { redirectTo: AuthRedirect; initi
                         setError("");
                         setNotice("");
                       }}
-                      className="text-violet-500 underline-offset-4 transition-colors hover:underline"
+                      className="text-primary underline-offset-4 transition-colors hover:underline"
                     >
                       Reset password
                     </button>
@@ -263,13 +261,13 @@ function AuthForm({ redirectTo, initialMode }: { redirectTo: AuthRedirect; initi
               <p className="mt-6 text-center text-sm text-muted-foreground">
                 {mode === "in" ? (
                   <>New to Fashley?{" "}
-                    <button type="button" onClick={() => switchMode("up")} className="font-medium text-violet-500 underline-offset-4 hover:underline">
+                    <button type="button" onClick={() => switchMode("up")} className="font-medium text-primary underline-offset-4 hover:underline">
                       Create Account
                     </button>
                   </>
                 ) : (
                   <>Already have an account?{" "}
-                    <button type="button" onClick={() => switchMode("in")} className="font-medium text-violet-500 underline-offset-4 hover:underline">
+                    <button type="button" onClick={() => switchMode("in")} className="font-medium text-primary underline-offset-4 hover:underline">
                       Sign In
                     </button>
                   </>

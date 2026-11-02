@@ -21,7 +21,7 @@ export function ProjectCard({
   onArchive?: (project: ProjectCardData) => void;
 }) {
   return (
-    <Card>
+    <Card className="project-entry">
       <CardHeader>
         <CardTitle className="text-xl">{project.title}</CardTitle>
       </CardHeader>

@@ -1,402 +1,464 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight, ArrowUpRight } from "lucide-react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
+import { ArrowDown, ArrowRight, ArrowUpRight } from "lucide-react";
 import fabricPrint from "@/assets/homepage/fabric-print.webp";
 import outfitConcept from "@/assets/homepage/outfit-concept.webp";
 import bagConcept from "@/assets/homepage/bag-concept.webp";
 import shoeConcept from "@/assets/homepage/shoe-concept.webp";
 import { SiteHeader } from "@/components/SiteHeader";
-import { Button } from "@/components/ui/button";
-import { PinterestInspiration } from "@/components/PinterestInspiration";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
+import homeCss from "@/styles/home.css?url";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Fashley | See what your fabric could become" },
+      { title: "Fashley | Your fabric. Your next favourite." },
       {
         name: "description",
-        content: "Upload your fabric. See four outfit, bag, or shoe designs in your print.",
+        content:
+          "Turn your fabric into outfit ideas. Create bag and shoe concepts, save your favourites, and prepare your next conversation with a tailor.",
       },
-      { property: "og:title", content: "Fashley | See what your fabric could become" },
+      { property: "og:title", content: "Fashley | Your fabric. Your next favourite." },
       {
         property: "og:description",
-        content: "Upload your fabric. See four outfit, bag, or shoe designs in your print.",
+        content: "A little imagination. A fabric you love. See what you could make with Fashley.",
       },
       { property: "og:image", content: "https://fashley.lovable.app/fashley-share.jpg" },
       { name: "twitter:image", content: "https://fashley.lovable.app/fashley-share.jpg" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
-    links: [{ rel: "canonical", href: "https://fashley.lovable.app" }],
+    links: [
+      { rel: "canonical", href: "https://fashley.lovable.app" },
+      { rel: "stylesheet", href: homeCss },
+    ],
   }),
-  component: Index,
+  component: Home,
 });
 
+const studios = [
+  {
+    name: "Outfits",
+    title: "A print with possibilities.",
+    description:
+      "The fabric you fell for, in a silhouette that feels like you. Choose your occasion and style, then see your ideas take shape.",
+    image: outfitConcept,
+    alt: "Illustrative wrap dress in a blue, cream and yellow fabric print",
+    route: "/studio",
+    cta: "Design an outfit",
+    material: "Your fabric, reimagined",
+    detail: "Wrap dress / printed fabric",
+  },
+  {
+    name: "Bags",
+    title: "Make it your everyday.",
+    description:
+      "A statement bag or an everyday companion. Start with a photo of your material, then choose a shape, style and hardware.",
+    image: bagConcept,
+    alt: "Illustrative structured cognac leather handbag with gold hardware",
+    route: "/bag-design",
+    cta: "Design a bag",
+    material: "The details make it yours",
+    detail: "Structured handbag / leather",
+  },
+  {
+    name: "Shoes",
+    title: "A different point of view.",
+    description:
+      "Give your next pair a direction of its own. Bring a material photo and try shoe styles before deciding what you want made.",
+    image: shoeConcept,
+    alt: "Illustrative suede shoe design",
+    route: "/shoe-design",
+    cta: "Design a shoe",
+    material: "From material to possibility",
+    detail: "Shoe concept / suede",
+  },
+] as const;
+
+/* Pattern adapted from 21st.dev "Centered Hero with Image Fan": a centred
+   headline above a fanned stack of real product photos. Cards link to the
+   studio each photo belongs to, so the decoration is also navigation. */
+const fanCards = [
+  {
+    label: "Start with your fabric",
+    image: fabricPrint,
+    alt: "Blue and yellow fabric print",
+    route: "/studio",
+    tilt: "-9deg",
+    lift: "18px",
+  },
+  {
+    label: "Design an outfit",
+    image: outfitConcept,
+    alt: "Illustrative wrap dress in a blue, cream and yellow fabric print",
+    route: "/studio",
+    tilt: "-3deg",
+    lift: "0px",
+  },
+  {
+    label: "Design a bag",
+    image: bagConcept,
+    alt: "Illustrative structured cognac leather handbag with gold hardware",
+    route: "/bag-design",
+    tilt: "3deg",
+    lift: "0px",
+  },
+  {
+    label: "Design a shoe",
+    image: shoeConcept,
+    alt: "Illustrative suede shoe design",
+    route: "/shoe-design",
+    tilt: "9deg",
+    lift: "18px",
+  },
+] as const;
+
+const marqueeItems = [
+  "Upload your fabric",
+  "Design an outfit",
+  "Try a bag shape",
+  "Imagine the shoes",
+  "Save it to your wardrobe",
+  "Brief your tailor",
+] as const;
+
 const steps = [
-  ["Pick one", "An outfit, a bag, or a shoe."],
-  ["Add your fabric", "One photo is enough."],
-  ["See four previews", "Four styles, your print."],
-  ["Pick a favourite", "Save it, or run it again."],
-  ["Want it made?", "Add measurements and send it to your tailor."],
+  {
+    title: "Start with what you love.",
+    text: "Upload a clear photo of your fabric or material. Let the print, colour and texture lead the way.",
+  },
+  {
+    title: "Give it a direction.",
+    text: "Choose an outfit, bag or shoe studio. Pick a category, style and occasion, and add any details you have in mind.",
+  },
+  {
+    title: "See the possibilities.",
+    text: "Generate design previews, compare the results, and try a different direction when you want to.",
+  },
+  {
+    title: "Keep the one that feels right.",
+    text: "Save your favourites to your wardrobe or download a preview. Your next idea can start where this one leaves off.",
+  },
 ] as const;
 
 const faqs = [
   {
-    q: "Is the preview the final garment?",
-    a: "No. Previews show print and shape. A tailor confirms the rest before anything is cut.",
+    question: "What do I need to start?",
+    answer:
+      "Sign in and upload a clear photo of your fabric or material. Choose the outfit, bag or shoe studio, set your preferences, and select how many previews you want to generate.",
   },
   {
-    q: "Do outfits, bags and shoes come together?",
-    a: "No. Pick one at a time. Each design is made separately.",
+    question: "Are these finished products I can buy?",
+    answer:
+      "No. Fashley generates visual concepts, not physical products or sewing patterns. The examples on this page are illustrative. A maker needs to confirm construction, materials and feasibility before making your design.",
   },
   {
-    q: "Do I have to send my design to a tailor?",
-    a: "No. Only if you want the outfit made.",
+    question: "Can I design an outfit, bag and shoes together?",
+    answer:
+      "Each studio creates one type of item at a time. Use the outfit studio for clothing, the bag studio for bags, and the shoe studio for shoes. You can save the separate results to your wardrobe.",
   },
   {
-    q: "Is fit guaranteed?",
-    a: "No. Fabric, style, and making all change fit. Your tailor checks your measurements with you.",
+    question: "Do I need my measurements to design?",
+    answer:
+      "No. Start with the visual idea. If you want an outfit made, you can prepare measurements and a brief for tailor review afterward. Your tailor still needs to check your measurements, fabric and intended fit.",
   },
   {
-    q: "Who sees my fabric photos?",
-    a: "Only you, until you share a design link.",
+    question: "Can I keep my designs and come back later?",
+    answer:
+      "Yes. Save a generated design to your wardrobe while signed in, or download the preview. Your saved designs keep the preferences used to create them.",
+  },
+  {
+    question: "How close will the preview be to the real thing?",
+    answer:
+      "AI-generated previews are a starting point for discussion. Print placement, texture, colour and construction may differ from the real material. Review the concept with your tailor or maker before committing fabric.",
   },
 ] as const;
 
-function SectionHeading({ children }: { children: string }) {
-  return (
-    <h2 className="font-sans text-3xl font-semibold tracking-tight text-foreground md:text-4xl">
-      {children}
-    </h2>
-  );
-}
+function Home() {
+  const [selected, setSelected] = useState(0);
+  const pageRef = useRef<HTMLDivElement>(null);
+  const studio = studios[selected]!;
 
-function Index() {
+  useEffect(() => {
+    const elements = pageRef.current?.querySelectorAll<HTMLElement>("[data-reveal]");
+    if (
+      !elements ||
+      !window.IntersectionObserver ||
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    )
+      return;
+    // Only hide off-screen content once an observer exists; SSR stays readable.
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.remove("reveal-pending");
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.12 },
+    );
+    elements.forEach((element) => {
+      if (element.getBoundingClientRect().top > window.innerHeight) {
+        element.classList.add("reveal-pending");
+        observer.observe(element);
+      }
+    });
+    return () => observer.disconnect();
+  }, []);
+
   return (
-    <div className="min-h-screen bg-background font-sans text-foreground">
+    <div className="fashion-home" ref={pageRef}>
+      <a className="home-skip" href="#home-main">
+        Skip to content
+      </a>
       <SiteHeader />
-      <main>
-        {/* 1. Hero */}
-        <section className="mx-auto max-w-6xl px-5 py-12 md:py-20">
-          <div className="grid items-center gap-10 lg:grid-cols-2">
-            <div>
-              <h1 className="font-sans text-5xl font-semibold leading-[1.05] tracking-tight md:text-6xl">
-                See what your fabric could become
-              </h1>
-              <p className="mt-6 max-w-md text-lg leading-relaxed text-muted-foreground">
-                Upload your fabric, pick an outfit, bag, or shoe, and see four designs in your
-                print.
-              </p>
-              <div className="mt-8 flex flex-wrap gap-3">
-                <Button asChild size="lg">
-                  <Link to="/studio">
-                    Open the design studio <ArrowRight />
-                  </Link>
-                </Button>
-                <Button asChild size="lg" variant="outline">
-                  <Link to="/bag-design">Open bag studio</Link>
-                </Button>
-              </div>
-            </div>
-
-            <figure>
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <img
-                    src={fabricPrint}
-                    alt="Example fabric print"
-                    width={1600}
-                    height={1600}
-                    className="aspect-square w-full rounded-lg border border-border object-cover"
-                  />
-                  <p className="mt-2 font-mono text-xs text-muted-foreground">Your fabric</p>
-                </div>
-                <div>
-                  <img
-                    src={outfitConcept}
-                    alt="Example outfit preview in the same print"
-                    width={1120}
-                    height={2240}
-                    className="aspect-square w-full rounded-lg border border-border object-cover"
-                  />
-                  <p className="mt-2 font-mono text-xs text-muted-foreground">Outfit preview</p>
-                </div>
-              </div>
-              <figcaption className="mt-3 text-xs text-muted-foreground">
-                Example fabric, example outfit. Yours starts with your fabric.
-              </figcaption>
-            </figure>
+      <main id="home-main">
+        <section className="home-hero home-container" aria-labelledby="hero-heading">
+          <h1 id="hero-heading">
+            That fabric. <em>Your next favourite.</em>
+          </h1>
+          <p className="hero-description">
+            You saw a fabric and imagined something. Upload a photo of it and see what it could
+            become: an outfit, a bag, a pair of shoes.
+          </p>
+          <div className="hero-actions">
+            <Link className="home-button" to="/studio">
+              Design with your fabric <ArrowUpRight size={18} aria-hidden="true" />
+            </Link>
+            <a className="home-text-link" href="#how-it-works">
+              See how it works <ArrowDown size={15} aria-hidden="true" />
+            </a>
           </div>
-
-          <div className="mt-12 grid gap-4 md:grid-cols-2">
-            <article className="rounded-lg border border-border bg-card p-6">
-              <h2 className="font-sans text-xl font-semibold tracking-tight">I have fabric</h2>
-              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                Four outfit previews in your print. Pick the one you like.
-              </p>
-              <Button asChild variant="outline" className="mt-4">
-                <Link to="/studio">
-                  Open outfit studio <ArrowRight />
-                </Link>
-              </Button>
-            </article>
-            <article className="rounded-lg border border-border bg-card p-6">
-              <h2 className="font-sans text-xl font-semibold tracking-tight">I design</h2>
-              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                One studio per item. Outfits, bags, and shoes, designed separately.
-              </p>
-              <Button asChild variant="outline" className="mt-4">
-                <Link to="/studio">
-                  Open the studios <ArrowRight />
-                </Link>
-              </Button>
-            </article>
+          <div className="hero-fan" aria-label="What you can design">
+            {fanCards.map((card, index) => (
+              <Link
+                key={card.label}
+                className="fan-card"
+                to={card.route}
+                style={
+                  {
+                    "--fan-tilt": card.tilt,
+                    "--fan-lift": card.lift,
+                    zIndex: index + 1,
+                  } as CSSProperties
+                }
+              >
+                <img
+                  src={card.image}
+                  alt={card.alt}
+                  width={1600}
+                  height={1600}
+                  fetchPriority={index === 1 ? "high" : undefined}
+                />
+                <span>{card.label}</span>
+              </Link>
+            ))}
           </div>
         </section>
 
-        {/* 2. How it works */}
-        <section className="border-y border-border">
-          <div className="mx-auto max-w-6xl px-5 py-12">
-            <SectionHeading>How it works</SectionHeading>
-            <ol className="mt-8 grid gap-8 sm:grid-cols-2 lg:grid-cols-5">
-              {steps.map(([title, text], i) => (
-                <li key={title}>
-                  <span className="font-mono text-sm text-muted-foreground">
-                    {String(i + 1).padStart(2, "0")}
-                  </span>
-                  <h3 className="mt-2 font-sans text-lg font-semibold tracking-tight">{title}</h3>
-                  <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{text}</p>
+        {/* Pattern adapted from 21st.dev marquee blocks: a moving strip names
+            the real actions in the product, in the order a user takes them. */}
+        <div className="home-marquee" aria-hidden="true">
+          <div className="marquee-track">
+            {[...marqueeItems, ...marqueeItems].map((item, index) => (
+              <span key={index}>
+                {item} <i>*</i>
+              </span>
+            ))}
+          </div>
+        </div>
+
+        <section
+          id="studios"
+          className="home-studios home-container"
+          aria-labelledby="studios-heading"
+        >
+          <div className="home-section-heading" data-reveal>
+            <div>
+              <h2 id="studios-heading">
+                One idea.
+                <br />
+                <em>So many ways to wear it.</em>
+              </h2>
+              <p>
+                A dress for the occasion. A bag you wish existed. A pair that’s entirely your taste.
+                Where shall we begin?
+              </p>
+            </div>
+          </div>
+          {/* Pattern adapted from 21st.dev animated/expanding galleries: the
+              selected photo opens up, the others stay visible as choices. */}
+          <div
+            className="studio-gallery"
+            role="group"
+            aria-label="Preview a design studio"
+            data-reveal
+          >
+            {studios.map((item, index) => (
+              <button
+                key={item.name}
+                type="button"
+                className="gallery-panel"
+                data-active={selected === index}
+                aria-pressed={selected === index}
+                aria-controls="studio-preview"
+                onClick={() => setSelected(index)}
+              >
+                <img src={item.image} alt={item.alt} width={1600} height={1600} loading="lazy" />
+                <span className="gallery-panel-shade" aria-hidden="true" />
+                <span className="gallery-panel-label">
+                  <span className="gallery-panel-name">{item.name}</span>
+                  <span className="gallery-panel-detail">{item.detail}</span>
+                </span>
+              </button>
+            ))}
+          </div>
+          <div
+            id="studio-preview"
+            className="studio-description"
+            aria-live="polite"
+            aria-atomic="true"
+            data-reveal
+          >
+            <div key={studio.name} className="studio-description-inner">
+              <div>
+                <h3>{studio.title}</h3>
+                <p>{studio.description}</p>
+              </div>
+              <Link className="home-button" to={studio.route}>
+                {studio.cta} <ArrowUpRight size={18} aria-hidden="true" />
+              </Link>
+            </div>
+            <p className="studio-footnote">
+              Each item has its own studio. Every preview starts with your material.
+            </p>
+          </div>
+        </section>
+
+        <section id="how-it-works" className="home-process" aria-labelledby="process-heading">
+          <div className="home-container process-grid">
+            <div className="process-intro" data-reveal>
+              <h2 id="process-heading">
+                From “what if”
+                <br />
+                to <em>“that’s it.”</em>
+              </h2>
+              <p>No sketchbook needed. Just a material you love and an idea you want to see.</p>
+              <figure className="process-fabric">
+                <img
+                  src={fabricPrint}
+                  alt="Close-up of the texture and pattern of the example fabric"
+                  width={1600}
+                  height={1600}
+                  loading="lazy"
+                />
+                <figcaption>It starts here. With your material.</figcaption>
+              </figure>
+            </div>
+            <ol className="process-steps">
+              {steps.map((step, index) => (
+                <li key={step.title} data-reveal>
+                  <div>
+                    <h3>{step.title}</h3>
+                    <p>{step.text}</p>
+                  </div>
                 </li>
               ))}
             </ol>
           </div>
         </section>
 
-        {/* 3. Separate design types */}
-        <section className="mx-auto max-w-6xl px-5 py-14">
-          <SectionHeading>Outfit, bag, or shoe?</SectionHeading>
-          <p className="mt-4 max-w-2xl leading-relaxed text-muted-foreground">
-            Each one is designed on its own.
-          </p>
-          <div className="mt-8 grid gap-6 md:grid-cols-3">
-            <article className="rounded-lg border border-border bg-card p-6">
-              <img
-                src={outfitConcept}
-                alt="Example outfit preview in an example print"
-                width={1120}
-                height={2240}
-                loading="lazy"
-                className="aspect-square w-full rounded-md border border-border object-cover"
-              />
-              <h3 className="mt-4 font-sans text-xl font-semibold tracking-tight">Outfit</h3>
-              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                Four previews in your print. Example outfit shown.
-              </p>
-              <Button asChild variant="outline" className="mt-4">
-                <Link to="/studio">
-                  Open outfit studio <ArrowUpRight />
-                </Link>
-              </Button>
-            </article>
-            <article className="rounded-lg border border-border bg-card p-6">
-              <img
-                src={bagConcept}
-                alt="Example leather bag preview"
-                width={1600}
-                height={1600}
-                loading="lazy"
-                className="aspect-square w-full rounded-md border border-border object-cover"
-              />
-              <h3 className="mt-4 font-sans text-xl font-semibold tracking-tight">Bag</h3>
-              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                Leather, suede, or fabric. Example bag in leather.
-              </p>
-              <Button asChild variant="outline" className="mt-4">
-                <Link to="/bag-design">
-                  Open bag studio <ArrowUpRight />
-                </Link>
-              </Button>
-            </article>
-            <article className="rounded-lg border border-border bg-card p-6">
-              <img
-                src={shoeConcept}
-                alt="Example suede shoe preview"
-                width={1600}
-                height={1600}
-                loading="lazy"
-                className="aspect-square w-full rounded-md border border-border object-cover"
-              />
-              <h3 className="mt-4 font-sans text-xl font-semibold tracking-tight">Shoe</h3>
-              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                Leather, suede, or fabric. Example shoes in suede.
-              </p>
-              <Button asChild variant="outline" className="mt-4">
-                <Link to="/shoe-design">
-                  Open shoe studio <ArrowUpRight />
-                </Link>
-              </Button>
-            </article>
+        <section id="next-step" className="home-next home-container" aria-labelledby="next-heading">
+          <div className="next-heading" data-reveal>
+            <h2 id="next-heading">
+              An idea worth keeping.
+              <br />
+              <em>Maybe even making.</em>
+            </h2>
           </div>
-          <figure className="mt-8 flex items-start gap-4">
-            <img
-              src={fabricPrint}
-              alt="Example fabric print"
-              width={1600}
-              height={1600}
-              loading="lazy"
-              className="h-20 w-20 rounded-md border border-border object-cover"
-            />
-            <figcaption className="text-sm leading-relaxed text-muted-foreground">
-              Outfits start with your fabric. Bags and shoes start with their own material. This
-              print is an example.
-            </figcaption>
-          </figure>
-        </section>
-
-        {/* 4. For designers */}
-        <section className="border-y border-border bg-muted/50">
-          <div className="mx-auto max-w-6xl px-5 py-14">
-            <SectionHeading>For designers</SectionHeading>
-            <p className="mt-4 max-w-2xl leading-relaxed text-muted-foreground">
-              Try a print. Save each version. Compare, then commit.
-            </p>
-            <ul className="mt-6 flex flex-wrap gap-3">
-              <li>
-                <Button asChild variant="outline">
-                  <Link to="/studio">
-                    Outfit studio <ArrowUpRight />
-                  </Link>
-                </Button>
-              </li>
-              <li>
-                <Button asChild variant="outline">
-                  <Link to="/shoe-design">
-                    Shoe studio <ArrowUpRight />
-                  </Link>
-                </Button>
-              </li>
-              <li>
-                <Button asChild variant="outline">
-                  <Link to="/bag-design">
-                    Bag studio <ArrowUpRight />
-                  </Link>
-                </Button>
-              </li>
-            </ul>
-          </div>
-        </section>
-
-        {/* 5. Measurements */}
-        <section id="measurements" className="mx-auto max-w-6xl scroll-mt-24 px-5 py-14">
-          <SectionHeading>Measurements, when you need them</SectionHeading>
-          <p className="mt-4 max-w-2xl leading-relaxed text-muted-foreground">
-            Design first. If you want the outfit made, add your measurements and your tailor
-            checks them with you. Measurements alone never guarantee fit.
-          </p>
-        </section>
-
-        {/* 6. Keep it or get it made */}
-        <section className="border-y border-border bg-muted/50">
-          <div className="mx-auto max-w-6xl px-5 py-14">
-            <SectionHeading>Keep it, or get it made</SectionHeading>
-            <div className="mt-8 grid gap-6 md:grid-cols-2">
-              <article className="rounded-lg border border-border bg-card p-6">
-                <h3 className="font-sans text-xl font-semibold tracking-tight">Keep it</h3>
-                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                  Save your favourite. Come back anytime.
-                </p>
-              </article>
-              <article className="rounded-lg border border-border bg-card p-6">
-                <h3 className="font-sans text-xl font-semibold tracking-tight">Get it made</h3>
-                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                  Send the outfit and your measurements to your tailor.
-                </p>
-              </article>
-            </div>
-          </div>
-        </section>
-
-        {/* 7. Studios */}
-        <section className="mx-auto max-w-6xl px-5 py-14">
-          <SectionHeading>The studios</SectionHeading>
-          <div className="mt-8 grid gap-6 md:grid-cols-3">
-            <article className="rounded-lg border border-border bg-card p-6">
-              <h3 className="font-sans text-xl font-semibold tracking-tight">Outfit studio</h3>
-              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                Four outfit previews in your print.
+          <div className="next-grid">
+            <article className="next-save" data-reveal>
+              <h3>
+                A wardrobe of
+                <br />
+                possibilities.
+              </h3>
+              <p>
+                Keep the designs that catch your eye. Save different directions, revisit a
+                favourite, or download a preview to take the conversation further.
               </p>
-              <Button asChild variant="outline" className="mt-4">
-                <Link to="/studio">
-                  Open outfit studio <ArrowUpRight />
-                </Link>
-              </Button>
-            </article>
-            <article className="rounded-lg border border-border bg-card p-6">
-              <h3 className="font-sans text-xl font-semibold tracking-tight">Shoe studio</h3>
-              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                Yours in leather, suede, or fabric.
-              </p>
-              <Button asChild variant="outline" className="mt-4">
-                <Link to="/shoe-design">
-                  Open shoe studio <ArrowUpRight />
-                </Link>
-              </Button>
-              <PinterestInspiration kind="shoes" />
-            </article>
-            <article className="rounded-lg border border-border bg-card p-6">
-              <h3 className="font-sans text-xl font-semibold tracking-tight">Bag studio</h3>
-              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                Yours in leather, suede, or fabric.
-              </p>
-              <Button asChild variant="outline" className="mt-4">
-                <Link to="/bag-design">
-                  Open bag studio <ArrowUpRight />
-                </Link>
-              </Button>
-              <PinterestInspiration kind="bags" />
-            </article>
-          </div>
-        </section>
-
-        {/* 8. FAQ */}
-        <section className="border-y border-border">
-          <div className="mx-auto max-w-6xl px-5 py-14">
-            <SectionHeading>Questions, answered plainly</SectionHeading>
-            <Accordion type="single" collapsible className="mt-8 max-w-3xl">
-              {faqs.map((item) => (
-                <AccordionItem key={item.q} value={item.q}>
-                  <AccordionTrigger className="font-sans text-base font-medium">
-                    {item.q}
-                  </AccordionTrigger>
-                  <AccordionContent className="leading-relaxed text-muted-foreground">
-                    {item.a}
-                  </AccordionContent>
-                </AccordionItem>
-              ))}
-            </Accordion>
-          </div>
-        </section>
-
-        {/* 9. Final CTA */}
-        <section className="mx-auto max-w-6xl px-5 py-16">
-          <SectionHeading>Start with your fabric</SectionHeading>
-          <p className="mt-4 max-w-2xl leading-relaxed text-muted-foreground">
-            One photo in. Four designs out.
-          </p>
-          <div className="mt-8 flex flex-wrap gap-3">
-            <Button asChild size="lg">
-              <Link to="/studio">
-                Open the design studio <ArrowRight />
+              <Link className="home-text-link" to="/wardrobe">
+                Visit your wardrobe <ArrowRight size={18} aria-hidden="true" />
               </Link>
-            </Button>
-            <Button asChild size="lg" variant="outline">
-              <a href="#measurements">How measurements work</a>
-            </Button>
+              <div className="saved-materials" aria-hidden="true">
+                <img src={shoeConcept} alt="" width={1600} height={1600} loading="lazy" />
+                <img src={bagConcept} alt="" width={1600} height={1600} loading="lazy" />
+              </div>
+            </article>
+            <article className="next-tailor" data-reveal>
+              <h3>
+                Bring your tailor
+                <br />
+                into the picture.
+              </h3>
+              <p>
+                When you’re ready to have an outfit made, prepare a design brief and measurements
+                for tailor review. A clearer starting point for the person bringing it to life.
+              </p>
+              <Link className="home-text-link" to="/tailor">
+                Prepare a tailor brief <ArrowRight size={18} aria-hidden="true" />
+              </Link>
+              <div className="tailor-note">
+                <span>Before the first stitch</span>
+                <p>
+                  A preview is inspiration, not a sewing pattern. Your tailor confirms fabric
+                  suitability, construction and fit with you.
+                </p>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <section className="home-questions home-container" aria-labelledby="questions-heading">
+          <div data-reveal>
+            <h2 id="questions-heading">
+              Before you
+              <br />
+              <em>begin.</em>
+            </h2>
+            <p>
+              Still have a question?
+              <br />
+              <Link className="home-text-link" to="/contact">
+                Talk to us
+              </Link>
+            </p>
+          </div>
+          <div className="home-faq-list" data-reveal>
+            {faqs.map((faq) => (
+              <details key={faq.question}>
+                <summary>
+                  {faq.question}
+                  <span className="faq-plus" aria-hidden="true" />
+                </summary>
+                <p>{faq.answer}</p>
+              </details>
+            ))}
+          </div>
+        </section>
+
+        <section className="home-finale" aria-labelledby="finale-heading">
+          <div className="home-container" data-reveal>
+            <h2 id="finale-heading">
+              Let’s make room
+              <br />
+              for <em>your next idea.</em>
+            </h2>
+            <Link className="home-button" to="/studio">
+              Open the design studio <ArrowUpRight size={18} aria-hidden="true" />
+            </Link>
+            <p>Bring your fabric. We’ll start there.</p>
           </div>
         </section>
       </main>
