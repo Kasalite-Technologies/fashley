@@ -1,3 +1,4 @@
+import { Link } from "@tanstack/react-router";
 import { useCallback, useEffect, useState } from "react";
 import { useAuth } from "@clerk/tanstack-react-start";
 import { Trash2 } from "lucide-react";
@@ -5,7 +6,7 @@ import { toast } from "sonner";
 import { SiteHeader } from "@/components/SiteHeader";
 import { StudioShell } from "@/components/StudioShell";
 import { DesignPreview } from "@/components/DesignPreview";
-import { ClerkModalSignIn, TailorSignInPanel, clerkConfigured } from "@/components/tailor/TailorClerk";
+import { TailorSignInPanel, clerkConfigured } from "@/components/tailor/TailorClerk";
 import { Button } from "@/components/ui/button";
 
 interface SavedDesign {
@@ -106,7 +107,11 @@ function WardrobeGateInner() {
         <section className="mx-auto max-w-md px-5 pb-16">
           <h2 className="font-sans text-2xl font-semibold tracking-tight">Sign in to see your designs</h2>
           <div className="mt-4">
-            <ClerkModalSignIn redirectTo="/wardrobe" label="Sign in" />
+            <Button asChild size="lg">
+              <Link to="/sign-in" search={{ redirectTo: "/wardrobe", mode: "in" }}>
+                Sign in
+              </Link>
+            </Button>
           </div>
         </section>
       </>
