@@ -1,9 +1,9 @@
-import { Link } from "@tanstack/react-router";
 import { useRef, useState } from "react";
 import { useAuth } from "@clerk/tanstack-react-start";
 import { Download, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { SiteHeader } from "@/components/SiteHeader";
+import { StudioShell } from "@/components/StudioShell";
 import { DesignPreview } from "@/components/DesignPreview";
 import { TailorSignInPanel, clerkConfigured } from "@/components/tailor/TailorClerk";
 import { Button } from "@/components/ui/button";
@@ -18,7 +18,6 @@ const KIND_ROUTES: Record<DesignKind, string> = {
   shoes: "/shoe-design",
   bags: "/bag-design",
 };
-const KIND_LABELS: Record<DesignKind, string> = { outfits: "Outfits", shoes: "Shoes", bags: "Bags" };
 
 interface Preferences {
   kind: DesignKind;
@@ -50,7 +49,7 @@ function SignedOutStudio({ kind }: { kind: DesignKind }) {
       <section className="mx-auto max-w-md px-5 pb-16">
         <h2 className="font-sans text-2xl font-semibold tracking-tight">Sign in to design</h2>
         <div className="mt-4">
-          <TailorSignInPanel />
+          <TailorSignInPanel redirectTo={KIND_ROUTES[kind]} />
         </div>
       </section>
     </>
@@ -71,6 +70,7 @@ function Studio({ kind }: { kind: DesignKind }) {
   const [running, setRunning] = useState(false);
   const [saving, setSaving] = useState<Record<number, boolean>>({});
   const [saved, setSaved] = useState<Record<number, boolean>>({});
+  const [dragging, setDragging] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
   async function authHeaders() {
@@ -88,6 +88,18 @@ function Studio({ kind }: { kind: DesignKind }) {
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "This file could not be read.");
     }
+  }
+
+  function onDrop(event: React.DragEvent) {
+    event.preventDefault();
+    setDragging(false);
+    const file = event.dataTransfer.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      toast.error("Drop an image file, such as a JPG or PNG photo.");
+      return;
+    }
+    void onFile(file);
   }
 
   async function generate() {
@@ -150,18 +162,8 @@ function Studio({ kind }: { kind: DesignKind }) {
   }
 
   return (
-    <main className="mx-auto max-w-6xl px-5 py-10">
-      <nav aria-label="Design type" className="flex flex-wrap gap-2">
-        {(Object.keys(KIND_ROUTES) as DesignKind[]).map((k) => (
-          <Button key={k} asChild size="sm" variant={k === kind ? "default" : "outline"}>
-            <Link to={KIND_ROUTES[k]}>{KIND_LABELS[k]}</Link>
-          </Button>
-        ))}
-      </nav>
-
-      <h1 className="mt-6 font-sans text-4xl font-semibold tracking-tight">{options.title} studio</h1>
-
-      <div className="mt-8 grid gap-10 lg:grid-cols-[320px_1fr]">
+    <StudioShell title={`${options.title} studio`}>
+      <div className="grid gap-10 lg:grid-cols-[320px_1fr]">
         <section>
           <h2 className="font-sans text-lg font-semibold tracking-tight">1. Your {options.material} photo</h2>
           <input
@@ -175,17 +177,49 @@ function Studio({ kind }: { kind: DesignKind }) {
               e.target.value = "";
             }}
           />
-          <Button variant="outline" className="mt-3" onClick={() => fileRef.current?.click()}>
-            {fabric ? "Change photo" : "Upload photo"}
-          </Button>
-          {fabric && (
-            <figure className="mt-4">
-              <img src={fabric.previewUrl} alt="Your uploaded material" className="aspect-square w-full rounded-lg border border-border object-cover" />
-              {fabric.warnings.map((w) => (
-                <figcaption key={w} className="mt-2 text-sm text-muted-foreground">{w}</figcaption>
-              ))}
-            </figure>
-          )}
+          <div
+            role="button"
+            tabIndex={0}
+            aria-label={
+              fabric
+                ? `Change your ${options.material} photo`
+                : `Upload your ${options.material} photo by clicking or dropping a file`
+            }
+            className={`mt-3 cursor-pointer rounded-lg border border-dashed p-3 outline-none transition-colors focus-visible:ring-2 focus-visible:ring-ring ${
+              dragging ? "border-primary bg-accent" : "border-border hover:bg-accent/50"
+            }`}
+            onClick={() => fileRef.current?.click()}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                fileRef.current?.click();
+              }
+            }}
+            onDragOver={(e) => {
+              e.preventDefault();
+              setDragging(true);
+            }}
+            onDragLeave={() => setDragging(false)}
+            onDrop={onDrop}
+          >
+            {fabric ? (
+              <img
+                src={fabric.previewUrl}
+                alt="Your uploaded material"
+                className="aspect-square w-full rounded-md object-cover"
+              />
+            ) : (
+              <p className="flex aspect-square w-full items-center justify-center px-4 text-center text-sm text-muted-foreground">
+                Drag and drop your {options.material} photo here, or click to upload
+              </p>
+            )}
+          </div>
+          {fabric &&
+            fabric.warnings.map((w) => (
+              <p key={w} className="mt-2 text-sm text-muted-foreground">
+                {w}
+              </p>
+            ))}
 
           <h2 className="mt-8 font-sans text-lg font-semibold tracking-tight">2. Design choices</h2>
           <div className="mt-3 space-y-4">
@@ -263,22 +297,31 @@ function Studio({ kind }: { kind: DesignKind }) {
           </div>
         </section>
       </div>
-    </main>
+    </StudioShell>
   );
 }
 
 export function StudioApp({ kind }: { kind: DesignKind }) {
   const { isLoaded, isSignedIn } = useAuth();
+  if (!isLoaded) {
+    return (
+      <div className="min-h-screen">
+        <SiteHeader />
+        <main className="mx-auto max-w-6xl px-5 py-12" role="status">Loading your design studio…</main>
+      </div>
+    );
+  }
+  if (isSignedIn) {
+    return (
+      <div className="min-h-screen">
+        <Studio kind={kind} />
+      </div>
+    );
+  }
   return (
     <div className="min-h-screen">
       <SiteHeader />
-      {!isLoaded ? (
-        <main className="mx-auto max-w-6xl px-5 py-12" role="status">Loading your design studio…</main>
-      ) : isSignedIn ? (
-        <Studio kind={kind} />
-      ) : (
-        <SignedOutStudio kind={kind} />
-      )}
+      <SignedOutStudio kind={kind} />
     </div>
   );
 }
@@ -290,7 +333,7 @@ export function StudioGate({ kind }: { kind: DesignKind }) {
         <SiteHeader />
         <DesignPreview kind={kind} />
         <section className="mx-auto max-w-md px-5 pb-16">
-          <TailorSignInPanel />
+          <TailorSignInPanel redirectTo={KIND_ROUTES[kind]} />
         </section>
       </div>
     );
