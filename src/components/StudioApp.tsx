@@ -1,3 +1,4 @@
+import { Link } from "@tanstack/react-router";
 import { useRef, useState } from "react";
 import { useAuth } from "@clerk/tanstack-react-start";
 import { Download, Loader2 } from "lucide-react";
@@ -5,7 +6,7 @@ import { toast } from "sonner";
 import { SiteHeader } from "@/components/SiteHeader";
 import { StudioShell } from "@/components/StudioShell";
 import { DesignPreview } from "@/components/DesignPreview";
-import { ClerkModalSignIn, TailorSignInPanel, clerkConfigured } from "@/components/tailor/TailorClerk";
+import { TailorSignInPanel, clerkConfigured } from "@/components/tailor/TailorClerk";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -13,11 +14,11 @@ import { DESIGN_OPTIONS, HARDWARE, type DesignKind } from "@/lib/design-options"
 import { prepareFabric, type FabricCheck } from "@/lib/fabric";
 
 const OCCASIONS = ["Everyday", "Work", "Church", "Wedding", "Party", "Formal event"];
-const KIND_ROUTES: Record<DesignKind, string> = {
+const KIND_ROUTES = {
   outfits: "/studio",
   shoes: "/shoe-design",
   bags: "/bag-design",
-};
+} as const satisfies Record<DesignKind, string>;
 
 interface Preferences {
   kind: DesignKind;
@@ -49,7 +50,11 @@ function SignedOutStudio({ kind }: { kind: DesignKind }) {
       <section className="mx-auto max-w-md px-5 pb-16">
         <h2 className="font-sans text-2xl font-semibold tracking-tight">Sign in to design</h2>
         <div className="mt-4">
-          <ClerkModalSignIn redirectTo={KIND_ROUTES[kind]} label="Sign in to design" />
+          <Button asChild size="lg">
+            <Link to="/sign-in" search={{ redirectTo: KIND_ROUTES[kind], mode: "in" }}>
+              Sign in to design
+            </Link>
+          </Button>
         </div>
       </section>
     </>

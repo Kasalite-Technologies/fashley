@@ -19,6 +19,8 @@ import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as ReviewRouteImport } from './routes/review'
 import { Route as ShoeDesignRouteImport } from './routes/shoe-design'
 import { Route as ShopRouteImport } from './routes/shop'
+import { Route as SignInRouteImport } from './routes/sign-in'
+import { Route as SsoCallbackRouteImport } from './routes/sso-callback'
 import { Route as StudioRouteImport } from './routes/studio'
 import { Route as TailorRouteImport } from './routes/tailor'
 import { Route as TermsRouteImport } from './routes/terms'
@@ -113,6 +115,16 @@ const ShoeDesignRoute = ShoeDesignRouteImport.update({
 const ShopRoute = ShopRouteImport.update({
   id: '/shop',
   path: '/shop',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SignInRoute = SignInRouteImport.update({
+  id: '/sign-in',
+  path: '/sign-in',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SsoCallbackRoute = SsoCallbackRouteImport.update({
+  id: '/sso-callback',
+  path: '/sso-callback',
   getParentRoute: () => rootRouteImport,
 } as any)
 const StudioRoute = StudioRouteImport.update({
@@ -368,6 +380,8 @@ export interface FileRoutesByFullPath {
   '/review': typeof ReviewRouteWithChildren
   '/shoe-design': typeof ShoeDesignRoute
   '/shop': typeof ShopRoute
+  '/sign-in': typeof SignInRoute
+  '/sso-callback': typeof SsoCallbackRoute
   '/studio': typeof StudioRoute
   '/tailor': typeof TailorRouteWithChildren
   '/terms': typeof TermsRoute
@@ -425,6 +439,8 @@ export interface FileRoutesByTo {
   '/review': typeof ReviewRouteWithChildren
   '/shoe-design': typeof ShoeDesignRoute
   '/shop': typeof ShopRoute
+  '/sign-in': typeof SignInRoute
+  '/sso-callback': typeof SsoCallbackRoute
   '/studio': typeof StudioRoute
   '/tailor': typeof TailorRouteWithChildren
   '/terms': typeof TermsRoute
@@ -483,6 +499,8 @@ export interface FileRoutesById {
   '/review': typeof ReviewRouteWithChildren
   '/shoe-design': typeof ShoeDesignRoute
   '/shop': typeof ShopRoute
+  '/sign-in': typeof SignInRoute
+  '/sso-callback': typeof SsoCallbackRoute
   '/studio': typeof StudioRoute
   '/tailor': typeof TailorRouteWithChildren
   '/terms': typeof TermsRoute
@@ -542,6 +560,8 @@ export interface FileRouteTypes {
     | '/review'
     | '/shoe-design'
     | '/shop'
+    | '/sign-in'
+    | '/sso-callback'
     | '/studio'
     | '/tailor'
     | '/terms'
@@ -599,6 +619,8 @@ export interface FileRouteTypes {
     | '/review'
     | '/shoe-design'
     | '/shop'
+    | '/sign-in'
+    | '/sso-callback'
     | '/studio'
     | '/tailor'
     | '/terms'
@@ -656,6 +678,8 @@ export interface FileRouteTypes {
     | '/review'
     | '/shoe-design'
     | '/shop'
+    | '/sign-in'
+    | '/sso-callback'
     | '/studio'
     | '/tailor'
     | '/terms'
@@ -714,6 +738,8 @@ export interface RootRouteChildren {
   ReviewRoute: typeof ReviewRouteWithChildren
   ShoeDesignRoute: typeof ShoeDesignRoute
   ShopRoute: typeof ShopRoute
+  SignInRoute: typeof SignInRoute
+  SsoCallbackRoute: typeof SsoCallbackRoute
   StudioRoute: typeof StudioRoute
   TailorRoute: typeof TailorRouteWithChildren
   TermsRoute: typeof TermsRoute
@@ -805,6 +831,20 @@ declare module '@tanstack/react-router' {
       path: '/shop'
       fullPath: '/shop'
       preLoaderRoute: typeof ShopRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sign-in': {
+      id: '/sign-in'
+      path: '/sign-in'
+      fullPath: '/sign-in'
+      preLoaderRoute: typeof SignInRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sso-callback': {
+      id: '/sso-callback'
+      path: '/sso-callback'
+      fullPath: '/sso-callback'
+      preLoaderRoute: typeof SsoCallbackRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/studio': {
@@ -1319,6 +1359,8 @@ const rootRouteChildren: RootRouteChildren = {
   ReviewRoute: ReviewRouteWithChildren,
   ShoeDesignRoute: ShoeDesignRoute,
   ShopRoute: ShopRoute,
+  SignInRoute: SignInRoute,
+  SsoCallbackRoute: SsoCallbackRoute,
   StudioRoute: StudioRoute,
   TailorRoute: TailorRouteWithChildren,
   TermsRoute: TermsRoute,
