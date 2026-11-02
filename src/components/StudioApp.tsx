@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { SiteHeader } from "@/components/SiteHeader";
 import { StudioShell } from "@/components/StudioShell";
 import { DesignPreview } from "@/components/DesignPreview";
-import { TailorSignInPanel, clerkConfigured } from "@/components/tailor/TailorClerk";
+import { ClerkModalSignIn, TailorSignInPanel, clerkConfigured } from "@/components/tailor/TailorClerk";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -49,7 +49,7 @@ function SignedOutStudio({ kind }: { kind: DesignKind }) {
       <section className="mx-auto max-w-md px-5 pb-16">
         <h2 className="font-sans text-2xl font-semibold tracking-tight">Sign in to design</h2>
         <div className="mt-4">
-          <TailorSignInPanel redirectTo={KIND_ROUTES[kind]} />
+          <ClerkModalSignIn redirectTo={KIND_ROUTES[kind]} label="Sign in to design" />
         </div>
       </section>
     </>
