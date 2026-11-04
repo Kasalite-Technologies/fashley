@@ -13,6 +13,7 @@ export default defineConfig({
     observability: { enabled: true },
     // src/server.ts is the SSR error wrapper around @tanstack/react-start/server-entry.
     entrypoint: "./src/server.ts",
+    domains: ["fashley.app", "www.fashley.app"],
     env: {
       DB: bindings.d1({
         id: "70249e86-5820-4270-8fe1-27b91983185a",
