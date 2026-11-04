@@ -173,32 +173,10 @@ const faqs = [
   },
 ] as const;
 
-const HERO_PLAIN = "From fabric to fashion, ";
-const HERO_ACCENT = "imagination to reality.";
-const HERO_FULL = HERO_PLAIN + HERO_ACCENT;
-
 function Home() {
   const [selected, setSelected] = useState(0);
-  const [typedCount, setTypedCount] = useState(HERO_FULL.length);
   const pageRef = useRef<HTMLDivElement>(null);
   const studio = studios[selected]!;
-
-  // Type the hero headline once on load. SSR and reduced-motion keep the
-  // full line; the aria-label always exposes the complete text.
-  useEffect(() => {
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    setTypedCount(0);
-    const id = window.setInterval(() => {
-      setTypedCount((count) => {
-        if (count + 1 >= HERO_FULL.length) {
-          window.clearInterval(id);
-          return HERO_FULL.length;
-        }
-        return count + 1;
-      });
-    }, 38);
-    return () => window.clearInterval(id);
-  }, []);
 
   useEffect(() => {
     const elements = pageRef.current?.querySelectorAll<HTMLElement>("[data-reveal]");
@@ -237,12 +215,8 @@ function Home() {
       <SiteHeader />
       <main id="home-main">
         <section className="home-hero home-container" aria-labelledby="hero-heading">
-          <h1 id="hero-heading" aria-label={HERO_FULL}>
-            <span aria-hidden="true">
-              {HERO_FULL.slice(0, Math.min(typedCount, HERO_PLAIN.length))}
-              <em>{HERO_FULL.slice(HERO_PLAIN.length, typedCount)}</em>
-              <span className="hero-caret" />
-            </span>
+          <h1 id="hero-heading">
+            From fabric to fashion, <em>imagination to reality.</em>
           </h1>
           <p className="hero-description">
             You saw a fabric and imagined something. Upload a photo of it and see what it could

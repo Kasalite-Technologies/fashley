@@ -164,26 +164,7 @@
   line-height: 1.02;
   margin: 0 auto;
   max-width: 780px;
-  min-height: 2.1em;
   animation: home-rise 700ms var(--home-ease) both;
-}
-.hero-caret {
-  display: inline-block;
-  width: 3px;
-  height: 0.78em;
-  margin-left: 5px;
-  vertical-align: -0.08em;
-  background: var(--home-accent, #9a4a28);
-  animation: hero-caret-blink 820ms step-end infinite;
-}
-@keyframes hero-caret-blink {
-  0%,
-  100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0;
-  }
 }
 .hero-description {
   font-size: 17px;
@@ -741,7 +722,6 @@ details[open] .faq-plus::after {
   }
   .home-hero h1 {
     font-size: clamp(32px, 9.5vw, 46px);
-    min-height: 3.15em;
   }
   .hero-description {
     font-size: 15px;
@@ -836,8 +816,5 @@ details[open] .faq-plus::after {
   .fashion-home .reveal-pending {
     opacity: 1;
     transform: none;
-  }
-  .hero-caret {
-    display: none;
   }
 }
