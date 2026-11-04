@@ -11,13 +11,13 @@ import homeCss from "@/styles/home.css?url";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Fashley | Your fabric. Your next favourite." },
+      { title: "Fashley | From fabric to fashion, imagination to reality" },
       {
         name: "description",
         content:
           "Turn your fabric into outfit ideas. Create bag and shoe concepts, save your favourites, and prepare your next conversation with a tailor.",
       },
-      { property: "og:title", content: "Fashley | Your fabric. Your next favourite." },
+      { property: "og:title", content: "Fashley | From fabric to fashion, imagination to reality" },
       {
         property: "og:description",
         content: "A little imagination. A fabric you love. See what you could make with Fashley.",
@@ -216,7 +216,7 @@ function Home() {
       <main id="home-main">
         <section className="home-hero home-container" aria-labelledby="hero-heading">
           <h1 id="hero-heading">
-            That fabric. <em>Your next favourite.</em>
+            From fabric to fashion, <em>imagination to reality.</em>
           </h1>
           <p className="hero-description">
             You saw a fabric and imagined something. Upload a photo of it and see what it could
