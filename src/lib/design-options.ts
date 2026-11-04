@@ -3,7 +3,7 @@ export type DesignKind = "outfits" | "shoes" | "bags";
 export const DESIGN_OPTIONS = {
   outfits: {
     title: "Outfit design", label: "Outfit", material: "fabric",
-    categories: ["Dress", "Skirt & blouse", "Two-piece set", "Casual wear", "Occasion gown", "Jumpsuit"],
+    categories: ["Dress", "Skirt & blouse", "Two-piece set", "Casual wear", "Occasion gown", "Jumpsuit", "Men's two-piece", "Men's shirt & trousers", "Men's traditional set"],
     styles: ["Elegant", "Modern minimal", "Bold & dramatic", "Romantic", "Traditional"],
     example: "Extra details, such as long sleeves or an off-shoulder cut",
   },

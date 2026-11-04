@@ -3,8 +3,9 @@ import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { ArrowDown, ArrowRight, ArrowUpRight } from "lucide-react";
 import fabricPrint from "@/assets/homepage/fabric-print.webp";
 import outfitConcept from "@/assets/homepage/outfit-concept.webp";
+import mensOutfitConcept from "@/assets/homepage/mens-outfit-concept.webp";
 import bagConcept from "@/assets/homepage/bag-concept.webp";
-import shoeConcept from "@/assets/homepage/shoe-concept.webp";
+import shoeConcept from "@/assets/homepage/mens-shoe-concept.webp";
 import { SiteHeader } from "@/components/SiteHeader";
 import homeCss from "@/styles/home.css?url";
 
@@ -41,12 +42,12 @@ const studios = [
     title: "Your fabric, your next creation.",
     description:
       "With Fashley, you get to explore the possibilities before bringing your favourite design to life.",
-    image: outfitConcept,
-    alt: "Illustrative wrap dress in a blue, cream and yellow fabric print",
+    image: mensOutfitConcept,
+    alt: "Illustrative men's shirt and trousers in a blue, cream and yellow fabric print",
     route: "/studio",
     cta: "Design an outfit",
     material: "Your fabric, reimagined",
-    detail: "Wrap dress / printed fabric",
+    detail: "Shirt & trousers / printed fabric",
   },
   {
     name: "Bags",
@@ -66,11 +67,11 @@ const studios = [
     description:
       "Give your next pair a direction of its own. Bring a material photo and try shoe styles before deciding what you want made.",
     image: shoeConcept,
-    alt: "Illustrative suede shoe design",
+    alt: "Illustrative burgundy suede men's derby shoes",
     route: "/shoe-design",
     cta: "Design a shoe",
     material: "From material to possibility",
-    detail: "Shoe concept / suede",
+    detail: "Derby shoes / suede",
   },
 ] as const;
 
@@ -105,7 +106,7 @@ const fanCards = [
   {
     label: "Design a shoe",
     image: shoeConcept,
-    alt: "Illustrative suede shoe design",
+    alt: "Illustrative burgundy suede men's derby shoes",
     route: "/shoe-design",
     tilt: "9deg",
     lift: "18px",
