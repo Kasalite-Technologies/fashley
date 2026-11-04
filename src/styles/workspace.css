@@ -648,6 +648,56 @@
 .result-card:hover img {
   transform: scale(1.03);
 }
+.result-card button.result-media,
+.wardrobe-media-button {
+  position: relative;
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: zoom-in;
+  border-radius: 12px;
+  overflow: hidden;
+  text-align: left;
+}
+.result-card button.result-media:focus-visible,
+.wardrobe-media-button:focus-visible {
+  outline: 2px solid #85472f;
+  outline-offset: 2px;
+}
+.media-expand-hint {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(32, 24, 18, 0.78);
+  color: #faf6ef;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1;
+  border-radius: 999px;
+  padding: 7px 11px;
+  opacity: 0;
+  transition: opacity 180ms ease;
+  pointer-events: none;
+}
+.result-media:hover .media-expand-hint,
+.result-media:focus-visible .media-expand-hint,
+.wardrobe-media-button:hover .media-expand-hint,
+.wardrobe-media-button:focus-visible .media-expand-hint {
+  opacity: 1;
+}
+@media (hover: none) {
+  .media-expand-hint {
+    opacity: 1;
+  }
+}
+.wardrobe-media-button {
+  border-radius: 20px;
+}
 .result-skeleton {
   aspect-ratio: 1;
   border-radius: 20px;

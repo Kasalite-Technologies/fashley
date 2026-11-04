@@ -1,11 +1,12 @@
 import { Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { useAuth } from "@clerk/tanstack-react-start";
-import { Camera, Download, ImagePlus, Loader2 } from "lucide-react";
+import { Camera, Download, Expand, ImagePlus, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { SiteHeader } from "@/components/SiteHeader";
 import { StudioShell } from "@/components/StudioShell";
 import { DesignPreview } from "@/components/DesignPreview";
+import { ImageLightbox } from "@/components/ImageLightbox";
 import { TailorSignInPanel, clerkConfigured } from "@/components/tailor/TailorClerk";
 import { Button } from "@/components/ui/button";
 import {
@@ -116,6 +117,7 @@ function Studio({ kind }: { kind: DesignKind }) {
   const [notes, setNotes] = useState("");
   const [count, setCount] = useState(3);
   const [results, setResults] = useState<GeneratedImage[]>([]);
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const [running, setRunning] = useState(false);
   const [saving, setSaving] = useState<Record<number, boolean>>({});
   const [saved, setSaved] = useState<Record<number, boolean>>({});
@@ -214,6 +216,7 @@ function Studio({ kind }: { kind: DesignKind }) {
     if (!fabric || running) return;
     setRunning(true);
     setResults([]);
+    setLightboxIndex(null);
     setSaved({});
     try {
       const preferences: Preferences = { kind, category, occasion, style, hardware, notes };
@@ -495,11 +498,21 @@ function Studio({ kind }: { kind: DesignKind }) {
           <div className="mt-4 grid gap-4 sm:grid-cols-2">
             {results.map((r, i) => (
               <figure key={i} className="result-card">
-                <img
-                  src={`data:image/png;base64,${r.imageBase64}`}
-                  alt={`Generated ${kind} design ${i + 1}`}
-                  className="aspect-square w-full object-cover"
-                />
+                <button
+                  type="button"
+                  className="result-media"
+                  aria-label={`View generated ${kind} design ${i + 1} full size`}
+                  onClick={() => setLightboxIndex(i)}
+                >
+                  <img
+                    src={`data:image/png;base64,${r.imageBase64}`}
+                    alt={`Generated ${kind} design ${i + 1}`}
+                    className="aspect-square w-full object-cover"
+                  />
+                  <span className="media-expand-hint" aria-hidden="true">
+                    <Expand className="h-4 w-4" /> View
+                  </span>
+                </button>
                 <figcaption className="mt-2 text-sm text-muted-foreground">
                   {r.preferences.category} · {r.preferences.style}
                 </figcaption>
@@ -514,6 +527,38 @@ function Studio({ kind }: { kind: DesignKind }) {
               </figure>
             ))}
           </div>
+          <ImageLightbox
+            image={
+              lightboxIndex !== null && results[lightboxIndex]
+                ? {
+                    src: `data:image/png;base64,${results[lightboxIndex].imageBase64}`,
+                    alt: `Generated ${kind} design ${lightboxIndex + 1}`,
+                    caption: `${results[lightboxIndex].preferences.category} · ${results[lightboxIndex].preferences.style}`,
+                  }
+                : null
+            }
+            onClose={() => setLightboxIndex(null)}
+            actions={
+              lightboxIndex !== null && results[lightboxIndex] ? (
+                <>
+                  <Button
+                    size="sm"
+                    disabled={saved[lightboxIndex] || saving[lightboxIndex]}
+                    onClick={() => void save(lightboxIndex)}
+                  >
+                    {saved[lightboxIndex]
+                      ? "Saved"
+                      : saving[lightboxIndex]
+                        ? "Saving…"
+                        : "Save"}
+                  </Button>
+                  <Button size="sm" variant="outline" onClick={() => download(lightboxIndex)}>
+                    <Download className="h-4 w-4" /> Download
+                  </Button>
+                </>
+              ) : undefined
+            }
+          />
         </section>
       </div>
       <Dialog

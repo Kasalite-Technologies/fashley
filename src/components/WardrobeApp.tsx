@@ -8,6 +8,8 @@ import { StudioShell } from "@/components/StudioShell";
 import { DesignPreview } from "@/components/DesignPreview";
 import { TailorSignInPanel, clerkConfigured } from "@/components/tailor/TailorClerk";
 import { Button } from "@/components/ui/button";
+import { ImageLightbox, type LightboxImage } from "@/components/ImageLightbox";
+import { Expand } from "lucide-react";
 
 interface SavedDesign {
   id: string;
@@ -23,6 +25,7 @@ function Wardrobe() {
   const [items, setItems] = useState<SavedDesign[] | null>(null);
   const [error, setError] = useState("");
   const [filter, setFilter] = useState("all");
+  const [lightbox, setLightbox] = useState<LightboxImage | null>(null);
 
   const load = useCallback(async () => {
     setError("");
@@ -122,13 +125,29 @@ function Wardrobe() {
           .map((d) => (
             <article key={d.id} className="wardrobe-card">
               <div className="wardrobe-card-media">
-                <img
-                  src={`/api/studio/designs/${d.id}`}
-                  alt={`Saved ${d.kind} design: ${d.category}`}
-                  loading="lazy"
-                  width={800}
-                  height={800}
-                />
+                <button
+                  type="button"
+                  className="wardrobe-media-button"
+                  aria-label={`View saved ${d.category} design full size`}
+                  onClick={() =>
+                    setLightbox({
+                      src: `/api/studio/designs/${d.id}`,
+                      alt: `Saved ${d.kind} design: ${d.category}`,
+                      caption: `${d.category} · ${d.style}${d.occasion ? ` · ${d.occasion}` : ""}`,
+                    })
+                  }
+                >
+                  <img
+                    src={`/api/studio/designs/${d.id}`}
+                    alt={`Saved ${d.kind} design: ${d.category}`}
+                    loading="lazy"
+                    width={800}
+                    height={800}
+                  />
+                  <span className="media-expand-hint" aria-hidden="true">
+                    <Expand className="h-4 w-4" /> View
+                  </span>
+                </button>
                 <Button
                   size="icon"
                   variant="secondary"
@@ -148,6 +167,7 @@ function Wardrobe() {
             </article>
           ))}
       </div>
+      <ImageLightbox image={lightbox} onClose={() => setLightbox(null)} />
     </>
   );
 }
