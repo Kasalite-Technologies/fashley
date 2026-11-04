@@ -72,14 +72,14 @@ const OUTFIT_BRIEFS: Record<string, string[]> = {
   Dress: [
     "an A-line midi dress with a scoop neckline, short puff sleeves and a fitted waist",
     "a wrap dress with a V-neckline, three-quarter sleeves and a flowing knee-length skirt",
-    "a fit-and-flare dress with a sweetheart neckline, statement sleeves and a full skirt with movement",
+    "a fit-and-flare dress with a sweetheart neckline, full sleeves and a full skirt with movement",
     "a straight column dress with a high neckline, sleeveless, falling in a clean floor-length line",
   ],
   "Skirt & blouse": [
     "a fitted peplum blouse with a high-waist pencil skirt",
-    "a blouse with dramatic ruffled sleeves and a flowing tiered maxi skirt",
+    "a long-sleeve blouse with a flowing tiered maxi skirt",
     "a neat tailored blouse with an A-line midi skirt",
-    "a blouse with a statement collar and a wrapped floor-length skirt",
+    "a blouse with a high collar and a wrapped floor-length skirt",
   ],
   "Two-piece set": [
     "a matching tailored top and wide-leg trousers set",
@@ -95,7 +95,7 @@ const OUTFIT_BRIEFS: Record<string, string[]> = {
   ],
   "Occasion gown": [
     "a floor-length fitted gown with a defined waist and a sweeping skirt",
-    "a gown with dramatic sleeves and a flowing train",
+    "a gown with long sleeves and a flowing train",
     "a mermaid gown with a structured bodice and a flared hem",
     "a ballgown silhouette with a full layered skirt",
   ],
@@ -103,7 +103,7 @@ const OUTFIT_BRIEFS: Record<string, string[]> = {
     "a tailored wide-leg jumpsuit with a fitted bodice",
     "a relaxed jumpsuit with a wrap top and tapered legs",
     "a sleeveless jumpsuit with a defined self-fabric waist tie",
-    "a jumpsuit with dramatic sleeves and palazzo legs",
+    "a jumpsuit with full sleeves and palazzo legs",
   ],
   "Men's two-piece": [
     "a tailored short-sleeve shirt with matching straight trousers",
@@ -253,7 +253,7 @@ export function buildDesignPrompt(input: {
     return (
       `Fashion design concept, made to order from the customer's own fabric. ${FABRIC_FIDELITY_BLOCK} ` +
       `Show ${model}, wearing ${brief}, made entirely from that reference fabric. ` +
-      `Style direction: ${styleLine}. Occasion: ${occasion}: ${occasionLine}${notesBlock} ` +
+      `Style direction: ${styleLine}. Where the style and the garment brief conflict, follow the style for the details and the brief only for the silhouette and length. Occasion: ${occasion}: ${occasionLine}${notesBlock} ` +
       `${PHOTO_BLOCK_OUTFIT} ${AVOID_BLOCK}`
     );
   }
@@ -278,7 +278,7 @@ export function buildDesignPrompt(input: {
   return (
     `Fashion design concept, made to order from the customer's own material. ${FABRIC_FIDELITY_BLOCK} ` +
     `Show ${subject}, crafted from the material in the reference photo, with ${hardwareLine}, realistic seams and construction. ` +
-    `Style direction: ${styleLine}. Made for: ${occasion}.${notesBlock} ` +
+    `Style direction: ${styleLine}. Where the style and the design brief conflict, follow the style for the details and the brief only for the shape. Made for: ${occasion}.${notesBlock} ` +
     `${PHOTO_BLOCK_PRODUCT} ${AVOID_BLOCK} No person, no clothing, no second shoe or bag.`
   );
 }
