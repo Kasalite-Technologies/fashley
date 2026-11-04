@@ -16,6 +16,7 @@ import {
   TailorError,
 } from "./errors";
 import { hashPayload, nowMs, toIso } from "./util";
+import { AVOID_BLOCK, FABRIC_FIDELITY_BLOCK } from "../../design-prompt.server";
 import { getRevision } from "./projects";
 import { assembleBrief } from "./briefs";
 import { reserveCredits, settleCredits } from "./credits";
@@ -740,7 +741,7 @@ export async function runJob(
       const media = deps.media;
       const revision = await getRevision(db, job.owner_user_id, job.project_id, job.revision_id);
       const input = revision.input;
-      const prompt = `Garment concept visualization: template ${input.template?.id ?? "unspecified"} v${input.template?.version ?? "-"}, design options ${JSON.stringify(input.design.optionIds)}, fit ${input.overview.fit}. Show the garment made from the reference fabric.`;
+      const prompt = `Fashion design concept, made to order from the customer's own fabric. ${FABRIC_FIDELITY_BLOCK} Show one adult model wearing the garment made entirely from that reference fabric: template ${input.template?.id ?? "unspecified"} v${input.template?.version ?? "-"}, design options ${JSON.stringify(input.design.optionIds)}, fit ${input.overview.fit}. Photorealistic editorial studio photograph, full-body vertical framing, eye-level camera, whole outfit visible from head to toe, soft diffused studio lighting, plain warm-grey backdrop, sharp focus, true colours. ${AVOID_BLOCK}`;
       const fabricAssetId = input.fabric.selection?.cropAssetId ?? input.fabric.sourceAssetId;
       let fabricAsset: AssetRow | null = null;
       if (fabricAssetId) {
