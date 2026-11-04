@@ -1,42 +1,57 @@
 # Fashley
 
-Turn fabric into garment concepts, capture measurements, and prepare a versioned brief for tailor review.
+See what you could make with your fabric.
 
-## Target stack
+[Open Fashley](https://fashley.app)
 
-- React and TanStack Start for the application.
-- Cloudflare Workers for hosting and APIs.
-- Cloudflare D1 for application data.
-- Clerk for authentication.
-- Private Cloudflare R2 storage for media.
-- Cloudflare Workflows for durable jobs.
-- Meta Model API for model inference.
+Fashley turns fabric photos into outfit, shoe and bag concepts. Upload a fabric you own, choose a design and style, and compare the results before deciding what to make. You can add an optional description to request details such as long sleeves, a particular neckline or a relaxed fit.
 
-Supabase is not the target stack. This repository currently contains an imported application with legacy Supabase integrations, PostgreSQL Drizzle schemas/migrations, and Lovable tooling. Their replacement has not been implemented yet. Do not treat those integrations as the new setup or run the old migrations against D1.
+## Using Fashley
 
-The new Clerk/D1/R2 workflow is not yet runnable. Historical accounts, private designs, credits, and payments require an explicit, verified migration; they must not be silently moved or discarded.
+1. Open the outfit, shoe or bag studio and sign in.
+2. Upload a fabric photo or take one with your camera.
+3. Choose a category, style and occasion. Add your own instructions if you have something specific in mind.
+4. Generate a set of designs. Each image appears as it finishes.
+5. Open designs at full size, download them or save favourites to your private wardrobe.
+
+Outfit categories include dresses, skirt-and-blouse combinations, jumpsuits and men's sets. Shoes and bags have their own categories and hardware options.
+
+## How we use Meta
+
+Fashley uses **Muse Image 1.0 (`muse-image-1.0`)** through the Meta Model API. Each generation request includes the customer's fabric photo and a prompt assembled on the server from their selections and optional description.
+
+The prompt gives concrete design instructions for the selected category and style, alongside instructions to retain the reference fabric's colours, motifs and pattern scale. Each image in a set receives a different design brief, giving the customer alternatives to compare. Requests run in parallel, and our server streams completed images to the browser.
+
+These are generated concepts, not production patterns. Fabric details and garment construction may differ from the reference and should be checked before making a physical item.
+
+## Built with
+
+- React, TypeScript and TanStack Start
+- Tailwind CSS and Radix UI
+- Cloudflare Workers for hosting and server APIs
+- Cloudflare D1 for application data
+- Private Cloudflare R2 storage for saved images
+- Clerk for authentication
+- Meta Model API for image generation
 
 ## Development
-
-Use Node.js 24 and Bun 1.3.14.
 
 ```sh
 git clone https://github.com/Kasalite-Technologies/fashley.git
 cd fashley
-bun install --frozen-lockfile
+pnpm install
+pnpm dev
 ```
 
-`.env.example` records the target configuration boundaries, not a working runtime configuration. Clerk, Worker bindings, model credentials, and local development wiring will be documented when implemented. The existing `bun run dev` command still starts the legacy application and does not prove the target stack works.
-
-Never commit credentials, local environment files, or customer data. Local skills, agent configuration, editor metadata, and planning documents are ignored.
-
-## Checks
+Authentication, generation and saved designs require Clerk configuration, Meta API access and Cloudflare bindings. See `cloudflare.config.ts` for deployed resources and `.env.example` for configuration notes. Server credentials belong in Cloudflare Secrets Store, never in client-side variables or committed files.
 
 ```sh
-bun run test
-bun run typecheck
-bun run lint
-bun run build
+pnpm test
+pnpm typecheck
+pnpm lint
+pnpm build
 ```
 
-GitHub Actions runs these independently on pushes to `main`, pull requests, and manual dispatches. It currently checks the imported source, not a completed migration. It does not deploy, provision resources, or run remote migrations. Existing lint failures remain visible. See [CI notes](.github/CI.md).
+## Contact
+
+[Kasalite Technologies](https://github.com/Kasalite-Technologies)
