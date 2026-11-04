@@ -38,9 +38,9 @@ export const Route = createFileRoute("/")({
 const studios = [
   {
     name: "Outfits",
-    title: "A print with possibilities.",
+    title: "Your fabric, your next creation.",
     description:
-      "The fabric you fell for, in a silhouette that feels like you. Choose your occasion and style, then see your ideas take shape.",
+      "With Fashley, you get to explore the possibilities before bringing your favourite design to life.",
     image: outfitConcept,
     alt: "Illustrative wrap dress in a blue, cream and yellow fabric print",
     route: "/studio",
@@ -277,13 +277,12 @@ function Home() {
           <div className="home-section-heading" data-reveal>
             <div>
               <h2 id="studios-heading">
-                One idea.
+                One fabric.
                 <br />
-                <em>So many ways to wear it.</em>
+                <em>Endless possibilities.</em>
               </h2>
               <p>
-                A dress for the occasion. A bag you wish existed. A pair that’s entirely your taste.
-                Where shall we begin?
+                Your imagination sets the direction. Fashley brings the possibilities to life.
               </p>
             </div>
           </div>
@@ -340,9 +339,9 @@ function Home() {
           <div className="home-container process-grid">
             <div className="process-intro" data-reveal>
               <h2 id="process-heading">
-                From “what if”
+                Every great design
                 <br />
-                to <em>“that’s it.”</em>
+                <em>starts somewhere.</em>
               </h2>
               <p>No sketchbook needed. Just a material you love and an idea you want to see.</p>
               <figure className="process-fabric">
@@ -372,9 +371,9 @@ function Home() {
         <section id="next-step" className="home-next home-container" aria-labelledby="next-heading">
           <div className="next-heading" data-reveal>
             <h2 id="next-heading">
-              An idea worth keeping.
+              Your ideas deserve
               <br />
-              <em>Maybe even making.</em>
+              <em>more than a moment.</em>
             </h2>
           </div>
           <div className="next-grid">
@@ -451,9 +450,9 @@ function Home() {
         <section className="home-finale" aria-labelledby="finale-heading">
           <div className="home-container" data-reveal>
             <h2 id="finale-heading">
-              Let’s make room
+              Your next creation
               <br />
-              for <em>your next idea.</em>
+              starts with <em>an idea.</em>
             </h2>
             <Link className="home-button" to="/studio">
               Open the design studio <ArrowUpRight size={18} aria-hidden="true" />
