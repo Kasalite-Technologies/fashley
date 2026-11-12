@@ -127,6 +127,7 @@ function Studio({ kind }: { kind: DesignKind }) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const [cameraOpen, setCameraOpen] = useState(false);
+  const [cameraReady, setCameraReady] = useState(false);
 
   async function authHeaders() {
     const token = await getToken();
@@ -139,39 +140,62 @@ function Studio({ kind }: { kind: DesignKind }) {
   function stopCamera() {
     streamRef.current?.getTracks().forEach((track) => track.stop());
     streamRef.current = null;
+    if (videoRef.current) videoRef.current.srcObject = null;
+    setCameraReady(false);
   }
 
-  // Take a photo with the real camera where getUserMedia exists. Where it
-  // does not (insecure context, denied permission, older browser), fall
-  // back to the capture file input, which opens the camera app on phones.
-  async function openCamera() {
+  // Open the dialog first, then start the camera in the effect below once
+  // its <video> has mounted. Requesting the stream before the dialog mounts
+  // left the preview black: the one-shot attach could miss the element.
+  // Where getUserMedia does not exist (insecure context, older browser),
+  // fall back to the capture file input, which opens the camera app on phones.
+  function openCamera() {
     if (!navigator.mediaDevices?.getUserMedia) {
       cameraRef.current?.click();
       return;
     }
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: "environment" },
-        audio: false,
-      });
-      streamRef.current = stream;
-      setCameraOpen(true);
-    } catch {
-      toast.error("Camera unavailable here. Opening the photo picker instead.");
-      cameraRef.current?.click();
-    }
+    setCameraReady(false);
+    setCameraOpen(true);
   }
 
-  // Attach the stream once the dialog (and its <video>) has mounted.
   useEffect(() => {
-    if (cameraOpen && videoRef.current && streamRef.current) {
-      videoRef.current.srcObject = streamRef.current;
-    }
+    if (!cameraOpen) return;
+    let cancelled = false;
+    void (async () => {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: "environment" },
+          audio: false,
+        });
+        if (cancelled) {
+          stream.getTracks().forEach((track) => track.stop());
+          return;
+        }
+        streamRef.current = stream;
+        const video = videoRef.current;
+        if (video) {
+          video.srcObject = stream;
+          await video.play().catch(() => undefined);
+        }
+      } catch {
+        setCameraOpen(false);
+        toast.error("Camera unavailable here. Opening the photo picker instead.");
+        cameraRef.current?.click();
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
   }, [cameraOpen]);
+
+  useEffect(() => () => stopCamera(), []);
 
   function capturePhoto() {
     const video = videoRef.current;
-    if (!video || video.videoWidth === 0) return;
+    if (!video || video.videoWidth === 0) {
+      toast.error("The camera is still starting. Wait for the preview, then try again.");
+      return;
+    }
     const canvas = document.createElement("canvas");
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
@@ -546,11 +570,7 @@ function Studio({ kind }: { kind: DesignKind }) {
                     disabled={saved[lightboxIndex] || saving[lightboxIndex]}
                     onClick={() => void save(lightboxIndex)}
                   >
-                    {saved[lightboxIndex]
-                      ? "Saved"
-                      : saving[lightboxIndex]
-                        ? "Saving…"
-                        : "Save"}
+                    {saved[lightboxIndex] ? "Saved" : saving[lightboxIndex] ? "Saving…" : "Save"}
                   </Button>
                   <Button size="sm" variant="outline" onClick={() => download(lightboxIndex)}>
                     <Download className="h-4 w-4" /> Download
@@ -572,14 +592,31 @@ function Studio({ kind }: { kind: DesignKind }) {
           <DialogHeader>
             <DialogTitle>Take a photo of your {options.material}</DialogTitle>
           </DialogHeader>
-          <video
-            ref={videoRef}
-            autoPlay
-            playsInline
-            muted
-            className="aspect-[4/3] w-full rounded-2xl bg-black object-cover"
-            aria-label="Camera preview"
-          />
+          <div className="relative">
+            <video
+              ref={(node) => {
+                videoRef.current = node;
+                if (node && streamRef.current && node.srcObject !== streamRef.current) {
+                  node.srcObject = streamRef.current;
+                  void node.play().catch(() => undefined);
+                }
+              }}
+              autoPlay
+              playsInline
+              muted
+              onLoadedMetadata={() => setCameraReady(true)}
+              className="aspect-[4/3] w-full rounded-2xl bg-black object-cover"
+              aria-label="Camera preview"
+            />
+            {!cameraReady ? (
+              <p
+                role="status"
+                className="absolute inset-0 flex items-center justify-center text-sm text-white"
+              >
+                Starting camera…
+              </p>
+            ) : null}
+          </div>
           <DialogFooter>
             <Button
               type="button"
@@ -592,7 +629,12 @@ function Studio({ kind }: { kind: DesignKind }) {
             >
               Cancel
             </Button>
-            <Button type="button" className="min-h-11 rounded-full" onClick={capturePhoto}>
+            <Button
+              type="button"
+              className="min-h-11 rounded-full"
+              disabled={!cameraReady}
+              onClick={capturePhoto}
+            >
               <Camera className="h-4 w-4" aria-hidden="true" /> Take photo
             </Button>
           </DialogFooter>
