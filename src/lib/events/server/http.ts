@@ -5,6 +5,7 @@ import { nowMs } from "@/lib/tailor/server/util";
 import type { MediaStore } from "@/lib/tailor/server/config";
 import type { EmailSender } from "./notifications";
 import { dispatchOutbox } from "./notifications";
+import { consumeReportAttempt } from "./report-rate-limit";
 import {
   requirePlatformAdmin,
   requireStaff,
@@ -262,6 +263,7 @@ export function createEventsHandlers(deps: EventsHttpDeps = resolveEventsHttpDep
     report: (request: Request, slug: string) =>
       wrap(async () => {
         const db = requireDb();
+        await consumeReportAttempt(db, request);
         const input = await parse(request, reportInputSchema);
         return {
           status: 201,
