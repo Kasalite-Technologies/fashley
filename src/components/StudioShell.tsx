@@ -1,5 +1,15 @@
 import { Link } from "@tanstack/react-router";
-import { Archive, CalendarDays, FolderOpen, Home, Menu, Shirt, ShoppingBag, Footprints, Ticket } from "lucide-react";
+import {
+  Archive,
+  CalendarDays,
+  FolderOpen,
+  Home,
+  Menu,
+  Shirt,
+  ShoppingBag,
+  Footprints,
+  Ticket,
+} from "lucide-react";
 import { useState, type ReactNode } from "react";
 import { UserButton } from "@clerk/tanstack-react-start";
 import { Button } from "@/components/ui/button";

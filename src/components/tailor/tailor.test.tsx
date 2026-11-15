@@ -306,7 +306,10 @@ describe("TailorAppShell customer branding", () => {
       history: createMemoryHistory({ initialEntries: ["/"] }),
     });
     render(<RouterProvider router={router} />);
-    expect(await screen.findByText("Fashley / My outfits")).toBeInTheDocument();
+    expect(await screen.findByRole("link", { name: "Fashley", exact: true })).toHaveAttribute(
+      "href",
+      "/",
+    );
     expect(screen.getAllByRole("link", { name: /My outfit projects/ }).length).toBeGreaterThan(0);
     expect(screen.getByRole("link", { name: /Start a new outfit/ })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: /Account/ })).toBeInTheDocument();

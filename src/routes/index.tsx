@@ -282,9 +282,7 @@ function Home() {
                 <br />
                 <em>Endless possibilities.</em>
               </h2>
-              <p>
-                Your imagination sets the direction. Fashley brings the possibilities to life.
-              </p>
+              <p>Your imagination sets the direction. Fashley brings the possibilities to life.</p>
             </div>
           </div>
           {/* Pattern adapted from 21st.dev animated/expanding galleries: the

@@ -352,8 +352,7 @@ export function createFixtureTailorApi(): TailorApi {
             }
           : {
               type: "analyze_fabric",
-              sourceAssetId:
-                project.draft.input.fabric.sourceAssetId ?? fixtureFabricAsset.id,
+              sourceAssetId: project.draft.input.fabric.sourceAssetId ?? fixtureFabricAsset.id,
               segmentation: {
                 status: "completed",
                 regions: [
@@ -409,7 +408,12 @@ export function createFixtureTailorApi(): TailorApi {
           "This job cannot be retried. Start the step again to create a new job.",
         );
       }
-      const retried = { ...job, state: "queued" as const, stage: "validating" as const, error: null };
+      const retried = {
+        ...job,
+        state: "queued" as const,
+        stage: "validating" as const,
+        error: null,
+      };
       jobs.set(jobId, retried);
       return clone(retried);
     },

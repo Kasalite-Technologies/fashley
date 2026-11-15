@@ -49,9 +49,8 @@ export function countFilledMeasurements(
   fields?: readonly MeasurementFieldLike[] | null,
 ): number {
   if (fields) {
-    return fields.filter((f) =>
-      measurements.some((m) => m.name === f.name && m.valueMm !== null),
-    ).length;
+    return fields.filter((f) => measurements.some((m) => m.name === f.name && m.valueMm !== null))
+      .length;
   }
   return measurements.filter((m) => m.valueMm !== null).length;
 }
@@ -64,7 +63,5 @@ export function isMeasurementsComplete(
   const required = fields.filter((f) => f.required);
   // If a template declares no required fields, completeness follows filled count.
   const targets = required.length ? required : fields;
-  return targets.every((f) =>
-    measurements.some((m) => m.name === f.name && m.valueMm !== null),
-  );
+  return targets.every((f) => measurements.some((m) => m.name === f.name && m.valueMm !== null));
 }

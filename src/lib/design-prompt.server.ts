@@ -49,19 +49,24 @@ const OUTFIT_STYLES: Record<string, string> = {
 };
 
 const SHOE_STYLES: Record<string, string> = {
-  Sporty: "athletic styling: cushioned sole, breathable panels, dynamic lines, a ready-to-move feel",
-  Dress: "polished and formal: sleek lines, refined finish, smart enough for a suit or an evening look",
+  Sporty:
+    "athletic styling: cushioned sole, breathable panels, dynamic lines, a ready-to-move feel",
+  Dress:
+    "polished and formal: sleek lines, refined finish, smart enough for a suit or an evening look",
   Casual: "relaxed everyday styling: comfortable proportions, easy finish, worn-in ease",
   Minimal: "clean and pared back: smooth surfaces, no fuss, quiet detailing",
-  Statement: "bold and eye-catching: sculptural shape or oversized detail that carries the whole outfit",
+  Statement:
+    "bold and eye-catching: sculptural shape or oversized detail that carries the whole outfit",
 };
 
 const BAG_STYLES: Record<string, string> = {
   Elegant: "refined and polished: structured shape, graceful proportions, jewellery-like hardware",
   Minimal: "clean and pared back: smooth surfaces, hidden or minimal hardware, quiet luxury finish",
   Everyday: "practical and easy: roomy, comfortable to carry, durable finish for daily use",
-  Statement: "bold and eye-catching: sculptural shape or oversized hardware that carries the whole outfit",
-  Vintage: "classic retro character: structured silhouette, kiss-lock or frame closure, nostalgic finish",
+  Statement:
+    "bold and eye-catching: sculptural shape or oversized hardware that carries the whole outfit",
+  Vintage:
+    "classic retro character: structured silhouette, kiss-lock or frame closure, nostalgic finish",
 };
 
 /* Per-category garment briefs. Each variant is a genuinely different
@@ -234,9 +239,7 @@ export function buildDesignPrompt(input: {
   variant: number;
 }) {
   const { kind, category, occasion, style, hardware, notes, variant } = input;
-  const notesBlock = notes
-    ? ` Follow the customer's own design notes closely: ${notes}.`
-    : "";
+  const notesBlock = notes ? ` Follow the customer's own design notes closely: ${notes}.` : "";
   const occasionLine =
     pick(OCCASION_STYLING, occasion, `styled for ${occasion.toLowerCase()}`) + ".";
 
@@ -263,11 +266,7 @@ export function buildDesignPrompt(input: {
     `a ${category.toLowerCase()} with balanced, wearable proportions`,
   ]);
   const design = briefs[variant % briefs.length] ?? briefs[0]!;
-  const styleLine = pick(
-    isShoe ? SHOE_STYLES : BAG_STYLES,
-    style,
-    style.toLowerCase(),
-  );
+  const styleLine = pick(isShoe ? SHOE_STYLES : BAG_STYLES, style, style.toLowerCase());
   const hardwareLine =
     hardware === "None"
       ? "no visible metal hardware"
