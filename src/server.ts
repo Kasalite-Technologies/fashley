@@ -4,8 +4,11 @@ import { consumeLastCapturedError } from "./lib/error-capture";
 import { renderErrorPage } from "./lib/error-page";
 import { tailorDepsFromEnv, type TailorWorkerEnv } from "./lib/tailor/server/cloudflare";
 import { setTailorHttpDeps, type TailorHttpDeps } from "./lib/tailor/server/http";
+import { eventsDepsFromEnv, type EventsWorkerEnv } from "./lib/events/server/cloudflare";
+import { setEventsHttpDeps, type EventsHttpDeps } from "./lib/events/server/http";
 
 const depsByEnv = new WeakMap<object, TailorHttpDeps>();
+const eventDepsByEnv = new WeakMap<object, EventsHttpDeps>();
 
 function registerTailorDeps(env: unknown) {
   if (typeof env !== "object" || env === null) return;
@@ -15,6 +18,16 @@ function registerTailorDeps(env: unknown) {
     depsByEnv.set(env, deps);
   }
   setTailorHttpDeps(deps);
+}
+
+function registerEventDeps(env: unknown) {
+  if (typeof env !== "object" || env === null) return;
+  let deps = eventDepsByEnv.get(env);
+  if (!deps) {
+    deps = eventsDepsFromEnv(env as EventsWorkerEnv);
+    eventDepsByEnv.set(env, deps);
+  }
+  setEventsHttpDeps(deps);
 }
 
 type ServerEntry = {
@@ -62,6 +75,7 @@ export default {
   async fetch(request: Request, env: unknown, ctx: unknown) {
     try {
       registerTailorDeps(env);
+      registerEventDeps(env);
       const handler = await getServerEntry();
       const response = await handler.fetch(request, env, ctx);
       return await normalizeCatastrophicSsrResponse(response);

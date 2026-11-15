@@ -131,15 +131,19 @@ async function actorForSubject(secretKey: string, subject: string): Promise<Veri
   const cached = profileCache.get(subject);
   if (cached && cached.expiresAt > Date.now()) return cached.actor;
   const user = await createClerkClient({ secretKey }).users.getUser(subject);
-  const email =
-    user.emailAddresses.find((e) => e.id === user.primaryEmailAddressId)?.emailAddress ??
-    user.emailAddresses[0]?.emailAddress;
+  const primary = user.emailAddresses.find((e) => e.id === user.primaryEmailAddressId);
+  const email = primary?.emailAddress ?? user.emailAddresses[0]?.emailAddress;
   if (!email) return null;
   const displayName =
     [user.firstName, user.lastName].filter(Boolean).join(" ").trim() ||
     user.username ||
     email.split("@")[0]!;
-  const actor: VerifiedActor = { subject, displayName: displayName.slice(0, 200), email };
+  const actor: VerifiedActor = {
+    subject,
+    displayName: displayName.slice(0, 200),
+    email,
+    emailVerified: primary?.verification?.status === "verified",
+  };
   if (profileCache.size > 500) profileCache.clear();
   profileCache.set(subject, { actor, expiresAt: Date.now() + PROFILE_TTL_MS });
   return actor;
@@ -248,7 +252,7 @@ interface WorkflowBindingLike {
   }): Promise<{ id: string } | unknown>;
 }
 
-function isR2Like(value: unknown): value is R2BucketFullLike {
+export function isR2Like(value: unknown): value is R2BucketFullLike {
   return (
     typeof value === "object" &&
     value !== null &&
@@ -265,7 +269,7 @@ function isWorkflowLike(value: unknown): value is WorkflowBindingLike {
   );
 }
 
-function isD1Like(value: unknown): value is D1Like {
+export function isD1Like(value: unknown): value is D1Like {
   return (
     typeof value === "object" &&
     value !== null &&

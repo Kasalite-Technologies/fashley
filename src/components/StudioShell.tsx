@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { Archive, FolderOpen, Home, Menu, Shirt, ShoppingBag, Footprints } from "lucide-react";
+import { Archive, CalendarDays, FolderOpen, Home, Menu, Shirt, ShoppingBag, Footprints, Ticket } from "lucide-react";
 import { useState, type ReactNode } from "react";
 import { UserButton } from "@clerk/tanstack-react-start";
 import { Button } from "@/components/ui/button";
@@ -14,6 +14,8 @@ const NAV = [
   { to: "/shoe-design" as const, label: "Shoe studio", icon: Footprints },
   { to: "/bag-design" as const, label: "Bag studio", icon: ShoppingBag },
   { to: "/wardrobe" as const, label: "Wardrobe", icon: Archive },
+  { to: "/events" as const, label: "Events", icon: CalendarDays },
+  { to: "/events/mine" as const, label: "My events", icon: Ticket },
   { to: "/tailor" as const, label: "My outfit projects", icon: FolderOpen },
   { to: "/" as const, label: "Home", icon: Home },
 ];

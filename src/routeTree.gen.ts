@@ -25,16 +25,49 @@ import { Route as StudioRouteImport } from './routes/studio'
 import { Route as TailorRouteImport } from './routes/tailor'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as WardrobeRouteImport } from './routes/wardrobe'
+import { Route as AdminIndexRouteImport } from './routes/admin/index'
+import { Route as AdminActivityRouteImport } from './routes/admin/activity'
+import { Route as AdminOrganizersRouteImport } from './routes/admin/organizers'
+import { Route as AdminReportsRouteImport } from './routes/admin/reports'
+import { Route as AdminSettingsRouteImport } from './routes/admin/settings'
+import { Route as EventsIndexRouteImport } from './routes/events/index'
+import { Route as EventsSubmitRouteImport } from './routes/events/submit'
+import { Route as OrganizersSlugRouteImport } from './routes/organizers/$slug'
 import { Route as ProductHandleRouteImport } from './routes/product.$handle'
 import { Route as ReviewTokenRouteImport } from './routes/review.$token'
 import { Route as TailorNewRouteImport } from './routes/tailor.new'
+import { Route as AdminEventsIndexRouteImport } from './routes/admin/events/index'
+import { Route as AdminEventsEventIdRouteImport } from './routes/admin/events/$eventId'
+import { Route as ApiAdminActivityRouteImport } from './routes/api/admin/activity'
+import { Route as ApiAdminCountsRouteImport } from './routes/api/admin/counts'
+import { Route as ApiAdminOrganizersRouteImport } from './routes/api/admin/organizers'
+import { Route as ApiAdminReportsRouteImport } from './routes/api/admin/reports'
+import { Route as ApiAdminSessionRouteImport } from './routes/api/admin/session'
+import { Route as ApiAdminStaffRouteImport } from './routes/api/admin/staff'
+import { Route as ApiEventsIndexRouteImport } from './routes/api/events/index'
+import { Route as ApiEventsCitiesRouteImport } from './routes/api/events/cities'
+import { Route as ApiOrganizerProfileRouteImport } from './routes/api/organizer/profile'
+import { Route as ApiOrganizersSlugRouteImport } from './routes/api/organizers/$slug'
 import { Route as ApiStudioDesignsRouteImport } from './routes/api/studio/designs'
 import { Route as ApiStudioGenerateRouteImport } from './routes/api/studio/generate'
 import { Route as ApiTailorConsentsRouteImport } from './routes/api/tailor/consents'
 import { Route as ApiTailorMeRouteImport } from './routes/api/tailor/me'
 import { Route as ApiTailorProjectsRouteImport } from './routes/api/tailor/projects'
 import { Route as ApiTailorTemplatesRouteImport } from './routes/api/tailor/templates'
+import { Route as EventsSlugIndexRouteImport } from './routes/events/$slug/index'
+import { Route as EventsMineIndexRouteImport } from './routes/events/mine/index'
+import { Route as OrganizerEventsIndexRouteImport } from './routes/organizer/events/index'
+import { Route as OrganizerEventsNewRouteImport } from './routes/organizer/events/new'
 import { Route as TailorProjectsProjectIdRouteImport } from './routes/tailor.projects.$projectId'
+import { Route as ApiAdminEventsIndexRouteImport } from './routes/api/admin/events/index'
+import { Route as ApiAdminNotificationsDispatchRouteImport } from './routes/api/admin/notifications/dispatch'
+import { Route as ApiAdminStaffGrantIdRouteImport } from './routes/api/admin/staff/$grantId'
+import { Route as ApiEventsSlugIndexRouteImport } from './routes/api/events/$slug/index'
+import { Route as ApiEventsSlugRegisterRouteImport } from './routes/api/events/$slug/register'
+import { Route as ApiEventsSlugReportsRouteImport } from './routes/api/events/$slug/reports'
+import { Route as ApiEventsSlugWaitlistRouteImport } from './routes/api/events/$slug/waitlist'
+import { Route as ApiEventsMeRegistrationsRouteImport } from './routes/api/events/me/registrations'
+import { Route as ApiOrganizerEventsIndexRouteImport } from './routes/api/organizer/events/index'
 import { Route as ApiStudioDesignsIdRouteImport } from './routes/api/studio/designs/$id'
 import { Route as ApiTailorAssetsIdRouteImport } from './routes/api/tailor/assets/$id'
 import { Route as ApiTailorBriefsIdRouteImport } from './routes/api/tailor/briefs/$id'
@@ -46,8 +79,25 @@ import { Route as ApiTailorReviewExchangeRouteImport } from './routes/api/tailor
 import { Route as ApiTailorReviewLogoutRouteImport } from './routes/api/tailor/review/logout'
 import { Route as ApiTailorReviewSessionRouteImport } from './routes/api/tailor/review/session'
 import { Route as ApiTailorTemplatesIdRouteImport } from './routes/api/tailor/templates/$id'
+import { Route as OrganizerEventsEventIdIndexRouteImport } from './routes/organizer/events/$eventId/index'
+import { Route as OrganizerEventsEventIdCheckInRouteImport } from './routes/organizer/events/$eventId/check-in'
 import { Route as TailorProjectsProjectIdBriefRouteImport } from './routes/tailor.projects.$projectId.brief'
 import { Route as TailorProjectsProjectIdHistoryRouteImport } from './routes/tailor.projects.$projectId.history'
+import { Route as ApiAdminEventsEventIdIndexRouteImport } from './routes/api/admin/events/$eventId/index'
+import { Route as ApiAdminEventsEventIdFeatureRouteImport } from './routes/api/admin/events/$eventId/feature'
+import { Route as ApiAdminEventsEventIdPublicationRouteImport } from './routes/api/admin/events/$eventId/publication'
+import { Route as ApiAdminEventsEventIdReviewRouteImport } from './routes/api/admin/events/$eventId/review'
+import { Route as ApiAdminOrganizersOrganizerIdStatusRouteImport } from './routes/api/admin/organizers/$organizerId/status'
+import { Route as ApiAdminReportsReportIdResolveRouteImport } from './routes/api/admin/reports/$reportId/resolve'
+import { Route as ApiEventsIdEventIdCoverRouteImport } from './routes/api/events/id/$eventId/cover'
+import { Route as ApiEventsMeRegistrationsRegistrationIdRouteImport } from './routes/api/events/me/registrations/$registrationId'
+import { Route as ApiOrganizerEventsEventIdIndexRouteImport } from './routes/api/organizer/events/$eventId/index'
+import { Route as ApiOrganizerEventsEventIdAttendeesRouteImport } from './routes/api/organizer/events/$eventId/attendees'
+import { Route as ApiOrganizerEventsEventIdCheckInRouteImport } from './routes/api/organizer/events/$eventId/check-in'
+import { Route as ApiOrganizerEventsEventIdCoverRouteImport } from './routes/api/organizer/events/$eventId/cover'
+import { Route as ApiOrganizerEventsEventIdRegistrationRouteImport } from './routes/api/organizer/events/$eventId/registration'
+import { Route as ApiOrganizerEventsEventIdSubmitRouteImport } from './routes/api/organizer/events/$eventId/submit'
+import { Route as ApiOrganizerEventsEventIdWithdrawRouteImport } from './routes/api/organizer/events/$eventId/withdraw'
 import { Route as ApiTailorBriefsIdFinalizeRouteImport } from './routes/api/tailor/briefs/$id/finalize'
 import { Route as ApiTailorBriefsIdSharesRouteImport } from './routes/api/tailor/briefs/$id/shares'
 import { Route as ApiTailorConsentsIdWithdrawRouteImport } from './routes/api/tailor/consents/$id/withdraw'
@@ -63,7 +113,9 @@ import { Route as ApiTailorProjectsIdJobsRouteImport } from './routes/api/tailor
 import { Route as ApiTailorProjectsIdRevisionsRouteImport } from './routes/api/tailor/projects/$id/revisions'
 import { Route as ApiTailorProjectsIdUploadsRouteImport } from './routes/api/tailor/projects/$id/uploads'
 import { Route as ApiTailorSharesIdRevokeRouteImport } from './routes/api/tailor/shares/$id/revoke'
+import { Route as ApiEventsMeRegistrationsRegistrationIdTicketRouteImport } from './routes/api/events/me/registrations/$registrationId/ticket'
 import { Route as ApiTailorProjectsIdUploadsUploadIdRouteImport } from './routes/api/tailor/projects/$id/uploads/$uploadId'
+import { Route as ApiOrganizerEventsEventIdAttendeesRegistrationIdPromoteRouteImport } from './routes/api/organizer/events/$eventId/attendees/$registrationId/promote'
 import { Route as ApiTailorProjectsIdUploadsUploadIdCompleteRouteImport } from './routes/api/tailor/projects/$id/uploads/$uploadId/complete'
 import { Route as ApiTailorProjectsIdUploadsUploadIdContentRouteImport } from './routes/api/tailor/projects/$id/uploads/$uploadId/content'
 
@@ -147,6 +199,46 @@ const WardrobeRoute = WardrobeRouteImport.update({
   path: '/wardrobe',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminIndexRoute = AdminIndexRouteImport.update({
+  id: '/admin/',
+  path: '/admin/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminActivityRoute = AdminActivityRouteImport.update({
+  id: '/admin/activity',
+  path: '/admin/activity',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminOrganizersRoute = AdminOrganizersRouteImport.update({
+  id: '/admin/organizers',
+  path: '/admin/organizers',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminReportsRoute = AdminReportsRouteImport.update({
+  id: '/admin/reports',
+  path: '/admin/reports',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminSettingsRoute = AdminSettingsRouteImport.update({
+  id: '/admin/settings',
+  path: '/admin/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EventsIndexRoute = EventsIndexRouteImport.update({
+  id: '/events/',
+  path: '/events/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EventsSubmitRoute = EventsSubmitRouteImport.update({
+  id: '/events/submit',
+  path: '/events/submit',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OrganizersSlugRoute = OrganizersSlugRouteImport.update({
+  id: '/organizers/$slug',
+  path: '/organizers/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ProductHandleRoute = ProductHandleRouteImport.update({
   id: '/product/$handle',
   path: '/product/$handle',
@@ -161,6 +253,66 @@ const TailorNewRoute = TailorNewRouteImport.update({
   id: '/new',
   path: '/new',
   getParentRoute: () => TailorRoute,
+} as any)
+const AdminEventsIndexRoute = AdminEventsIndexRouteImport.update({
+  id: '/admin/events/',
+  path: '/admin/events/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminEventsEventIdRoute = AdminEventsEventIdRouteImport.update({
+  id: '/admin/events/$eventId',
+  path: '/admin/events/$eventId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAdminActivityRoute = ApiAdminActivityRouteImport.update({
+  id: '/api/admin/activity',
+  path: '/api/admin/activity',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAdminCountsRoute = ApiAdminCountsRouteImport.update({
+  id: '/api/admin/counts',
+  path: '/api/admin/counts',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAdminOrganizersRoute = ApiAdminOrganizersRouteImport.update({
+  id: '/api/admin/organizers',
+  path: '/api/admin/organizers',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAdminReportsRoute = ApiAdminReportsRouteImport.update({
+  id: '/api/admin/reports',
+  path: '/api/admin/reports',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAdminSessionRoute = ApiAdminSessionRouteImport.update({
+  id: '/api/admin/session',
+  path: '/api/admin/session',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAdminStaffRoute = ApiAdminStaffRouteImport.update({
+  id: '/api/admin/staff',
+  path: '/api/admin/staff',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiEventsIndexRoute = ApiEventsIndexRouteImport.update({
+  id: '/api/events/',
+  path: '/api/events/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiEventsCitiesRoute = ApiEventsCitiesRouteImport.update({
+  id: '/api/events/cities',
+  path: '/api/events/cities',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiOrganizerProfileRoute = ApiOrganizerProfileRouteImport.update({
+  id: '/api/organizer/profile',
+  path: '/api/organizer/profile',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiOrganizersSlugRoute = ApiOrganizersSlugRouteImport.update({
+  id: '/api/organizers/$slug',
+  path: '/api/organizers/$slug',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const ApiStudioDesignsRoute = ApiStudioDesignsRouteImport.update({
   id: '/api/studio/designs',
@@ -192,10 +344,77 @@ const ApiTailorTemplatesRoute = ApiTailorTemplatesRouteImport.update({
   path: '/api/tailor/templates',
   getParentRoute: () => rootRouteImport,
 } as any)
+const EventsSlugIndexRoute = EventsSlugIndexRouteImport.update({
+  id: '/events/$slug/',
+  path: '/events/$slug/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EventsMineIndexRoute = EventsMineIndexRouteImport.update({
+  id: '/events/mine/',
+  path: '/events/mine/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OrganizerEventsIndexRoute = OrganizerEventsIndexRouteImport.update({
+  id: '/organizer/events/',
+  path: '/organizer/events/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OrganizerEventsNewRoute = OrganizerEventsNewRouteImport.update({
+  id: '/organizer/events/new',
+  path: '/organizer/events/new',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TailorProjectsProjectIdRoute = TailorProjectsProjectIdRouteImport.update({
   id: '/projects/$projectId',
   path: '/projects/$projectId',
   getParentRoute: () => TailorRoute,
+} as any)
+const ApiAdminEventsIndexRoute = ApiAdminEventsIndexRouteImport.update({
+  id: '/api/admin/events/',
+  path: '/api/admin/events/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAdminNotificationsDispatchRoute =
+  ApiAdminNotificationsDispatchRouteImport.update({
+    id: '/api/admin/notifications/dispatch',
+    path: '/api/admin/notifications/dispatch',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiAdminStaffGrantIdRoute = ApiAdminStaffGrantIdRouteImport.update({
+  id: '/$grantId',
+  path: '/$grantId',
+  getParentRoute: () => ApiAdminStaffRoute,
+} as any)
+const ApiEventsSlugIndexRoute = ApiEventsSlugIndexRouteImport.update({
+  id: '/api/events/$slug/',
+  path: '/api/events/$slug/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiEventsSlugRegisterRoute = ApiEventsSlugRegisterRouteImport.update({
+  id: '/api/events/$slug/register',
+  path: '/api/events/$slug/register',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiEventsSlugReportsRoute = ApiEventsSlugReportsRouteImport.update({
+  id: '/api/events/$slug/reports',
+  path: '/api/events/$slug/reports',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiEventsSlugWaitlistRoute = ApiEventsSlugWaitlistRouteImport.update({
+  id: '/api/events/$slug/waitlist',
+  path: '/api/events/$slug/waitlist',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiEventsMeRegistrationsRoute =
+  ApiEventsMeRegistrationsRouteImport.update({
+    id: '/api/events/me/registrations',
+    path: '/api/events/me/registrations',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiOrganizerEventsIndexRoute = ApiOrganizerEventsIndexRouteImport.update({
+  id: '/api/organizer/events/',
+  path: '/api/organizer/events/',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const ApiStudioDesignsIdRoute = ApiStudioDesignsIdRouteImport.update({
   id: '/$id',
@@ -252,6 +471,18 @@ const ApiTailorTemplatesIdRoute = ApiTailorTemplatesIdRouteImport.update({
   path: '/$id',
   getParentRoute: () => ApiTailorTemplatesRoute,
 } as any)
+const OrganizerEventsEventIdIndexRoute =
+  OrganizerEventsEventIdIndexRouteImport.update({
+    id: '/organizer/events/$eventId/',
+    path: '/organizer/events/$eventId/',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const OrganizerEventsEventIdCheckInRoute =
+  OrganizerEventsEventIdCheckInRouteImport.update({
+    id: '/organizer/events/$eventId/check-in',
+    path: '/organizer/events/$eventId/check-in',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const TailorProjectsProjectIdBriefRoute =
   TailorProjectsProjectIdBriefRouteImport.update({
     id: '/brief',
@@ -263,6 +494,95 @@ const TailorProjectsProjectIdHistoryRoute =
     id: '/history',
     path: '/history',
     getParentRoute: () => TailorProjectsProjectIdRoute,
+  } as any)
+const ApiAdminEventsEventIdIndexRoute =
+  ApiAdminEventsEventIdIndexRouteImport.update({
+    id: '/api/admin/events/$eventId/',
+    path: '/api/admin/events/$eventId/',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiAdminEventsEventIdFeatureRoute =
+  ApiAdminEventsEventIdFeatureRouteImport.update({
+    id: '/api/admin/events/$eventId/feature',
+    path: '/api/admin/events/$eventId/feature',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiAdminEventsEventIdPublicationRoute =
+  ApiAdminEventsEventIdPublicationRouteImport.update({
+    id: '/api/admin/events/$eventId/publication',
+    path: '/api/admin/events/$eventId/publication',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiAdminEventsEventIdReviewRoute =
+  ApiAdminEventsEventIdReviewRouteImport.update({
+    id: '/api/admin/events/$eventId/review',
+    path: '/api/admin/events/$eventId/review',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiAdminOrganizersOrganizerIdStatusRoute =
+  ApiAdminOrganizersOrganizerIdStatusRouteImport.update({
+    id: '/$organizerId/status',
+    path: '/$organizerId/status',
+    getParentRoute: () => ApiAdminOrganizersRoute,
+  } as any)
+const ApiAdminReportsReportIdResolveRoute =
+  ApiAdminReportsReportIdResolveRouteImport.update({
+    id: '/$reportId/resolve',
+    path: '/$reportId/resolve',
+    getParentRoute: () => ApiAdminReportsRoute,
+  } as any)
+const ApiEventsIdEventIdCoverRoute = ApiEventsIdEventIdCoverRouteImport.update({
+  id: '/api/events/id/$eventId/cover',
+  path: '/api/events/id/$eventId/cover',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiEventsMeRegistrationsRegistrationIdRoute =
+  ApiEventsMeRegistrationsRegistrationIdRouteImport.update({
+    id: '/$registrationId',
+    path: '/$registrationId',
+    getParentRoute: () => ApiEventsMeRegistrationsRoute,
+  } as any)
+const ApiOrganizerEventsEventIdIndexRoute =
+  ApiOrganizerEventsEventIdIndexRouteImport.update({
+    id: '/api/organizer/events/$eventId/',
+    path: '/api/organizer/events/$eventId/',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiOrganizerEventsEventIdAttendeesRoute =
+  ApiOrganizerEventsEventIdAttendeesRouteImport.update({
+    id: '/api/organizer/events/$eventId/attendees',
+    path: '/api/organizer/events/$eventId/attendees',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiOrganizerEventsEventIdCheckInRoute =
+  ApiOrganizerEventsEventIdCheckInRouteImport.update({
+    id: '/api/organizer/events/$eventId/check-in',
+    path: '/api/organizer/events/$eventId/check-in',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiOrganizerEventsEventIdCoverRoute =
+  ApiOrganizerEventsEventIdCoverRouteImport.update({
+    id: '/api/organizer/events/$eventId/cover',
+    path: '/api/organizer/events/$eventId/cover',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiOrganizerEventsEventIdRegistrationRoute =
+  ApiOrganizerEventsEventIdRegistrationRouteImport.update({
+    id: '/api/organizer/events/$eventId/registration',
+    path: '/api/organizer/events/$eventId/registration',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiOrganizerEventsEventIdSubmitRoute =
+  ApiOrganizerEventsEventIdSubmitRouteImport.update({
+    id: '/api/organizer/events/$eventId/submit',
+    path: '/api/organizer/events/$eventId/submit',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiOrganizerEventsEventIdWithdrawRoute =
+  ApiOrganizerEventsEventIdWithdrawRouteImport.update({
+    id: '/api/organizer/events/$eventId/withdraw',
+    path: '/api/organizer/events/$eventId/withdraw',
+    getParentRoute: () => rootRouteImport,
   } as any)
 const ApiTailorBriefsIdFinalizeRoute =
   ApiTailorBriefsIdFinalizeRouteImport.update({
@@ -350,11 +670,23 @@ const ApiTailorSharesIdRevokeRoute = ApiTailorSharesIdRevokeRouteImport.update({
   path: '/api/tailor/shares/$id/revoke',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiEventsMeRegistrationsRegistrationIdTicketRoute =
+  ApiEventsMeRegistrationsRegistrationIdTicketRouteImport.update({
+    id: '/ticket',
+    path: '/ticket',
+    getParentRoute: () => ApiEventsMeRegistrationsRegistrationIdRoute,
+  } as any)
 const ApiTailorProjectsIdUploadsUploadIdRoute =
   ApiTailorProjectsIdUploadsUploadIdRouteImport.update({
     id: '/$uploadId',
     path: '/$uploadId',
     getParentRoute: () => ApiTailorProjectsIdUploadsRoute,
+  } as any)
+const ApiOrganizerEventsEventIdAttendeesRegistrationIdPromoteRoute =
+  ApiOrganizerEventsEventIdAttendeesRegistrationIdPromoteRouteImport.update({
+    id: '/$registrationId/promote',
+    path: '/$registrationId/promote',
+    getParentRoute: () => ApiOrganizerEventsEventIdAttendeesRoute,
   } as any)
 const ApiTailorProjectsIdUploadsUploadIdCompleteRoute =
   ApiTailorProjectsIdUploadsUploadIdCompleteRouteImport.update({
@@ -386,16 +718,46 @@ export interface FileRoutesByFullPath {
   '/tailor': typeof TailorRouteWithChildren
   '/terms': typeof TermsRoute
   '/wardrobe': typeof WardrobeRoute
+  '/admin/activity': typeof AdminActivityRoute
+  '/admin/organizers': typeof AdminOrganizersRoute
+  '/admin/reports': typeof AdminReportsRoute
+  '/admin/settings': typeof AdminSettingsRoute
+  '/events/submit': typeof EventsSubmitRoute
+  '/organizers/$slug': typeof OrganizersSlugRoute
   '/product/$handle': typeof ProductHandleRoute
   '/review/$token': typeof ReviewTokenRoute
   '/tailor/new': typeof TailorNewRoute
+  '/admin/': typeof AdminIndexRoute
+  '/events/': typeof EventsIndexRoute
+  '/admin/events/$eventId': typeof AdminEventsEventIdRoute
+  '/api/admin/activity': typeof ApiAdminActivityRoute
+  '/api/admin/counts': typeof ApiAdminCountsRoute
+  '/api/admin/organizers': typeof ApiAdminOrganizersRouteWithChildren
+  '/api/admin/reports': typeof ApiAdminReportsRouteWithChildren
+  '/api/admin/session': typeof ApiAdminSessionRoute
+  '/api/admin/staff': typeof ApiAdminStaffRouteWithChildren
+  '/api/events/cities': typeof ApiEventsCitiesRoute
+  '/api/organizer/profile': typeof ApiOrganizerProfileRoute
+  '/api/organizers/$slug': typeof ApiOrganizersSlugRoute
   '/api/studio/designs': typeof ApiStudioDesignsRouteWithChildren
   '/api/studio/generate': typeof ApiStudioGenerateRoute
   '/api/tailor/consents': typeof ApiTailorConsentsRouteWithChildren
   '/api/tailor/me': typeof ApiTailorMeRouteWithChildren
   '/api/tailor/projects': typeof ApiTailorProjectsRouteWithChildren
   '/api/tailor/templates': typeof ApiTailorTemplatesRouteWithChildren
+  '/organizer/events/new': typeof OrganizerEventsNewRoute
   '/tailor/projects/$projectId': typeof TailorProjectsProjectIdRouteWithChildren
+  '/admin/events/': typeof AdminEventsIndexRoute
+  '/api/events/': typeof ApiEventsIndexRoute
+  '/events/$slug/': typeof EventsSlugIndexRoute
+  '/events/mine/': typeof EventsMineIndexRoute
+  '/organizer/events/': typeof OrganizerEventsIndexRoute
+  '/api/admin/notifications/dispatch': typeof ApiAdminNotificationsDispatchRoute
+  '/api/admin/staff/$grantId': typeof ApiAdminStaffGrantIdRoute
+  '/api/events/$slug/register': typeof ApiEventsSlugRegisterRoute
+  '/api/events/$slug/reports': typeof ApiEventsSlugReportsRoute
+  '/api/events/$slug/waitlist': typeof ApiEventsSlugWaitlistRoute
+  '/api/events/me/registrations': typeof ApiEventsMeRegistrationsRouteWithChildren
   '/api/studio/designs/$id': typeof ApiStudioDesignsIdRoute
   '/api/tailor/assets/$id': typeof ApiTailorAssetsIdRoute
   '/api/tailor/briefs/$id': typeof ApiTailorBriefsIdRouteWithChildren
@@ -407,8 +769,26 @@ export interface FileRoutesByFullPath {
   '/api/tailor/review/logout': typeof ApiTailorReviewLogoutRoute
   '/api/tailor/review/session': typeof ApiTailorReviewSessionRoute
   '/api/tailor/templates/$id': typeof ApiTailorTemplatesIdRoute
+  '/organizer/events/$eventId/check-in': typeof OrganizerEventsEventIdCheckInRoute
   '/tailor/projects/$projectId/brief': typeof TailorProjectsProjectIdBriefRoute
   '/tailor/projects/$projectId/history': typeof TailorProjectsProjectIdHistoryRoute
+  '/api/admin/events/': typeof ApiAdminEventsIndexRoute
+  '/api/events/$slug/': typeof ApiEventsSlugIndexRoute
+  '/api/organizer/events/': typeof ApiOrganizerEventsIndexRoute
+  '/organizer/events/$eventId/': typeof OrganizerEventsEventIdIndexRoute
+  '/api/admin/events/$eventId/feature': typeof ApiAdminEventsEventIdFeatureRoute
+  '/api/admin/events/$eventId/publication': typeof ApiAdminEventsEventIdPublicationRoute
+  '/api/admin/events/$eventId/review': typeof ApiAdminEventsEventIdReviewRoute
+  '/api/admin/organizers/$organizerId/status': typeof ApiAdminOrganizersOrganizerIdStatusRoute
+  '/api/admin/reports/$reportId/resolve': typeof ApiAdminReportsReportIdResolveRoute
+  '/api/events/id/$eventId/cover': typeof ApiEventsIdEventIdCoverRoute
+  '/api/events/me/registrations/$registrationId': typeof ApiEventsMeRegistrationsRegistrationIdRouteWithChildren
+  '/api/organizer/events/$eventId/attendees': typeof ApiOrganizerEventsEventIdAttendeesRouteWithChildren
+  '/api/organizer/events/$eventId/check-in': typeof ApiOrganizerEventsEventIdCheckInRoute
+  '/api/organizer/events/$eventId/cover': typeof ApiOrganizerEventsEventIdCoverRoute
+  '/api/organizer/events/$eventId/registration': typeof ApiOrganizerEventsEventIdRegistrationRoute
+  '/api/organizer/events/$eventId/submit': typeof ApiOrganizerEventsEventIdSubmitRoute
+  '/api/organizer/events/$eventId/withdraw': typeof ApiOrganizerEventsEventIdWithdrawRoute
   '/api/tailor/briefs/$id/finalize': typeof ApiTailorBriefsIdFinalizeRoute
   '/api/tailor/briefs/$id/shares': typeof ApiTailorBriefsIdSharesRoute
   '/api/tailor/consents/$id/withdraw': typeof ApiTailorConsentsIdWithdrawRoute
@@ -424,7 +804,11 @@ export interface FileRoutesByFullPath {
   '/api/tailor/projects/$id/revisions': typeof ApiTailorProjectsIdRevisionsRoute
   '/api/tailor/projects/$id/uploads': typeof ApiTailorProjectsIdUploadsRouteWithChildren
   '/api/tailor/shares/$id/revoke': typeof ApiTailorSharesIdRevokeRoute
+  '/api/admin/events/$eventId/': typeof ApiAdminEventsEventIdIndexRoute
+  '/api/organizer/events/$eventId/': typeof ApiOrganizerEventsEventIdIndexRoute
+  '/api/events/me/registrations/$registrationId/ticket': typeof ApiEventsMeRegistrationsRegistrationIdTicketRoute
   '/api/tailor/projects/$id/uploads/$uploadId': typeof ApiTailorProjectsIdUploadsUploadIdRouteWithChildren
+  '/api/organizer/events/$eventId/attendees/$registrationId/promote': typeof ApiOrganizerEventsEventIdAttendeesRegistrationIdPromoteRoute
   '/api/tailor/projects/$id/uploads/$uploadId/complete': typeof ApiTailorProjectsIdUploadsUploadIdCompleteRoute
   '/api/tailor/projects/$id/uploads/$uploadId/content': typeof ApiTailorProjectsIdUploadsUploadIdContentRoute
 }
@@ -445,16 +829,46 @@ export interface FileRoutesByTo {
   '/tailor': typeof TailorRouteWithChildren
   '/terms': typeof TermsRoute
   '/wardrobe': typeof WardrobeRoute
+  '/admin/activity': typeof AdminActivityRoute
+  '/admin/organizers': typeof AdminOrganizersRoute
+  '/admin/reports': typeof AdminReportsRoute
+  '/admin/settings': typeof AdminSettingsRoute
+  '/events/submit': typeof EventsSubmitRoute
+  '/organizers/$slug': typeof OrganizersSlugRoute
   '/product/$handle': typeof ProductHandleRoute
   '/review/$token': typeof ReviewTokenRoute
   '/tailor/new': typeof TailorNewRoute
+  '/admin': typeof AdminIndexRoute
+  '/events': typeof EventsIndexRoute
+  '/admin/events/$eventId': typeof AdminEventsEventIdRoute
+  '/api/admin/activity': typeof ApiAdminActivityRoute
+  '/api/admin/counts': typeof ApiAdminCountsRoute
+  '/api/admin/organizers': typeof ApiAdminOrganizersRouteWithChildren
+  '/api/admin/reports': typeof ApiAdminReportsRouteWithChildren
+  '/api/admin/session': typeof ApiAdminSessionRoute
+  '/api/admin/staff': typeof ApiAdminStaffRouteWithChildren
+  '/api/events/cities': typeof ApiEventsCitiesRoute
+  '/api/organizer/profile': typeof ApiOrganizerProfileRoute
+  '/api/organizers/$slug': typeof ApiOrganizersSlugRoute
   '/api/studio/designs': typeof ApiStudioDesignsRouteWithChildren
   '/api/studio/generate': typeof ApiStudioGenerateRoute
   '/api/tailor/consents': typeof ApiTailorConsentsRouteWithChildren
   '/api/tailor/me': typeof ApiTailorMeRouteWithChildren
   '/api/tailor/projects': typeof ApiTailorProjectsRouteWithChildren
   '/api/tailor/templates': typeof ApiTailorTemplatesRouteWithChildren
+  '/organizer/events/new': typeof OrganizerEventsNewRoute
   '/tailor/projects/$projectId': typeof TailorProjectsProjectIdRouteWithChildren
+  '/admin/events': typeof AdminEventsIndexRoute
+  '/api/events': typeof ApiEventsIndexRoute
+  '/events/$slug': typeof EventsSlugIndexRoute
+  '/events/mine': typeof EventsMineIndexRoute
+  '/organizer/events': typeof OrganizerEventsIndexRoute
+  '/api/admin/notifications/dispatch': typeof ApiAdminNotificationsDispatchRoute
+  '/api/admin/staff/$grantId': typeof ApiAdminStaffGrantIdRoute
+  '/api/events/$slug/register': typeof ApiEventsSlugRegisterRoute
+  '/api/events/$slug/reports': typeof ApiEventsSlugReportsRoute
+  '/api/events/$slug/waitlist': typeof ApiEventsSlugWaitlistRoute
+  '/api/events/me/registrations': typeof ApiEventsMeRegistrationsRouteWithChildren
   '/api/studio/designs/$id': typeof ApiStudioDesignsIdRoute
   '/api/tailor/assets/$id': typeof ApiTailorAssetsIdRoute
   '/api/tailor/briefs/$id': typeof ApiTailorBriefsIdRouteWithChildren
@@ -466,8 +880,26 @@ export interface FileRoutesByTo {
   '/api/tailor/review/logout': typeof ApiTailorReviewLogoutRoute
   '/api/tailor/review/session': typeof ApiTailorReviewSessionRoute
   '/api/tailor/templates/$id': typeof ApiTailorTemplatesIdRoute
+  '/organizer/events/$eventId/check-in': typeof OrganizerEventsEventIdCheckInRoute
   '/tailor/projects/$projectId/brief': typeof TailorProjectsProjectIdBriefRoute
   '/tailor/projects/$projectId/history': typeof TailorProjectsProjectIdHistoryRoute
+  '/api/admin/events': typeof ApiAdminEventsIndexRoute
+  '/api/events/$slug': typeof ApiEventsSlugIndexRoute
+  '/api/organizer/events': typeof ApiOrganizerEventsIndexRoute
+  '/organizer/events/$eventId': typeof OrganizerEventsEventIdIndexRoute
+  '/api/admin/events/$eventId/feature': typeof ApiAdminEventsEventIdFeatureRoute
+  '/api/admin/events/$eventId/publication': typeof ApiAdminEventsEventIdPublicationRoute
+  '/api/admin/events/$eventId/review': typeof ApiAdminEventsEventIdReviewRoute
+  '/api/admin/organizers/$organizerId/status': typeof ApiAdminOrganizersOrganizerIdStatusRoute
+  '/api/admin/reports/$reportId/resolve': typeof ApiAdminReportsReportIdResolveRoute
+  '/api/events/id/$eventId/cover': typeof ApiEventsIdEventIdCoverRoute
+  '/api/events/me/registrations/$registrationId': typeof ApiEventsMeRegistrationsRegistrationIdRouteWithChildren
+  '/api/organizer/events/$eventId/attendees': typeof ApiOrganizerEventsEventIdAttendeesRouteWithChildren
+  '/api/organizer/events/$eventId/check-in': typeof ApiOrganizerEventsEventIdCheckInRoute
+  '/api/organizer/events/$eventId/cover': typeof ApiOrganizerEventsEventIdCoverRoute
+  '/api/organizer/events/$eventId/registration': typeof ApiOrganizerEventsEventIdRegistrationRoute
+  '/api/organizer/events/$eventId/submit': typeof ApiOrganizerEventsEventIdSubmitRoute
+  '/api/organizer/events/$eventId/withdraw': typeof ApiOrganizerEventsEventIdWithdrawRoute
   '/api/tailor/briefs/$id/finalize': typeof ApiTailorBriefsIdFinalizeRoute
   '/api/tailor/briefs/$id/shares': typeof ApiTailorBriefsIdSharesRoute
   '/api/tailor/consents/$id/withdraw': typeof ApiTailorConsentsIdWithdrawRoute
@@ -483,7 +915,11 @@ export interface FileRoutesByTo {
   '/api/tailor/projects/$id/revisions': typeof ApiTailorProjectsIdRevisionsRoute
   '/api/tailor/projects/$id/uploads': typeof ApiTailorProjectsIdUploadsRouteWithChildren
   '/api/tailor/shares/$id/revoke': typeof ApiTailorSharesIdRevokeRoute
+  '/api/admin/events/$eventId': typeof ApiAdminEventsEventIdIndexRoute
+  '/api/organizer/events/$eventId': typeof ApiOrganizerEventsEventIdIndexRoute
+  '/api/events/me/registrations/$registrationId/ticket': typeof ApiEventsMeRegistrationsRegistrationIdTicketRoute
   '/api/tailor/projects/$id/uploads/$uploadId': typeof ApiTailorProjectsIdUploadsUploadIdRouteWithChildren
+  '/api/organizer/events/$eventId/attendees/$registrationId/promote': typeof ApiOrganizerEventsEventIdAttendeesRegistrationIdPromoteRoute
   '/api/tailor/projects/$id/uploads/$uploadId/complete': typeof ApiTailorProjectsIdUploadsUploadIdCompleteRoute
   '/api/tailor/projects/$id/uploads/$uploadId/content': typeof ApiTailorProjectsIdUploadsUploadIdContentRoute
 }
@@ -505,16 +941,46 @@ export interface FileRoutesById {
   '/tailor': typeof TailorRouteWithChildren
   '/terms': typeof TermsRoute
   '/wardrobe': typeof WardrobeRoute
+  '/admin/activity': typeof AdminActivityRoute
+  '/admin/organizers': typeof AdminOrganizersRoute
+  '/admin/reports': typeof AdminReportsRoute
+  '/admin/settings': typeof AdminSettingsRoute
+  '/events/submit': typeof EventsSubmitRoute
+  '/organizers/$slug': typeof OrganizersSlugRoute
   '/product/$handle': typeof ProductHandleRoute
   '/review/$token': typeof ReviewTokenRoute
   '/tailor/new': typeof TailorNewRoute
+  '/admin/': typeof AdminIndexRoute
+  '/events/': typeof EventsIndexRoute
+  '/admin/events/$eventId': typeof AdminEventsEventIdRoute
+  '/api/admin/activity': typeof ApiAdminActivityRoute
+  '/api/admin/counts': typeof ApiAdminCountsRoute
+  '/api/admin/organizers': typeof ApiAdminOrganizersRouteWithChildren
+  '/api/admin/reports': typeof ApiAdminReportsRouteWithChildren
+  '/api/admin/session': typeof ApiAdminSessionRoute
+  '/api/admin/staff': typeof ApiAdminStaffRouteWithChildren
+  '/api/events/cities': typeof ApiEventsCitiesRoute
+  '/api/organizer/profile': typeof ApiOrganizerProfileRoute
+  '/api/organizers/$slug': typeof ApiOrganizersSlugRoute
   '/api/studio/designs': typeof ApiStudioDesignsRouteWithChildren
   '/api/studio/generate': typeof ApiStudioGenerateRoute
   '/api/tailor/consents': typeof ApiTailorConsentsRouteWithChildren
   '/api/tailor/me': typeof ApiTailorMeRouteWithChildren
   '/api/tailor/projects': typeof ApiTailorProjectsRouteWithChildren
   '/api/tailor/templates': typeof ApiTailorTemplatesRouteWithChildren
+  '/organizer/events/new': typeof OrganizerEventsNewRoute
   '/tailor/projects/$projectId': typeof TailorProjectsProjectIdRouteWithChildren
+  '/admin/events/': typeof AdminEventsIndexRoute
+  '/api/events/': typeof ApiEventsIndexRoute
+  '/events/$slug/': typeof EventsSlugIndexRoute
+  '/events/mine/': typeof EventsMineIndexRoute
+  '/organizer/events/': typeof OrganizerEventsIndexRoute
+  '/api/admin/notifications/dispatch': typeof ApiAdminNotificationsDispatchRoute
+  '/api/admin/staff/$grantId': typeof ApiAdminStaffGrantIdRoute
+  '/api/events/$slug/register': typeof ApiEventsSlugRegisterRoute
+  '/api/events/$slug/reports': typeof ApiEventsSlugReportsRoute
+  '/api/events/$slug/waitlist': typeof ApiEventsSlugWaitlistRoute
+  '/api/events/me/registrations': typeof ApiEventsMeRegistrationsRouteWithChildren
   '/api/studio/designs/$id': typeof ApiStudioDesignsIdRoute
   '/api/tailor/assets/$id': typeof ApiTailorAssetsIdRoute
   '/api/tailor/briefs/$id': typeof ApiTailorBriefsIdRouteWithChildren
@@ -526,8 +992,26 @@ export interface FileRoutesById {
   '/api/tailor/review/logout': typeof ApiTailorReviewLogoutRoute
   '/api/tailor/review/session': typeof ApiTailorReviewSessionRoute
   '/api/tailor/templates/$id': typeof ApiTailorTemplatesIdRoute
+  '/organizer/events/$eventId/check-in': typeof OrganizerEventsEventIdCheckInRoute
   '/tailor/projects/$projectId/brief': typeof TailorProjectsProjectIdBriefRoute
   '/tailor/projects/$projectId/history': typeof TailorProjectsProjectIdHistoryRoute
+  '/api/admin/events/': typeof ApiAdminEventsIndexRoute
+  '/api/events/$slug/': typeof ApiEventsSlugIndexRoute
+  '/api/organizer/events/': typeof ApiOrganizerEventsIndexRoute
+  '/organizer/events/$eventId/': typeof OrganizerEventsEventIdIndexRoute
+  '/api/admin/events/$eventId/feature': typeof ApiAdminEventsEventIdFeatureRoute
+  '/api/admin/events/$eventId/publication': typeof ApiAdminEventsEventIdPublicationRoute
+  '/api/admin/events/$eventId/review': typeof ApiAdminEventsEventIdReviewRoute
+  '/api/admin/organizers/$organizerId/status': typeof ApiAdminOrganizersOrganizerIdStatusRoute
+  '/api/admin/reports/$reportId/resolve': typeof ApiAdminReportsReportIdResolveRoute
+  '/api/events/id/$eventId/cover': typeof ApiEventsIdEventIdCoverRoute
+  '/api/events/me/registrations/$registrationId': typeof ApiEventsMeRegistrationsRegistrationIdRouteWithChildren
+  '/api/organizer/events/$eventId/attendees': typeof ApiOrganizerEventsEventIdAttendeesRouteWithChildren
+  '/api/organizer/events/$eventId/check-in': typeof ApiOrganizerEventsEventIdCheckInRoute
+  '/api/organizer/events/$eventId/cover': typeof ApiOrganizerEventsEventIdCoverRoute
+  '/api/organizer/events/$eventId/registration': typeof ApiOrganizerEventsEventIdRegistrationRoute
+  '/api/organizer/events/$eventId/submit': typeof ApiOrganizerEventsEventIdSubmitRoute
+  '/api/organizer/events/$eventId/withdraw': typeof ApiOrganizerEventsEventIdWithdrawRoute
   '/api/tailor/briefs/$id/finalize': typeof ApiTailorBriefsIdFinalizeRoute
   '/api/tailor/briefs/$id/shares': typeof ApiTailorBriefsIdSharesRoute
   '/api/tailor/consents/$id/withdraw': typeof ApiTailorConsentsIdWithdrawRoute
@@ -543,7 +1027,11 @@ export interface FileRoutesById {
   '/api/tailor/projects/$id/revisions': typeof ApiTailorProjectsIdRevisionsRoute
   '/api/tailor/projects/$id/uploads': typeof ApiTailorProjectsIdUploadsRouteWithChildren
   '/api/tailor/shares/$id/revoke': typeof ApiTailorSharesIdRevokeRoute
+  '/api/admin/events/$eventId/': typeof ApiAdminEventsEventIdIndexRoute
+  '/api/organizer/events/$eventId/': typeof ApiOrganizerEventsEventIdIndexRoute
+  '/api/events/me/registrations/$registrationId/ticket': typeof ApiEventsMeRegistrationsRegistrationIdTicketRoute
   '/api/tailor/projects/$id/uploads/$uploadId': typeof ApiTailorProjectsIdUploadsUploadIdRouteWithChildren
+  '/api/organizer/events/$eventId/attendees/$registrationId/promote': typeof ApiOrganizerEventsEventIdAttendeesRegistrationIdPromoteRoute
   '/api/tailor/projects/$id/uploads/$uploadId/complete': typeof ApiTailorProjectsIdUploadsUploadIdCompleteRoute
   '/api/tailor/projects/$id/uploads/$uploadId/content': typeof ApiTailorProjectsIdUploadsUploadIdContentRoute
 }
@@ -566,16 +1054,46 @@ export interface FileRouteTypes {
     | '/tailor'
     | '/terms'
     | '/wardrobe'
+    | '/admin/activity'
+    | '/admin/organizers'
+    | '/admin/reports'
+    | '/admin/settings'
+    | '/events/submit'
+    | '/organizers/$slug'
     | '/product/$handle'
     | '/review/$token'
     | '/tailor/new'
+    | '/admin/'
+    | '/events/'
+    | '/admin/events/$eventId'
+    | '/api/admin/activity'
+    | '/api/admin/counts'
+    | '/api/admin/organizers'
+    | '/api/admin/reports'
+    | '/api/admin/session'
+    | '/api/admin/staff'
+    | '/api/events/cities'
+    | '/api/organizer/profile'
+    | '/api/organizers/$slug'
     | '/api/studio/designs'
     | '/api/studio/generate'
     | '/api/tailor/consents'
     | '/api/tailor/me'
     | '/api/tailor/projects'
     | '/api/tailor/templates'
+    | '/organizer/events/new'
     | '/tailor/projects/$projectId'
+    | '/admin/events/'
+    | '/api/events/'
+    | '/events/$slug/'
+    | '/events/mine/'
+    | '/organizer/events/'
+    | '/api/admin/notifications/dispatch'
+    | '/api/admin/staff/$grantId'
+    | '/api/events/$slug/register'
+    | '/api/events/$slug/reports'
+    | '/api/events/$slug/waitlist'
+    | '/api/events/me/registrations'
     | '/api/studio/designs/$id'
     | '/api/tailor/assets/$id'
     | '/api/tailor/briefs/$id'
@@ -587,8 +1105,26 @@ export interface FileRouteTypes {
     | '/api/tailor/review/logout'
     | '/api/tailor/review/session'
     | '/api/tailor/templates/$id'
+    | '/organizer/events/$eventId/check-in'
     | '/tailor/projects/$projectId/brief'
     | '/tailor/projects/$projectId/history'
+    | '/api/admin/events/'
+    | '/api/events/$slug/'
+    | '/api/organizer/events/'
+    | '/organizer/events/$eventId/'
+    | '/api/admin/events/$eventId/feature'
+    | '/api/admin/events/$eventId/publication'
+    | '/api/admin/events/$eventId/review'
+    | '/api/admin/organizers/$organizerId/status'
+    | '/api/admin/reports/$reportId/resolve'
+    | '/api/events/id/$eventId/cover'
+    | '/api/events/me/registrations/$registrationId'
+    | '/api/organizer/events/$eventId/attendees'
+    | '/api/organizer/events/$eventId/check-in'
+    | '/api/organizer/events/$eventId/cover'
+    | '/api/organizer/events/$eventId/registration'
+    | '/api/organizer/events/$eventId/submit'
+    | '/api/organizer/events/$eventId/withdraw'
     | '/api/tailor/briefs/$id/finalize'
     | '/api/tailor/briefs/$id/shares'
     | '/api/tailor/consents/$id/withdraw'
@@ -604,7 +1140,11 @@ export interface FileRouteTypes {
     | '/api/tailor/projects/$id/revisions'
     | '/api/tailor/projects/$id/uploads'
     | '/api/tailor/shares/$id/revoke'
+    | '/api/admin/events/$eventId/'
+    | '/api/organizer/events/$eventId/'
+    | '/api/events/me/registrations/$registrationId/ticket'
     | '/api/tailor/projects/$id/uploads/$uploadId'
+    | '/api/organizer/events/$eventId/attendees/$registrationId/promote'
     | '/api/tailor/projects/$id/uploads/$uploadId/complete'
     | '/api/tailor/projects/$id/uploads/$uploadId/content'
   fileRoutesByTo: FileRoutesByTo
@@ -625,16 +1165,46 @@ export interface FileRouteTypes {
     | '/tailor'
     | '/terms'
     | '/wardrobe'
+    | '/admin/activity'
+    | '/admin/organizers'
+    | '/admin/reports'
+    | '/admin/settings'
+    | '/events/submit'
+    | '/organizers/$slug'
     | '/product/$handle'
     | '/review/$token'
     | '/tailor/new'
+    | '/admin'
+    | '/events'
+    | '/admin/events/$eventId'
+    | '/api/admin/activity'
+    | '/api/admin/counts'
+    | '/api/admin/organizers'
+    | '/api/admin/reports'
+    | '/api/admin/session'
+    | '/api/admin/staff'
+    | '/api/events/cities'
+    | '/api/organizer/profile'
+    | '/api/organizers/$slug'
     | '/api/studio/designs'
     | '/api/studio/generate'
     | '/api/tailor/consents'
     | '/api/tailor/me'
     | '/api/tailor/projects'
     | '/api/tailor/templates'
+    | '/organizer/events/new'
     | '/tailor/projects/$projectId'
+    | '/admin/events'
+    | '/api/events'
+    | '/events/$slug'
+    | '/events/mine'
+    | '/organizer/events'
+    | '/api/admin/notifications/dispatch'
+    | '/api/admin/staff/$grantId'
+    | '/api/events/$slug/register'
+    | '/api/events/$slug/reports'
+    | '/api/events/$slug/waitlist'
+    | '/api/events/me/registrations'
     | '/api/studio/designs/$id'
     | '/api/tailor/assets/$id'
     | '/api/tailor/briefs/$id'
@@ -646,8 +1216,26 @@ export interface FileRouteTypes {
     | '/api/tailor/review/logout'
     | '/api/tailor/review/session'
     | '/api/tailor/templates/$id'
+    | '/organizer/events/$eventId/check-in'
     | '/tailor/projects/$projectId/brief'
     | '/tailor/projects/$projectId/history'
+    | '/api/admin/events'
+    | '/api/events/$slug'
+    | '/api/organizer/events'
+    | '/organizer/events/$eventId'
+    | '/api/admin/events/$eventId/feature'
+    | '/api/admin/events/$eventId/publication'
+    | '/api/admin/events/$eventId/review'
+    | '/api/admin/organizers/$organizerId/status'
+    | '/api/admin/reports/$reportId/resolve'
+    | '/api/events/id/$eventId/cover'
+    | '/api/events/me/registrations/$registrationId'
+    | '/api/organizer/events/$eventId/attendees'
+    | '/api/organizer/events/$eventId/check-in'
+    | '/api/organizer/events/$eventId/cover'
+    | '/api/organizer/events/$eventId/registration'
+    | '/api/organizer/events/$eventId/submit'
+    | '/api/organizer/events/$eventId/withdraw'
     | '/api/tailor/briefs/$id/finalize'
     | '/api/tailor/briefs/$id/shares'
     | '/api/tailor/consents/$id/withdraw'
@@ -663,7 +1251,11 @@ export interface FileRouteTypes {
     | '/api/tailor/projects/$id/revisions'
     | '/api/tailor/projects/$id/uploads'
     | '/api/tailor/shares/$id/revoke'
+    | '/api/admin/events/$eventId'
+    | '/api/organizer/events/$eventId'
+    | '/api/events/me/registrations/$registrationId/ticket'
     | '/api/tailor/projects/$id/uploads/$uploadId'
+    | '/api/organizer/events/$eventId/attendees/$registrationId/promote'
     | '/api/tailor/projects/$id/uploads/$uploadId/complete'
     | '/api/tailor/projects/$id/uploads/$uploadId/content'
   id:
@@ -684,16 +1276,46 @@ export interface FileRouteTypes {
     | '/tailor'
     | '/terms'
     | '/wardrobe'
+    | '/admin/activity'
+    | '/admin/organizers'
+    | '/admin/reports'
+    | '/admin/settings'
+    | '/events/submit'
+    | '/organizers/$slug'
     | '/product/$handle'
     | '/review/$token'
     | '/tailor/new'
+    | '/admin/'
+    | '/events/'
+    | '/admin/events/$eventId'
+    | '/api/admin/activity'
+    | '/api/admin/counts'
+    | '/api/admin/organizers'
+    | '/api/admin/reports'
+    | '/api/admin/session'
+    | '/api/admin/staff'
+    | '/api/events/cities'
+    | '/api/organizer/profile'
+    | '/api/organizers/$slug'
     | '/api/studio/designs'
     | '/api/studio/generate'
     | '/api/tailor/consents'
     | '/api/tailor/me'
     | '/api/tailor/projects'
     | '/api/tailor/templates'
+    | '/organizer/events/new'
     | '/tailor/projects/$projectId'
+    | '/admin/events/'
+    | '/api/events/'
+    | '/events/$slug/'
+    | '/events/mine/'
+    | '/organizer/events/'
+    | '/api/admin/notifications/dispatch'
+    | '/api/admin/staff/$grantId'
+    | '/api/events/$slug/register'
+    | '/api/events/$slug/reports'
+    | '/api/events/$slug/waitlist'
+    | '/api/events/me/registrations'
     | '/api/studio/designs/$id'
     | '/api/tailor/assets/$id'
     | '/api/tailor/briefs/$id'
@@ -705,8 +1327,26 @@ export interface FileRouteTypes {
     | '/api/tailor/review/logout'
     | '/api/tailor/review/session'
     | '/api/tailor/templates/$id'
+    | '/organizer/events/$eventId/check-in'
     | '/tailor/projects/$projectId/brief'
     | '/tailor/projects/$projectId/history'
+    | '/api/admin/events/'
+    | '/api/events/$slug/'
+    | '/api/organizer/events/'
+    | '/organizer/events/$eventId/'
+    | '/api/admin/events/$eventId/feature'
+    | '/api/admin/events/$eventId/publication'
+    | '/api/admin/events/$eventId/review'
+    | '/api/admin/organizers/$organizerId/status'
+    | '/api/admin/reports/$reportId/resolve'
+    | '/api/events/id/$eventId/cover'
+    | '/api/events/me/registrations/$registrationId'
+    | '/api/organizer/events/$eventId/attendees'
+    | '/api/organizer/events/$eventId/check-in'
+    | '/api/organizer/events/$eventId/cover'
+    | '/api/organizer/events/$eventId/registration'
+    | '/api/organizer/events/$eventId/submit'
+    | '/api/organizer/events/$eventId/withdraw'
     | '/api/tailor/briefs/$id/finalize'
     | '/api/tailor/briefs/$id/shares'
     | '/api/tailor/consents/$id/withdraw'
@@ -722,7 +1362,11 @@ export interface FileRouteTypes {
     | '/api/tailor/projects/$id/revisions'
     | '/api/tailor/projects/$id/uploads'
     | '/api/tailor/shares/$id/revoke'
+    | '/api/admin/events/$eventId/'
+    | '/api/organizer/events/$eventId/'
+    | '/api/events/me/registrations/$registrationId/ticket'
     | '/api/tailor/projects/$id/uploads/$uploadId'
+    | '/api/organizer/events/$eventId/attendees/$registrationId/promote'
     | '/api/tailor/projects/$id/uploads/$uploadId/complete'
     | '/api/tailor/projects/$id/uploads/$uploadId/content'
   fileRoutesById: FileRoutesById
@@ -744,13 +1388,42 @@ export interface RootRouteChildren {
   TailorRoute: typeof TailorRouteWithChildren
   TermsRoute: typeof TermsRoute
   WardrobeRoute: typeof WardrobeRoute
+  AdminActivityRoute: typeof AdminActivityRoute
+  AdminOrganizersRoute: typeof AdminOrganizersRoute
+  AdminReportsRoute: typeof AdminReportsRoute
+  AdminSettingsRoute: typeof AdminSettingsRoute
+  EventsSubmitRoute: typeof EventsSubmitRoute
+  OrganizersSlugRoute: typeof OrganizersSlugRoute
   ProductHandleRoute: typeof ProductHandleRoute
+  AdminIndexRoute: typeof AdminIndexRoute
+  EventsIndexRoute: typeof EventsIndexRoute
+  AdminEventsEventIdRoute: typeof AdminEventsEventIdRoute
+  ApiAdminActivityRoute: typeof ApiAdminActivityRoute
+  ApiAdminCountsRoute: typeof ApiAdminCountsRoute
+  ApiAdminOrganizersRoute: typeof ApiAdminOrganizersRouteWithChildren
+  ApiAdminReportsRoute: typeof ApiAdminReportsRouteWithChildren
+  ApiAdminSessionRoute: typeof ApiAdminSessionRoute
+  ApiAdminStaffRoute: typeof ApiAdminStaffRouteWithChildren
+  ApiEventsCitiesRoute: typeof ApiEventsCitiesRoute
+  ApiOrganizerProfileRoute: typeof ApiOrganizerProfileRoute
+  ApiOrganizersSlugRoute: typeof ApiOrganizersSlugRoute
   ApiStudioDesignsRoute: typeof ApiStudioDesignsRouteWithChildren
   ApiStudioGenerateRoute: typeof ApiStudioGenerateRoute
   ApiTailorConsentsRoute: typeof ApiTailorConsentsRouteWithChildren
   ApiTailorMeRoute: typeof ApiTailorMeRouteWithChildren
   ApiTailorProjectsRoute: typeof ApiTailorProjectsRouteWithChildren
   ApiTailorTemplatesRoute: typeof ApiTailorTemplatesRouteWithChildren
+  OrganizerEventsNewRoute: typeof OrganizerEventsNewRoute
+  AdminEventsIndexRoute: typeof AdminEventsIndexRoute
+  ApiEventsIndexRoute: typeof ApiEventsIndexRoute
+  EventsSlugIndexRoute: typeof EventsSlugIndexRoute
+  EventsMineIndexRoute: typeof EventsMineIndexRoute
+  OrganizerEventsIndexRoute: typeof OrganizerEventsIndexRoute
+  ApiAdminNotificationsDispatchRoute: typeof ApiAdminNotificationsDispatchRoute
+  ApiEventsSlugRegisterRoute: typeof ApiEventsSlugRegisterRoute
+  ApiEventsSlugReportsRoute: typeof ApiEventsSlugReportsRoute
+  ApiEventsSlugWaitlistRoute: typeof ApiEventsSlugWaitlistRoute
+  ApiEventsMeRegistrationsRoute: typeof ApiEventsMeRegistrationsRouteWithChildren
   ApiTailorAssetsIdRoute: typeof ApiTailorAssetsIdRoute
   ApiTailorBriefsIdRoute: typeof ApiTailorBriefsIdRouteWithChildren
   ApiTailorJobsJobIdRoute: typeof ApiTailorJobsJobIdRouteWithChildren
@@ -758,7 +1431,24 @@ export interface RootRouteChildren {
   ApiTailorReviewExchangeRoute: typeof ApiTailorReviewExchangeRoute
   ApiTailorReviewLogoutRoute: typeof ApiTailorReviewLogoutRoute
   ApiTailorReviewSessionRoute: typeof ApiTailorReviewSessionRoute
+  OrganizerEventsEventIdCheckInRoute: typeof OrganizerEventsEventIdCheckInRoute
+  ApiAdminEventsIndexRoute: typeof ApiAdminEventsIndexRoute
+  ApiEventsSlugIndexRoute: typeof ApiEventsSlugIndexRoute
+  ApiOrganizerEventsIndexRoute: typeof ApiOrganizerEventsIndexRoute
+  OrganizerEventsEventIdIndexRoute: typeof OrganizerEventsEventIdIndexRoute
+  ApiAdminEventsEventIdFeatureRoute: typeof ApiAdminEventsEventIdFeatureRoute
+  ApiAdminEventsEventIdPublicationRoute: typeof ApiAdminEventsEventIdPublicationRoute
+  ApiAdminEventsEventIdReviewRoute: typeof ApiAdminEventsEventIdReviewRoute
+  ApiEventsIdEventIdCoverRoute: typeof ApiEventsIdEventIdCoverRoute
+  ApiOrganizerEventsEventIdAttendeesRoute: typeof ApiOrganizerEventsEventIdAttendeesRouteWithChildren
+  ApiOrganizerEventsEventIdCheckInRoute: typeof ApiOrganizerEventsEventIdCheckInRoute
+  ApiOrganizerEventsEventIdCoverRoute: typeof ApiOrganizerEventsEventIdCoverRoute
+  ApiOrganizerEventsEventIdRegistrationRoute: typeof ApiOrganizerEventsEventIdRegistrationRoute
+  ApiOrganizerEventsEventIdSubmitRoute: typeof ApiOrganizerEventsEventIdSubmitRoute
+  ApiOrganizerEventsEventIdWithdrawRoute: typeof ApiOrganizerEventsEventIdWithdrawRoute
   ApiTailorSharesIdRevokeRoute: typeof ApiTailorSharesIdRevokeRoute
+  ApiAdminEventsEventIdIndexRoute: typeof ApiAdminEventsEventIdIndexRoute
+  ApiOrganizerEventsEventIdIndexRoute: typeof ApiOrganizerEventsEventIdIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -875,6 +1565,62 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WardrobeRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/': {
+      id: '/admin/'
+      path: '/admin'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AdminIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/activity': {
+      id: '/admin/activity'
+      path: '/admin/activity'
+      fullPath: '/admin/activity'
+      preLoaderRoute: typeof AdminActivityRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/organizers': {
+      id: '/admin/organizers'
+      path: '/admin/organizers'
+      fullPath: '/admin/organizers'
+      preLoaderRoute: typeof AdminOrganizersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/reports': {
+      id: '/admin/reports'
+      path: '/admin/reports'
+      fullPath: '/admin/reports'
+      preLoaderRoute: typeof AdminReportsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/settings': {
+      id: '/admin/settings'
+      path: '/admin/settings'
+      fullPath: '/admin/settings'
+      preLoaderRoute: typeof AdminSettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/events/': {
+      id: '/events/'
+      path: '/events'
+      fullPath: '/events/'
+      preLoaderRoute: typeof EventsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/events/submit': {
+      id: '/events/submit'
+      path: '/events/submit'
+      fullPath: '/events/submit'
+      preLoaderRoute: typeof EventsSubmitRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/organizers/$slug': {
+      id: '/organizers/$slug'
+      path: '/organizers/$slug'
+      fullPath: '/organizers/$slug'
+      preLoaderRoute: typeof OrganizersSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/product/$handle': {
       id: '/product/$handle'
       path: '/product/$handle'
@@ -895,6 +1641,90 @@ declare module '@tanstack/react-router' {
       fullPath: '/tailor/new'
       preLoaderRoute: typeof TailorNewRouteImport
       parentRoute: typeof TailorRoute
+    }
+    '/admin/events/': {
+      id: '/admin/events/'
+      path: '/admin/events'
+      fullPath: '/admin/events/'
+      preLoaderRoute: typeof AdminEventsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/events/$eventId': {
+      id: '/admin/events/$eventId'
+      path: '/admin/events/$eventId'
+      fullPath: '/admin/events/$eventId'
+      preLoaderRoute: typeof AdminEventsEventIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/admin/activity': {
+      id: '/api/admin/activity'
+      path: '/api/admin/activity'
+      fullPath: '/api/admin/activity'
+      preLoaderRoute: typeof ApiAdminActivityRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/admin/counts': {
+      id: '/api/admin/counts'
+      path: '/api/admin/counts'
+      fullPath: '/api/admin/counts'
+      preLoaderRoute: typeof ApiAdminCountsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/admin/organizers': {
+      id: '/api/admin/organizers'
+      path: '/api/admin/organizers'
+      fullPath: '/api/admin/organizers'
+      preLoaderRoute: typeof ApiAdminOrganizersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/admin/reports': {
+      id: '/api/admin/reports'
+      path: '/api/admin/reports'
+      fullPath: '/api/admin/reports'
+      preLoaderRoute: typeof ApiAdminReportsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/admin/session': {
+      id: '/api/admin/session'
+      path: '/api/admin/session'
+      fullPath: '/api/admin/session'
+      preLoaderRoute: typeof ApiAdminSessionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/admin/staff': {
+      id: '/api/admin/staff'
+      path: '/api/admin/staff'
+      fullPath: '/api/admin/staff'
+      preLoaderRoute: typeof ApiAdminStaffRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/events/': {
+      id: '/api/events/'
+      path: '/api/events'
+      fullPath: '/api/events/'
+      preLoaderRoute: typeof ApiEventsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/events/cities': {
+      id: '/api/events/cities'
+      path: '/api/events/cities'
+      fullPath: '/api/events/cities'
+      preLoaderRoute: typeof ApiEventsCitiesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/organizer/profile': {
+      id: '/api/organizer/profile'
+      path: '/api/organizer/profile'
+      fullPath: '/api/organizer/profile'
+      preLoaderRoute: typeof ApiOrganizerProfileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/organizers/$slug': {
+      id: '/api/organizers/$slug'
+      path: '/api/organizers/$slug'
+      fullPath: '/api/organizers/$slug'
+      preLoaderRoute: typeof ApiOrganizersSlugRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/api/studio/designs': {
       id: '/api/studio/designs'
@@ -938,12 +1768,103 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiTailorTemplatesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/events/$slug/': {
+      id: '/events/$slug/'
+      path: '/events/$slug'
+      fullPath: '/events/$slug/'
+      preLoaderRoute: typeof EventsSlugIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/events/mine/': {
+      id: '/events/mine/'
+      path: '/events/mine'
+      fullPath: '/events/mine/'
+      preLoaderRoute: typeof EventsMineIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/organizer/events/': {
+      id: '/organizer/events/'
+      path: '/organizer/events'
+      fullPath: '/organizer/events/'
+      preLoaderRoute: typeof OrganizerEventsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/organizer/events/new': {
+      id: '/organizer/events/new'
+      path: '/organizer/events/new'
+      fullPath: '/organizer/events/new'
+      preLoaderRoute: typeof OrganizerEventsNewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/tailor/projects/$projectId': {
       id: '/tailor/projects/$projectId'
       path: '/projects/$projectId'
       fullPath: '/tailor/projects/$projectId'
       preLoaderRoute: typeof TailorProjectsProjectIdRouteImport
       parentRoute: typeof TailorRoute
+    }
+    '/api/admin/events/': {
+      id: '/api/admin/events/'
+      path: '/api/admin/events'
+      fullPath: '/api/admin/events/'
+      preLoaderRoute: typeof ApiAdminEventsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/admin/notifications/dispatch': {
+      id: '/api/admin/notifications/dispatch'
+      path: '/api/admin/notifications/dispatch'
+      fullPath: '/api/admin/notifications/dispatch'
+      preLoaderRoute: typeof ApiAdminNotificationsDispatchRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/admin/staff/$grantId': {
+      id: '/api/admin/staff/$grantId'
+      path: '/$grantId'
+      fullPath: '/api/admin/staff/$grantId'
+      preLoaderRoute: typeof ApiAdminStaffGrantIdRouteImport
+      parentRoute: typeof ApiAdminStaffRoute
+    }
+    '/api/events/$slug/': {
+      id: '/api/events/$slug/'
+      path: '/api/events/$slug'
+      fullPath: '/api/events/$slug/'
+      preLoaderRoute: typeof ApiEventsSlugIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/events/$slug/register': {
+      id: '/api/events/$slug/register'
+      path: '/api/events/$slug/register'
+      fullPath: '/api/events/$slug/register'
+      preLoaderRoute: typeof ApiEventsSlugRegisterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/events/$slug/reports': {
+      id: '/api/events/$slug/reports'
+      path: '/api/events/$slug/reports'
+      fullPath: '/api/events/$slug/reports'
+      preLoaderRoute: typeof ApiEventsSlugReportsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/events/$slug/waitlist': {
+      id: '/api/events/$slug/waitlist'
+      path: '/api/events/$slug/waitlist'
+      fullPath: '/api/events/$slug/waitlist'
+      preLoaderRoute: typeof ApiEventsSlugWaitlistRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/events/me/registrations': {
+      id: '/api/events/me/registrations'
+      path: '/api/events/me/registrations'
+      fullPath: '/api/events/me/registrations'
+      preLoaderRoute: typeof ApiEventsMeRegistrationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/organizer/events/': {
+      id: '/api/organizer/events/'
+      path: '/api/organizer/events'
+      fullPath: '/api/organizer/events/'
+      preLoaderRoute: typeof ApiOrganizerEventsIndexRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/api/studio/designs/$id': {
       id: '/api/studio/designs/$id'
@@ -1022,6 +1943,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiTailorTemplatesIdRouteImport
       parentRoute: typeof ApiTailorTemplatesRoute
     }
+    '/organizer/events/$eventId/': {
+      id: '/organizer/events/$eventId/'
+      path: '/organizer/events/$eventId'
+      fullPath: '/organizer/events/$eventId/'
+      preLoaderRoute: typeof OrganizerEventsEventIdIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/organizer/events/$eventId/check-in': {
+      id: '/organizer/events/$eventId/check-in'
+      path: '/organizer/events/$eventId/check-in'
+      fullPath: '/organizer/events/$eventId/check-in'
+      preLoaderRoute: typeof OrganizerEventsEventIdCheckInRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/tailor/projects/$projectId/brief': {
       id: '/tailor/projects/$projectId/brief'
       path: '/brief'
@@ -1035,6 +1970,111 @@ declare module '@tanstack/react-router' {
       fullPath: '/tailor/projects/$projectId/history'
       preLoaderRoute: typeof TailorProjectsProjectIdHistoryRouteImport
       parentRoute: typeof TailorProjectsProjectIdRoute
+    }
+    '/api/admin/events/$eventId/': {
+      id: '/api/admin/events/$eventId/'
+      path: '/api/admin/events/$eventId'
+      fullPath: '/api/admin/events/$eventId/'
+      preLoaderRoute: typeof ApiAdminEventsEventIdIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/admin/events/$eventId/feature': {
+      id: '/api/admin/events/$eventId/feature'
+      path: '/api/admin/events/$eventId/feature'
+      fullPath: '/api/admin/events/$eventId/feature'
+      preLoaderRoute: typeof ApiAdminEventsEventIdFeatureRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/admin/events/$eventId/publication': {
+      id: '/api/admin/events/$eventId/publication'
+      path: '/api/admin/events/$eventId/publication'
+      fullPath: '/api/admin/events/$eventId/publication'
+      preLoaderRoute: typeof ApiAdminEventsEventIdPublicationRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/admin/events/$eventId/review': {
+      id: '/api/admin/events/$eventId/review'
+      path: '/api/admin/events/$eventId/review'
+      fullPath: '/api/admin/events/$eventId/review'
+      preLoaderRoute: typeof ApiAdminEventsEventIdReviewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/admin/organizers/$organizerId/status': {
+      id: '/api/admin/organizers/$organizerId/status'
+      path: '/$organizerId/status'
+      fullPath: '/api/admin/organizers/$organizerId/status'
+      preLoaderRoute: typeof ApiAdminOrganizersOrganizerIdStatusRouteImport
+      parentRoute: typeof ApiAdminOrganizersRoute
+    }
+    '/api/admin/reports/$reportId/resolve': {
+      id: '/api/admin/reports/$reportId/resolve'
+      path: '/$reportId/resolve'
+      fullPath: '/api/admin/reports/$reportId/resolve'
+      preLoaderRoute: typeof ApiAdminReportsReportIdResolveRouteImport
+      parentRoute: typeof ApiAdminReportsRoute
+    }
+    '/api/events/id/$eventId/cover': {
+      id: '/api/events/id/$eventId/cover'
+      path: '/api/events/id/$eventId/cover'
+      fullPath: '/api/events/id/$eventId/cover'
+      preLoaderRoute: typeof ApiEventsIdEventIdCoverRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/events/me/registrations/$registrationId': {
+      id: '/api/events/me/registrations/$registrationId'
+      path: '/$registrationId'
+      fullPath: '/api/events/me/registrations/$registrationId'
+      preLoaderRoute: typeof ApiEventsMeRegistrationsRegistrationIdRouteImport
+      parentRoute: typeof ApiEventsMeRegistrationsRoute
+    }
+    '/api/organizer/events/$eventId/': {
+      id: '/api/organizer/events/$eventId/'
+      path: '/api/organizer/events/$eventId'
+      fullPath: '/api/organizer/events/$eventId/'
+      preLoaderRoute: typeof ApiOrganizerEventsEventIdIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/organizer/events/$eventId/attendees': {
+      id: '/api/organizer/events/$eventId/attendees'
+      path: '/api/organizer/events/$eventId/attendees'
+      fullPath: '/api/organizer/events/$eventId/attendees'
+      preLoaderRoute: typeof ApiOrganizerEventsEventIdAttendeesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/organizer/events/$eventId/check-in': {
+      id: '/api/organizer/events/$eventId/check-in'
+      path: '/api/organizer/events/$eventId/check-in'
+      fullPath: '/api/organizer/events/$eventId/check-in'
+      preLoaderRoute: typeof ApiOrganizerEventsEventIdCheckInRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/organizer/events/$eventId/cover': {
+      id: '/api/organizer/events/$eventId/cover'
+      path: '/api/organizer/events/$eventId/cover'
+      fullPath: '/api/organizer/events/$eventId/cover'
+      preLoaderRoute: typeof ApiOrganizerEventsEventIdCoverRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/organizer/events/$eventId/registration': {
+      id: '/api/organizer/events/$eventId/registration'
+      path: '/api/organizer/events/$eventId/registration'
+      fullPath: '/api/organizer/events/$eventId/registration'
+      preLoaderRoute: typeof ApiOrganizerEventsEventIdRegistrationRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/organizer/events/$eventId/submit': {
+      id: '/api/organizer/events/$eventId/submit'
+      path: '/api/organizer/events/$eventId/submit'
+      fullPath: '/api/organizer/events/$eventId/submit'
+      preLoaderRoute: typeof ApiOrganizerEventsEventIdSubmitRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/organizer/events/$eventId/withdraw': {
+      id: '/api/organizer/events/$eventId/withdraw'
+      path: '/api/organizer/events/$eventId/withdraw'
+      fullPath: '/api/organizer/events/$eventId/withdraw'
+      preLoaderRoute: typeof ApiOrganizerEventsEventIdWithdrawRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/api/tailor/briefs/$id/finalize': {
       id: '/api/tailor/briefs/$id/finalize'
@@ -1141,12 +2181,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiTailorSharesIdRevokeRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/events/me/registrations/$registrationId/ticket': {
+      id: '/api/events/me/registrations/$registrationId/ticket'
+      path: '/ticket'
+      fullPath: '/api/events/me/registrations/$registrationId/ticket'
+      preLoaderRoute: typeof ApiEventsMeRegistrationsRegistrationIdTicketRouteImport
+      parentRoute: typeof ApiEventsMeRegistrationsRegistrationIdRoute
+    }
     '/api/tailor/projects/$id/uploads/$uploadId': {
       id: '/api/tailor/projects/$id/uploads/$uploadId'
       path: '/$uploadId'
       fullPath: '/api/tailor/projects/$id/uploads/$uploadId'
       preLoaderRoute: typeof ApiTailorProjectsIdUploadsUploadIdRouteImport
       parentRoute: typeof ApiTailorProjectsIdUploadsRoute
+    }
+    '/api/organizer/events/$eventId/attendees/$registrationId/promote': {
+      id: '/api/organizer/events/$eventId/attendees/$registrationId/promote'
+      path: '/$registrationId/promote'
+      fullPath: '/api/organizer/events/$eventId/attendees/$registrationId/promote'
+      preLoaderRoute: typeof ApiOrganizerEventsEventIdAttendeesRegistrationIdPromoteRouteImport
+      parentRoute: typeof ApiOrganizerEventsEventIdAttendeesRoute
     }
     '/api/tailor/projects/$id/uploads/$uploadId/complete': {
       id: '/api/tailor/projects/$id/uploads/$uploadId/complete'
@@ -1204,6 +2258,42 @@ const TailorRouteChildren: TailorRouteChildren = {
 
 const TailorRouteWithChildren =
   TailorRoute._addFileChildren(TailorRouteChildren)
+
+interface ApiAdminOrganizersRouteChildren {
+  ApiAdminOrganizersOrganizerIdStatusRoute: typeof ApiAdminOrganizersOrganizerIdStatusRoute
+}
+
+const ApiAdminOrganizersRouteChildren: ApiAdminOrganizersRouteChildren = {
+  ApiAdminOrganizersOrganizerIdStatusRoute:
+    ApiAdminOrganizersOrganizerIdStatusRoute,
+}
+
+const ApiAdminOrganizersRouteWithChildren =
+  ApiAdminOrganizersRoute._addFileChildren(ApiAdminOrganizersRouteChildren)
+
+interface ApiAdminReportsRouteChildren {
+  ApiAdminReportsReportIdResolveRoute: typeof ApiAdminReportsReportIdResolveRoute
+}
+
+const ApiAdminReportsRouteChildren: ApiAdminReportsRouteChildren = {
+  ApiAdminReportsReportIdResolveRoute: ApiAdminReportsReportIdResolveRoute,
+}
+
+const ApiAdminReportsRouteWithChildren = ApiAdminReportsRoute._addFileChildren(
+  ApiAdminReportsRouteChildren,
+)
+
+interface ApiAdminStaffRouteChildren {
+  ApiAdminStaffGrantIdRoute: typeof ApiAdminStaffGrantIdRoute
+}
+
+const ApiAdminStaffRouteChildren: ApiAdminStaffRouteChildren = {
+  ApiAdminStaffGrantIdRoute: ApiAdminStaffGrantIdRoute,
+}
+
+const ApiAdminStaffRouteWithChildren = ApiAdminStaffRoute._addFileChildren(
+  ApiAdminStaffRouteChildren,
+)
 
 interface ApiStudioDesignsRouteChildren {
   ApiStudioDesignsIdRoute: typeof ApiStudioDesignsIdRoute
@@ -1322,6 +2412,36 @@ const ApiTailorTemplatesRouteChildren: ApiTailorTemplatesRouteChildren = {
 const ApiTailorTemplatesRouteWithChildren =
   ApiTailorTemplatesRoute._addFileChildren(ApiTailorTemplatesRouteChildren)
 
+interface ApiEventsMeRegistrationsRegistrationIdRouteChildren {
+  ApiEventsMeRegistrationsRegistrationIdTicketRoute: typeof ApiEventsMeRegistrationsRegistrationIdTicketRoute
+}
+
+const ApiEventsMeRegistrationsRegistrationIdRouteChildren: ApiEventsMeRegistrationsRegistrationIdRouteChildren =
+  {
+    ApiEventsMeRegistrationsRegistrationIdTicketRoute:
+      ApiEventsMeRegistrationsRegistrationIdTicketRoute,
+  }
+
+const ApiEventsMeRegistrationsRegistrationIdRouteWithChildren =
+  ApiEventsMeRegistrationsRegistrationIdRoute._addFileChildren(
+    ApiEventsMeRegistrationsRegistrationIdRouteChildren,
+  )
+
+interface ApiEventsMeRegistrationsRouteChildren {
+  ApiEventsMeRegistrationsRegistrationIdRoute: typeof ApiEventsMeRegistrationsRegistrationIdRouteWithChildren
+}
+
+const ApiEventsMeRegistrationsRouteChildren: ApiEventsMeRegistrationsRouteChildren =
+  {
+    ApiEventsMeRegistrationsRegistrationIdRoute:
+      ApiEventsMeRegistrationsRegistrationIdRouteWithChildren,
+  }
+
+const ApiEventsMeRegistrationsRouteWithChildren =
+  ApiEventsMeRegistrationsRoute._addFileChildren(
+    ApiEventsMeRegistrationsRouteChildren,
+  )
+
 interface ApiTailorBriefsIdRouteChildren {
   ApiTailorBriefsIdFinalizeRoute: typeof ApiTailorBriefsIdFinalizeRoute
   ApiTailorBriefsIdSharesRoute: typeof ApiTailorBriefsIdSharesRoute
@@ -1348,6 +2468,21 @@ const ApiTailorJobsJobIdRouteChildren: ApiTailorJobsJobIdRouteChildren = {
 const ApiTailorJobsJobIdRouteWithChildren =
   ApiTailorJobsJobIdRoute._addFileChildren(ApiTailorJobsJobIdRouteChildren)
 
+interface ApiOrganizerEventsEventIdAttendeesRouteChildren {
+  ApiOrganizerEventsEventIdAttendeesRegistrationIdPromoteRoute: typeof ApiOrganizerEventsEventIdAttendeesRegistrationIdPromoteRoute
+}
+
+const ApiOrganizerEventsEventIdAttendeesRouteChildren: ApiOrganizerEventsEventIdAttendeesRouteChildren =
+  {
+    ApiOrganizerEventsEventIdAttendeesRegistrationIdPromoteRoute:
+      ApiOrganizerEventsEventIdAttendeesRegistrationIdPromoteRoute,
+  }
+
+const ApiOrganizerEventsEventIdAttendeesRouteWithChildren =
+  ApiOrganizerEventsEventIdAttendeesRoute._addFileChildren(
+    ApiOrganizerEventsEventIdAttendeesRouteChildren,
+  )
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
@@ -1365,13 +2500,42 @@ const rootRouteChildren: RootRouteChildren = {
   TailorRoute: TailorRouteWithChildren,
   TermsRoute: TermsRoute,
   WardrobeRoute: WardrobeRoute,
+  AdminActivityRoute: AdminActivityRoute,
+  AdminOrganizersRoute: AdminOrganizersRoute,
+  AdminReportsRoute: AdminReportsRoute,
+  AdminSettingsRoute: AdminSettingsRoute,
+  EventsSubmitRoute: EventsSubmitRoute,
+  OrganizersSlugRoute: OrganizersSlugRoute,
   ProductHandleRoute: ProductHandleRoute,
+  AdminIndexRoute: AdminIndexRoute,
+  EventsIndexRoute: EventsIndexRoute,
+  AdminEventsEventIdRoute: AdminEventsEventIdRoute,
+  ApiAdminActivityRoute: ApiAdminActivityRoute,
+  ApiAdminCountsRoute: ApiAdminCountsRoute,
+  ApiAdminOrganizersRoute: ApiAdminOrganizersRouteWithChildren,
+  ApiAdminReportsRoute: ApiAdminReportsRouteWithChildren,
+  ApiAdminSessionRoute: ApiAdminSessionRoute,
+  ApiAdminStaffRoute: ApiAdminStaffRouteWithChildren,
+  ApiEventsCitiesRoute: ApiEventsCitiesRoute,
+  ApiOrganizerProfileRoute: ApiOrganizerProfileRoute,
+  ApiOrganizersSlugRoute: ApiOrganizersSlugRoute,
   ApiStudioDesignsRoute: ApiStudioDesignsRouteWithChildren,
   ApiStudioGenerateRoute: ApiStudioGenerateRoute,
   ApiTailorConsentsRoute: ApiTailorConsentsRouteWithChildren,
   ApiTailorMeRoute: ApiTailorMeRouteWithChildren,
   ApiTailorProjectsRoute: ApiTailorProjectsRouteWithChildren,
   ApiTailorTemplatesRoute: ApiTailorTemplatesRouteWithChildren,
+  OrganizerEventsNewRoute: OrganizerEventsNewRoute,
+  AdminEventsIndexRoute: AdminEventsIndexRoute,
+  ApiEventsIndexRoute: ApiEventsIndexRoute,
+  EventsSlugIndexRoute: EventsSlugIndexRoute,
+  EventsMineIndexRoute: EventsMineIndexRoute,
+  OrganizerEventsIndexRoute: OrganizerEventsIndexRoute,
+  ApiAdminNotificationsDispatchRoute: ApiAdminNotificationsDispatchRoute,
+  ApiEventsSlugRegisterRoute: ApiEventsSlugRegisterRoute,
+  ApiEventsSlugReportsRoute: ApiEventsSlugReportsRoute,
+  ApiEventsSlugWaitlistRoute: ApiEventsSlugWaitlistRoute,
+  ApiEventsMeRegistrationsRoute: ApiEventsMeRegistrationsRouteWithChildren,
   ApiTailorAssetsIdRoute: ApiTailorAssetsIdRoute,
   ApiTailorBriefsIdRoute: ApiTailorBriefsIdRouteWithChildren,
   ApiTailorJobsJobIdRoute: ApiTailorJobsJobIdRouteWithChildren,
@@ -1379,7 +2543,27 @@ const rootRouteChildren: RootRouteChildren = {
   ApiTailorReviewExchangeRoute: ApiTailorReviewExchangeRoute,
   ApiTailorReviewLogoutRoute: ApiTailorReviewLogoutRoute,
   ApiTailorReviewSessionRoute: ApiTailorReviewSessionRoute,
+  OrganizerEventsEventIdCheckInRoute: OrganizerEventsEventIdCheckInRoute,
+  ApiAdminEventsIndexRoute: ApiAdminEventsIndexRoute,
+  ApiEventsSlugIndexRoute: ApiEventsSlugIndexRoute,
+  ApiOrganizerEventsIndexRoute: ApiOrganizerEventsIndexRoute,
+  OrganizerEventsEventIdIndexRoute: OrganizerEventsEventIdIndexRoute,
+  ApiAdminEventsEventIdFeatureRoute: ApiAdminEventsEventIdFeatureRoute,
+  ApiAdminEventsEventIdPublicationRoute: ApiAdminEventsEventIdPublicationRoute,
+  ApiAdminEventsEventIdReviewRoute: ApiAdminEventsEventIdReviewRoute,
+  ApiEventsIdEventIdCoverRoute: ApiEventsIdEventIdCoverRoute,
+  ApiOrganizerEventsEventIdAttendeesRoute:
+    ApiOrganizerEventsEventIdAttendeesRouteWithChildren,
+  ApiOrganizerEventsEventIdCheckInRoute: ApiOrganizerEventsEventIdCheckInRoute,
+  ApiOrganizerEventsEventIdCoverRoute: ApiOrganizerEventsEventIdCoverRoute,
+  ApiOrganizerEventsEventIdRegistrationRoute:
+    ApiOrganizerEventsEventIdRegistrationRoute,
+  ApiOrganizerEventsEventIdSubmitRoute: ApiOrganizerEventsEventIdSubmitRoute,
+  ApiOrganizerEventsEventIdWithdrawRoute:
+    ApiOrganizerEventsEventIdWithdrawRoute,
   ApiTailorSharesIdRevokeRoute: ApiTailorSharesIdRevokeRoute,
+  ApiAdminEventsEventIdIndexRoute: ApiAdminEventsEventIdIndexRoute,
+  ApiOrganizerEventsEventIdIndexRoute: ApiOrganizerEventsEventIdIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

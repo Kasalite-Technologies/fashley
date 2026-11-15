@@ -8,6 +8,8 @@ export interface VerifiedActor {
   subject: string;
   displayName: string;
   email: string;
+  /** True only when Clerk reports the primary address as verified. */
+  emailVerified?: boolean;
 }
 export interface LocalUser {
   userId: string;

@@ -1,7 +1,16 @@
 import { Link } from "@tanstack/react-router";
 import { ArrowLeft } from "lucide-react";
 
-type KnownPath = "/" | "/discover" | "/studio" | "/wardrobe" | "/shop";
+type KnownPath =
+  | "/"
+  | "/discover"
+  | "/studio"
+  | "/wardrobe"
+  | "/shop"
+  | "/events"
+  | "/events/mine"
+  | "/organizer/events"
+  | "/admin/events";
 
 export function BackButton({
   fallback = "/",

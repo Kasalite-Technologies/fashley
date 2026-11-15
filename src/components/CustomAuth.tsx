@@ -10,7 +10,17 @@ import { clerkConfigured } from "@/components/tailor/TailorClerk";
 import logoUrl from "@/assets/logo.png";
 import heroImage from "@/assets/homepage/outfit-concept.webp";
 
-export const AUTH_REDIRECTS = ["/studio", "/shoe-design", "/bag-design", "/wardrobe", "/tailor"] as const;
+export const AUTH_REDIRECTS = [
+  "/studio",
+  "/shoe-design",
+  "/bag-design",
+  "/wardrobe",
+  "/tailor",
+  "/events",
+  "/events/mine",
+  "/organizer/events",
+  "/admin",
+] as const;
 export type AuthRedirect = (typeof AUTH_REDIRECTS)[number];
 
 function GoogleIcon() {

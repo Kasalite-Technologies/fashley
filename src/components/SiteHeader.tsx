@@ -19,6 +19,7 @@ import "@/styles/header.css";
 const links = [
   ["Home", "/"],
   ["Discover", "/discover"],
+  ["Events", "/events"],
   ["Studio", "/studio"],
   ["Wardrobe", "/wardrobe"],
   ["Shop", "/shop"],
