@@ -163,11 +163,7 @@ export function WorkspacePage() {
       },
       onRetry: (j: Job, key: string, acknowledge: boolean) => {
         void tailorApi
-          .retryJob(
-            j.id,
-            acknowledge ? { acknowledgePossibleProviderCost: true } : {},
-            key,
-          )
+          .retryJob(j.id, acknowledge ? { acknowledgePossibleProviderCost: true } : {}, key)
           .then(() => refetch())
           .catch((e) => setActionError(e));
       },
@@ -359,12 +355,13 @@ export function WorkspacePage() {
       );
       keeper.current.clear("fabric-complete");
       const status =
-        completed.status === "ready" || completed.status === "rejected" || completed.status === "expired"
+        completed.status === "ready" ||
+        completed.status === "rejected" ||
+        completed.status === "expired"
           ? completed
-          : await pollUploadUntilSettled(
-              () => tailorApi.getUpload(projectId, intent.uploadId),
-              { initial: completed },
-            );
+          : await pollUploadUntilSettled(() => tailorApi.getUpload(projectId, intent.uploadId), {
+              initial: completed,
+            });
       if (status.status !== "ready" || !status.asset) {
         setFabricStatus(
           status.error?.message ??
@@ -410,8 +407,8 @@ export function WorkspacePage() {
   if (isMeasurementsComplete(input.measurements, template.data?.measurementFields ?? null))
     completed.push("measurements");
   const defaultMeasurementUnit: MeasurementDisplayUnit =
-    (template.data?.measurementFields.find((f) => f.unit === "cm" || f.unit === "in")
-      ?.unit as MeasurementDisplayUnit | undefined) ??
+    (template.data?.measurementFields.find((f) => f.unit === "cm" || f.unit === "in")?.unit as
+      MeasurementDisplayUnit | undefined) ??
     me.data?.preferences.measurementUnit ??
     "cm";
   const activeMeasurementUnit: MeasurementDisplayUnit =
@@ -662,7 +659,10 @@ export function WorkspacePage() {
                 {analyzeJob.isError ? (
                   <PageError error={analyzeJob.error} onRetry={() => void analyzeJob.refetch()} />
                 ) : analyzeJob.data ? (
-                  <JobStatusPanel job={analyzeJob.data} {...jobPanelHandlers(() => analyzeJob.refetch())} />
+                  <JobStatusPanel
+                    job={analyzeJob.data}
+                    {...jobPanelHandlers(() => analyzeJob.refetch())}
+                  />
                 ) : (
                   <p className="text-sm text-muted-foreground">
                     No analysis yet. Manual crop below works without analysis.
@@ -681,8 +681,8 @@ export function WorkspacePage() {
                     <div className="space-y-2">
                       <p className="text-sm">
                         Analysis completed: {analyzeResult.segmentation.regions.length} region
-                        {analyzeResult.segmentation.regions.length === 1 ? "" : "s"} found. Pick
-                        one below, or use manual crop.
+                        {analyzeResult.segmentation.regions.length === 1 ? "" : "s"} found. Pick one
+                        below, or use manual crop.
                       </p>
                       {analyzeResult.observations.length ? (
                         <ul className="list-disc space-y-1 pl-5 text-sm">
@@ -996,12 +996,10 @@ export function WorkspacePage() {
                 </div>
                 {template.data.measurementFields.map((field) => {
                   const existing = input.measurements.find((m) => m.name === field.name);
-                  const storedUnit: MeasurementEnteredUnit =
-                    existing?.enteredUnit ?? field.unit;
+                  const storedUnit: MeasurementEnteredUnit = existing?.enteredUnit ?? field.unit;
                   // Before the user toggles, each field keeps its template/stored unit;
                   // after toggling, the chosen unit applies to the whole step.
-                  const displayUnit: MeasurementEnteredUnit =
-                    measurementUnitOverride ?? storedUnit;
+                  const displayUnit: MeasurementEnteredUnit = measurementUnitOverride ?? storedUnit;
                   return (
                     <MeasurementField
                       key={field.name}
@@ -1013,11 +1011,7 @@ export function WorkspacePage() {
                       guidance={field.guidance}
                       value={
                         existing?.enteredValue
-                          ? convertMeasurementValue(
-                              existing.enteredValue,
-                              storedUnit,
-                              displayUnit,
-                            )
+                          ? convertMeasurementValue(existing.enteredValue, storedUnit, displayUnit)
                           : ""
                       }
                       source={
@@ -1026,7 +1020,8 @@ export function WorkspacePage() {
                       verificationStatus="unverified"
                       error={measurementInputError(existing?.enteredValue)}
                       onChange={(raw) => {
-                        const enteredUnit = displayUnit as ProjectInput["measurements"][number]["enteredUnit"];
+                        const enteredUnit =
+                          displayUnit as ProjectInput["measurements"][number]["enteredUnit"];
                         const next: ProjectInput["measurements"][number] = {
                           name: field.name,
                           kind: field.kind,
@@ -1164,10 +1159,7 @@ export function WorkspacePage() {
               <JobStatusPanel job={briefJob.data} {...jobPanelHandlers(() => briefJob.refetch())} />
             ) : null}
             {compiledBrief.isError ? (
-              <PageError
-                error={compiledBrief.error}
-                onRetry={() => void compiledBrief.refetch()}
-              />
+              <PageError error={compiledBrief.error} onRetry={() => void compiledBrief.refetch()} />
             ) : null}
             {compiledBrief.data ? (
               <div className="space-y-3">
@@ -1238,8 +1230,8 @@ export function WorkspacePage() {
             ) : (
               <>
                 <p className="text-sm">
-                  There is no locked brief yet. If you want to share this design with a tailor,
-                  make and lock one in the Brief step first. You do not have to share it.
+                  There is no locked brief yet. If you want to share this design with a tailor, make
+                  and lock one in the Brief step first. You do not have to share it.
                 </p>
                 <p className="text-sm text-muted-foreground">
                   Your tailor gets a link to this brief only, not your account.

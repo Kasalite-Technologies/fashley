@@ -35,12 +35,22 @@ export default defineConfig({
         runtimeCaching: [
           {
             urlPattern: ({ request, url }) =>
-              request.mode === "navigate" && !url.pathname.startsWith("/~oauth") && !url.pathname.startsWith("/api/"),
+              request.mode === "navigate" &&
+              !url.pathname.startsWith("/~oauth") &&
+              !url.pathname.startsWith("/api/"),
             handler: "NetworkFirst",
-            options: { cacheName: "pages", networkTimeoutSeconds: 4, expiration: { maxEntries: 30 } },
+            options: {
+              cacheName: "pages",
+              networkTimeoutSeconds: 4,
+              expiration: { maxEntries: 30 },
+            },
           },
           {
-            urlPattern: ({ url, sameOrigin }) => sameOrigin && /\/assets\/.+-[A-Za-z0-9_-]{8,}\.(js|css|png|jpg|jpeg|webp|svg|woff2)$/.test(url.pathname),
+            urlPattern: ({ url, sameOrigin }) =>
+              sameOrigin &&
+              /\/assets\/.+-[A-Za-z0-9_-]{8,}\.(js|css|png|jpg|jpeg|webp|svg|woff2)$/.test(
+                url.pathname,
+              ),
             handler: "CacheFirst",
             options: { cacheName: "hashed-assets", expiration: { maxEntries: 200 } },
           },

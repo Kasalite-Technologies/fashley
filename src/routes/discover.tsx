@@ -15,14 +15,21 @@ import trend10 from "@/assets/trends/10.jpg";
 import trend11 from "@/assets/trends/11.jpg";
 import { BackButton } from "@/components/BackButton";
 
-
 export const Route = createFileRoute("/discover")({
   head: () => ({
     meta: [
       { title: "Discover styles | Fashley" },
-      { name: "description", content: "Find Ankara gowns, kente wedding looks and kaba and slit styles. Open Pinterest for more ideas to show your tailor." },
+      {
+        name: "description",
+        content:
+          "Find Ankara gowns, kente wedding looks and kaba and slit styles. Open Pinterest for more ideas to show your tailor.",
+      },
       { property: "og:title", content: "Discover styles | Fashley" },
-      { property: "og:description", content: "Find Ankara gowns, kente wedding looks and kaba and slit styles. Open Pinterest for more ideas to show your tailor." },
+      {
+        property: "og:description",
+        content:
+          "Find Ankara gowns, kente wedding looks and kaba and slit styles. Open Pinterest for more ideas to show your tailor.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -30,7 +37,20 @@ export const Route = createFileRoute("/discover")({
   component: Discover,
 });
 
-const trendImages = [trend0, trend1, trend2, trend3, trend4, trend5, trend6, trend7, trend8, trend9, trend10, trend11];
+const trendImages = [
+  trend0,
+  trend1,
+  trend2,
+  trend3,
+  trend4,
+  trend5,
+  trend6,
+  trend7,
+  trend8,
+  trend9,
+  trend10,
+  trend11,
+];
 const trendAlts = [
   "Woman in a red and gold Ankara corset gown with a flared skirt",
   "Ghanaian bride and groom in matching kente at their traditional engagement ceremony, the groom's cloth draped toga style",
@@ -93,7 +113,9 @@ function Discover() {
         </p>
 
         <section className="mt-12">
-          <h2 className="flex items-center gap-2 text-3xl"><TrendingUp className="h-5 w-5" /> Trending now</h2>
+          <h2 className="flex items-center gap-2 text-3xl">
+            <TrendingUp className="h-5 w-5" /> Trending now
+          </h2>
           <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {trending.map((t, i) => (
               <a
@@ -103,19 +125,32 @@ function Discover() {
                 rel="noopener noreferrer"
                 className="group overflow-hidden rounded-lg border border-border bg-card transition motion-safe:hover:-translate-y-0.5"
               >
-                <img src={trendImages[i]} alt={trendAlts[i]} width={384} height={384} loading="lazy" className="aspect-square w-full object-cover" />
-                <div className="p-5 pt-2"><span className="text-xs uppercase tracking-widest text-muted-foreground">#{i + 1} · {t.tag}</span>
-                <div className="flex items-end justify-between gap-3">
-                  <h3 className="min-w-0 text-2xl">{t.name}</h3>
-                  <ExternalLink className="h-4 w-4 shrink-0 opacity-60 group-hover:opacity-100" />
-                </div></div>
+                <img
+                  src={trendImages[i]}
+                  alt={trendAlts[i]}
+                  width={384}
+                  height={384}
+                  loading="lazy"
+                  className="aspect-square w-full object-cover"
+                />
+                <div className="p-5 pt-2">
+                  <span className="text-xs uppercase tracking-widest text-muted-foreground">
+                    #{i + 1} · {t.tag}
+                  </span>
+                  <div className="flex items-end justify-between gap-3">
+                    <h3 className="min-w-0 text-2xl">{t.name}</h3>
+                    <ExternalLink className="h-4 w-4 shrink-0 opacity-60 group-hover:opacity-100" />
+                  </div>
+                </div>
               </a>
             ))}
           </div>
         </section>
 
         <section className="mt-16">
-          <h2 className="flex items-center gap-2 text-3xl"><Compass className="h-5 w-5" /> Discover more</h2>
+          <h2 className="flex items-center gap-2 text-3xl">
+            <Compass className="h-5 w-5" /> Discover more
+          </h2>
           <div className="mt-6 flex flex-wrap gap-2">
             {discover.map((d) => (
               <a

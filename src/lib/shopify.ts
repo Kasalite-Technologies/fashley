@@ -48,7 +48,10 @@ export async function storefrontApiRequest(query: string, variables: Record<stri
   }
   if (!response.ok) throw new Error(`The shop request failed. Status: ${response.status}`);
   const data = await response.json();
-  if (data.errors) throw new Error(`The shop couldn’t complete the request: ${data.errors.map((e: { message: string }) => e.message).join(", ")}`);
+  if (data.errors)
+    throw new Error(
+      `The shop couldn’t complete the request: ${data.errors.map((e: { message: string }) => e.message).join(", ")}`,
+    );
   return data;
 }
 
@@ -124,7 +127,11 @@ export async function fetchProduct(handle: string): Promise<ShopifyProduct | nul
 const FABRIC_RE = /fabric|stoff|stoffe|wax print|ankara|kente cloth|lace fabric|adire/i;
 
 export function isFabricProduct(p: ShopifyProduct): boolean {
-  return FABRIC_RE.test(p.node.productType) || FABRIC_RE.test(p.node.title) || p.node.tags.some((t) => FABRIC_RE.test(t));
+  return (
+    FABRIC_RE.test(p.node.productType) ||
+    FABRIC_RE.test(p.node.title) ||
+    p.node.tags.some((t) => FABRIC_RE.test(t))
+  );
 }
 
 // --- Cart mutations ---
@@ -172,11 +179,20 @@ function formatCheckoutUrl(checkoutUrl: string): string {
 }
 
 function isCartNotFoundError(userErrors: Array<{ message: string }>): boolean {
-  return userErrors.some((e) => e.message.toLowerCase().includes("cart not found") || e.message.toLowerCase().includes("does not exist"));
+  return userErrors.some(
+    (e) =>
+      e.message.toLowerCase().includes("cart not found") ||
+      e.message.toLowerCase().includes("does not exist"),
+  );
 }
 
-export async function createShopifyCart(variantId: string, quantity: number): Promise<{ cartId: string; checkoutUrl: string; lineId: string } | null> {
-  const data = await storefrontApiRequest(CART_CREATE_MUTATION, { input: { lines: [{ quantity, merchandiseId: variantId }] } });
+export async function createShopifyCart(
+  variantId: string,
+  quantity: number,
+): Promise<{ cartId: string; checkoutUrl: string; lineId: string } | null> {
+  const data = await storefrontApiRequest(CART_CREATE_MUTATION, {
+    input: { lines: [{ quantity, merchandiseId: variantId }] },
+  });
   if (data?.data?.cartCreate?.userErrors?.length > 0) return null;
   const cart = data?.data?.cartCreate?.cart;
   if (!cart?.checkoutUrl) return null;
@@ -185,33 +201,57 @@ export async function createShopifyCart(variantId: string, quantity: number): Pr
   return { cartId: cart.id, checkoutUrl: formatCheckoutUrl(cart.checkoutUrl), lineId };
 }
 
-export async function addLineToShopifyCart(cartId: string, variantId: string, quantity: number): Promise<{ success: boolean; lineId?: string; cartNotFound?: boolean }> {
-  const data = await storefrontApiRequest(CART_LINES_ADD_MUTATION, { cartId, lines: [{ quantity, merchandiseId: variantId }] });
+export async function addLineToShopifyCart(
+  cartId: string,
+  variantId: string,
+  quantity: number,
+): Promise<{ success: boolean; lineId?: string; cartNotFound?: boolean }> {
+  const data = await storefrontApiRequest(CART_LINES_ADD_MUTATION, {
+    cartId,
+    lines: [{ quantity, merchandiseId: variantId }],
+  });
   const userErrors = data?.data?.cartLinesAdd?.userErrors || [];
   if (isCartNotFoundError(userErrors)) return { success: false, cartNotFound: true };
   if (userErrors.length > 0) return { success: false };
   const lines = data?.data?.cartLinesAdd?.cart?.lines?.edges || [];
-  const newLine = lines.find((l: { node: { merchandise: { id: string } } }) => l.node.merchandise.id === variantId);
+  const newLine = lines.find(
+    (l: { node: { merchandise: { id: string } } }) => l.node.merchandise.id === variantId,
+  );
   return { success: true, lineId: newLine?.node?.id };
 }
 
-export async function updateShopifyCartLine(cartId: string, lineId: string, quantity: number): Promise<{ success: boolean; cartNotFound?: boolean }> {
-  const data = await storefrontApiRequest(CART_LINES_UPDATE_MUTATION, { cartId, lines: [{ id: lineId, quantity }] });
+export async function updateShopifyCartLine(
+  cartId: string,
+  lineId: string,
+  quantity: number,
+): Promise<{ success: boolean; cartNotFound?: boolean }> {
+  const data = await storefrontApiRequest(CART_LINES_UPDATE_MUTATION, {
+    cartId,
+    lines: [{ id: lineId, quantity }],
+  });
   const userErrors = data?.data?.cartLinesUpdate?.userErrors || [];
   if (isCartNotFoundError(userErrors)) return { success: false, cartNotFound: true };
   if (userErrors.length > 0) return { success: false };
   return { success: true };
 }
 
-export async function removeLineFromShopifyCart(cartId: string, lineId: string): Promise<{ success: boolean; cartNotFound?: boolean }> {
-  const data = await storefrontApiRequest(CART_LINES_REMOVE_MUTATION, { cartId, lineIds: [lineId] });
+export async function removeLineFromShopifyCart(
+  cartId: string,
+  lineId: string,
+): Promise<{ success: boolean; cartNotFound?: boolean }> {
+  const data = await storefrontApiRequest(CART_LINES_REMOVE_MUTATION, {
+    cartId,
+    lineIds: [lineId],
+  });
   const userErrors = data?.data?.cartLinesRemove?.userErrors || [];
   if (isCartNotFoundError(userErrors)) return { success: false, cartNotFound: true };
   if (userErrors.length > 0) return { success: false };
   return { success: true };
 }
 
-export async function fetchCart(cartId: string): Promise<{ id: string; totalQuantity: number } | null> {
+export async function fetchCart(
+  cartId: string,
+): Promise<{ id: string; totalQuantity: number } | null> {
   const data = await storefrontApiRequest(CART_QUERY, { id: cartId });
   if (!data) return null;
   return data?.data?.cart ?? null;

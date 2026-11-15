@@ -12,7 +12,13 @@ vi.mock("@clerk/backend", () => ({
   createClerkClient: () => ({ users: { getUser: (...args: unknown[]) => getUserMock(...args) } }),
 }));
 
-import { adaptD1, extractSessionToken, secretResolver, tailorDepsFromEnv, type D1Like } from "./cloudflare";
+import {
+  adaptD1,
+  extractSessionToken,
+  secretResolver,
+  tailorDepsFromEnv,
+  type D1Like,
+} from "./cloudflare";
 
 const MIGRATIONS = readdirSync(join(process.cwd(), "migrations/tailor"))
   .filter((f) => f.endsWith(".sql"))
@@ -21,11 +27,9 @@ const MIGRATIONS = readdirSync(join(process.cwd(), "migrations/tailor"))
 
 /** Wrap the in-memory Db in the real D1 binding shape (meta.changes / last_row_id). */
 function fakeD1(db: Db): D1Like {
-  const wrap = (stmt: ReturnType<Db["prepare"]>): D1Like["prepare"] extends (
-    sql: string,
-  ) => infer P
-    ? P
-    : never => {
+  const wrap = (
+    stmt: ReturnType<Db["prepare"]>,
+  ): D1Like["prepare"] extends (sql: string) => infer P ? P : never => {
     const prepared = {
       bind: (...v: unknown[]) => wrap(stmt.bind(...v)),
       run: async () => {
@@ -146,10 +150,21 @@ describe("handlers over adapted D1 with Clerk verifier", () => {
         "test fixture",
         null,
         JSON.stringify([
-          { name: "bust", kind: "body", label: "Bust", guidance: "tape", required: true, unit: "cm" },
+          {
+            name: "bust",
+            kind: "body",
+            label: "Bust",
+            guidance: "tape",
+            required: true,
+            unit: "cm",
+          },
         ]),
         JSON.stringify([]),
-        JSON.stringify({ requiredLengthMm: 2000, ruleVersion: "test-rule-v1", requiredMeasurements: ["bust"] }),
+        JSON.stringify({
+          requiredLengthMm: 2000,
+          ruleVersion: "test-rule-v1",
+          requiredMeasurements: ["bust"],
+        }),
         "TEST ONLY fixture reviewer",
         Date.now(),
         Date.now(),
@@ -158,7 +173,11 @@ describe("handlers over adapted D1 with Clerk verifier", () => {
     const createRes = await handlers.createProject(
       new Request("https://x/api/tailor/projects", {
         method: "POST",
-        headers: { ...auth("user_a"), "Idempotency-Key": "wiring-proof-key-0001", "Content-Type": "application/json" },
+        headers: {
+          ...auth("user_a"),
+          "Idempotency-Key": "wiring-proof-key-0001",
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify({
           title: "Proof dress",
           template: { id: "tpl_test", version: 1 },
@@ -170,7 +189,9 @@ describe("handlers over adapted D1 with Clerk verifier", () => {
       }),
     );
     expect(createRes.status).toBe(201);
-    const created = (await createRes.json()) as { data: { project: { id: string; title: string } } };
+    const created = (await createRes.json()) as {
+      data: { project: { id: string; title: string } };
+    };
     expect(created.data.project.title).toBe("Proof dress");
     const projectId = created.data.project.id;
 
@@ -207,7 +228,7 @@ describe("adaptD1", () => {
         }),
         run: async () => ({ meta: { changes: 3, last_row_id: 9 } }),
         first: async () => null,
-        all: async <T,>() => ({ results: [{ a: 1 } as T] }),
+        all: async <T>() => ({ results: [{ a: 1 } as T] }),
       }),
       batch: async () => [{ meta: { changes: 1, last_row_id: null } }],
       exec: async () => ({}),

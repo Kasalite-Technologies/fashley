@@ -171,8 +171,7 @@ export function createTailorHandlers(deps: TailorHttpDeps) {
     return deps.media;
   }
   function requireCropper(): ImageCropper {
-    if (!deps.cropper)
-      throw err("FEATURE_UNAVAILABLE", "Image cropping is not configured.");
+    if (!deps.cropper) throw err("FEATURE_UNAVAILABLE", "Image cropping is not configured.");
     return deps.cropper;
   }
   const jobDeps = () => ({

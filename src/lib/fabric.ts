@@ -10,7 +10,8 @@ export async function prepareFabric(input: File): Promise<FabricCheck> {
     i.src = url;
   });
   const warnings: string[] = [];
-  if (Math.min(img.width, img.height) < 300) warnings.push("This photo is small. Some pattern details may be lost.");
+  if (Math.min(img.width, img.height) < 300)
+    warnings.push("This photo is small. Some pattern details may be lost.");
   const scale = Math.min(1, 1024 / Math.max(img.width, img.height));
   const w = Math.round(img.width * scale);
   const h = Math.round(img.height * scale);
@@ -41,7 +42,8 @@ export async function prepareFabric(input: File): Promise<FabricCheck> {
       n++;
     }
   const variance = lapSq / n - (lap / n) ** 2;
-  if (variance < 40) warnings.push("The photo may be blurry. Hold steady and focus on the pattern.");
+  if (variance < 40)
+    warnings.push("The photo may be blurry. Hold steady and focus on the pattern.");
   URL.revokeObjectURL(url);
   const blob = await new Promise<Blob>((res) => canvas.toBlob((b) => res(b!), "image/jpeg", 0.9));
   const file = new File([blob], "fabric.jpg", { type: "image/jpeg" });

@@ -20,6 +20,9 @@ export function designMetadata(preferences: DesignPreferences) {
   return {
     category: savedCategory(preferences.kind, preferences.category),
     occasion: preferences.occasion,
-    style: preferences.kind === "outfits" ? preferences.style : `${preferences.style} · ${preferences.hardware} hardware`,
+    style:
+      preferences.kind === "outfits"
+        ? preferences.style
+        : `${preferences.style} · ${preferences.hardware} hardware`,
   };
 }

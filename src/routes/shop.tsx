@@ -20,21 +20,60 @@ export const Route = createFileRoute("/shop")({
   head: () => ({
     meta: [
       { title: "Shop outfits and fabric | Fashley" },
-      { name: "description", content: "Shop ready-made outfits and fabric by the metre. Browse Ankara and kente styles for your next visit to the tailor." },
+      {
+        name: "description",
+        content:
+          "Shop ready-made outfits and fabric by the metre. Browse Ankara and kente styles for your next visit to the tailor.",
+      },
       { property: "og:title", content: "Shop outfits and fabric | Fashley" },
-      { property: "og:description", content: "Shop ready-made outfits and fabric by the metre. Browse Ankara and kente styles for your next visit to the tailor." },
+      {
+        property: "og:description",
+        content:
+          "Shop ready-made outfits and fabric by the metre. Browse Ankara and kente styles for your next visit to the tailor.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
-  errorComponent: ({reset}) => { const router = useRouter(); return <div><SiteHeader/><main className="mx-auto max-w-6xl px-5 py-12"><h1 className="text-4xl">The shop couldn’t load</h1><p className="mt-4">Please try again in a moment.</p><Button className="mt-6" onClick={() => {router.invalidate();reset();}}>Try again</Button></main></div>; },
-  notFoundComponent: () => <div><SiteHeader/><main className="px-5 py-12">We can’t find this collection.</main></div>,
-  pendingComponent: () => <div><SiteHeader/><main className="px-5 py-12" role="status">Loading the Fashley shop…</main></div>,
+  errorComponent: function ShopLoadError({ reset }) {
+    const router = useRouter();
+    return (
+      <div>
+        <SiteHeader />
+        <main className="mx-auto max-w-6xl px-5 py-12">
+          <h1 className="text-4xl">The shop couldn’t load</h1>
+          <p className="mt-4">Please try again in a moment.</p>
+          <Button
+            className="mt-6"
+            onClick={() => {
+              router.invalidate();
+              reset();
+            }}
+          >
+            Try again
+          </Button>
+        </main>
+      </div>
+    );
+  },
+  notFoundComponent: () => (
+    <div>
+      <SiteHeader />
+      <main className="px-5 py-12">We can’t find this collection.</main>
+    </div>
+  ),
+  pendingComponent: () => (
+    <div>
+      <SiteHeader />
+      <main className="px-5 py-12" role="status">
+        Loading the Fashley shop…
+      </main>
+    </div>
+  ),
   component: Shop,
 });
 
 const pin = (q: string) => `https://www.pinterest.com/search/pins/?q=${encodeURIComponent(q)}`;
-
 
 const trending = [
   { name: "Kaba & slit", q: "kaba and slit styles Ghana" },
@@ -70,7 +109,11 @@ function ProductCard({ product }: { product: ShopifyProduct }) {
       <Link to="/product/$handle" params={{ handle: node.handle }} className="block">
         <div className="aspect-square overflow-hidden bg-secondary/20">
           {image ? (
-            <img src={image.url} alt={image.altText ?? node.title} className="h-full w-full object-cover transition group-hover:scale-105" />
+            <img
+              src={image.url}
+              alt={image.altText ?? node.title}
+              className="h-full w-full object-cover transition group-hover:scale-105"
+            />
           ) : (
             <div className="flex h-full items-center justify-center text-muted-foreground">
               <ShoppingBag className="h-10 w-10" />
@@ -80,20 +123,38 @@ function ProductCard({ product }: { product: ShopifyProduct }) {
         <div className="p-4 pb-2">
           <h3 className="font-medium leading-snug">{node.title}</h3>
           <p className="mt-1 text-sm font-semibold">
-            {node.priceRange.minVariantPrice.currencyCode} {parseFloat(node.priceRange.minVariantPrice.amount).toFixed(2)}
+            {node.priceRange.minVariantPrice.currencyCode}{" "}
+            {parseFloat(node.priceRange.minVariantPrice.amount).toFixed(2)}
           </p>
         </div>
       </Link>
       <div className="mt-auto p-4 pt-2">
-        <Button onClick={handleAdd} disabled={isLoading || !variant?.availableForSale} className="w-full" size="sm">
-          {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : variant?.availableForSale ? "Add to cart" : "Sold out"}
+        <Button
+          onClick={handleAdd}
+          disabled={isLoading || !variant?.availableForSale}
+          className="w-full"
+          size="sm"
+        >
+          {isLoading ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : variant?.availableForSale ? (
+            "Add to cart"
+          ) : (
+            "Sold out"
+          )}
         </Button>
       </div>
     </div>
   );
 }
 
-function ProductGrid({ products, section }: { products: ShopifyProduct[]; section: "outfits" | "fabric" }) {
+function ProductGrid({
+  products,
+  section,
+}: {
+  products: ShopifyProduct[];
+  section: "outfits" | "fabric";
+}) {
   if (products.length === 0) {
     return <p className="mt-6 text-sm text-muted-foreground">Nothing here yet.</p>;
   }
@@ -140,7 +201,9 @@ function Shop() {
           <h2 className="flex items-center gap-2 text-3xl">
             <TrendingUp className="h-5 w-5" /> Trending styles
           </h2>
-          <p className="mt-2 text-sm text-muted-foreground">Find a cut you like. Try it in the Studio or look for a similar outfit in the shop.</p>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Find a cut you like. Try it in the Studio or look for a similar outfit in the shop.
+          </p>
           <div className="mt-6 flex flex-wrap gap-2">
             {trending.map((t) => (
               <a
@@ -153,7 +216,10 @@ function Shop() {
                 {t.name} <ExternalLink className="h-3 w-3" />
               </a>
             ))}
-            <Link to="/discover" className="inline-flex items-center gap-2 rounded-full border border-border px-4 py-2 text-sm hover:bg-accent">
+            <Link
+              to="/discover"
+              className="inline-flex items-center gap-2 rounded-full border border-border px-4 py-2 text-sm hover:bg-accent"
+            >
               All trending styles <ExternalLink className="h-3 w-3" />
             </Link>
           </div>

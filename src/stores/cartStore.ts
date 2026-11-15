@@ -50,14 +50,22 @@ export const useCartStore = create<CartStore>()(
           if (!cartId) {
             const result = await createShopifyCart(item.variantId, item.quantity);
             if (result) {
-              set({ cartId: result.cartId, checkoutUrl: result.checkoutUrl, items: [{ ...item, lineId: result.lineId }] });
+              set({
+                cartId: result.cartId,
+                checkoutUrl: result.checkoutUrl,
+                items: [{ ...item, lineId: result.lineId }],
+              });
             }
           } else if (existingItem) {
             if (!existingItem.lineId) return;
             const newQuantity = existingItem.quantity + item.quantity;
             const result = await updateShopifyCartLine(cartId, existingItem.lineId, newQuantity);
             if (result.success) {
-              set({ items: get().items.map((i) => (i.variantId === item.variantId ? { ...i, quantity: newQuantity } : i)) });
+              set({
+                items: get().items.map((i) =>
+                  i.variantId === item.variantId ? { ...i, quantity: newQuantity } : i,
+                ),
+              });
             } else if (result.cartNotFound) {
               clearCart();
             }
@@ -88,7 +96,9 @@ export const useCartStore = create<CartStore>()(
         try {
           const result = await updateShopifyCartLine(cartId, item.lineId, quantity);
           if (result.success) {
-            set({ items: get().items.map((i) => (i.variantId === variantId ? { ...i, quantity } : i)) });
+            set({
+              items: get().items.map((i) => (i.variantId === variantId ? { ...i, quantity } : i)),
+            });
           } else if (result.cartNotFound) {
             clearCart();
           }
@@ -141,7 +151,11 @@ export const useCartStore = create<CartStore>()(
     {
       name: "shopify-cart",
       storage: createJSONStorage(() => localStorage),
-      partialize: (state) => ({ items: state.items, cartId: state.cartId, checkoutUrl: state.checkoutUrl }),
+      partialize: (state) => ({
+        items: state.items,
+        cartId: state.cartId,
+        checkoutUrl: state.checkoutUrl,
+      }),
     },
   ),
 );

@@ -69,7 +69,11 @@ describe("fixture adapter (fixture evidence)", () => {
 
   it("polls a queued-first brief job to completion and an analyze job to regions", async () => {
     const api = createFixtureTailorApi();
-    const brief = await api.createBrief("prj_fixture_1", { revisionId: "rev_fixture_1" }, "k-brief");
+    const brief = await api.createBrief(
+      "prj_fixture_1",
+      { revisionId: "rev_fixture_1" },
+      "k-brief",
+    );
     expect(brief.job.state).toBe("queued");
     await api.getJob(brief.job.id);
     const briefDone = await api.getJob(brief.job.id);
@@ -239,7 +243,10 @@ describe("http adapter", () => {
         }),
     );
     const api2 = createHttpTailorApi(envelopeFetch as unknown as typeof fetch);
-    await expect(api2.getJob("job_http_1")).resolves.toMatchObject({ id: "job_http_1", state: "failed" });
+    await expect(api2.getJob("job_http_1")).resolves.toMatchObject({
+      id: "job_http_1",
+      state: "failed",
+    });
 
     const startFetch = vi.fn(
       async () =>
