@@ -88,6 +88,40 @@ async function organizer(): Promise<{ userId: string; org: OrganizerRow }> {
 }
 
 describe("submission and review", () => {
+  it("starts a new revision after changes are requested so resubmission can notify and be reviewed", async () => {
+    const { userId, org } = await organizer();
+    const created = await saveEventDraft(db, { userId, organizer: org, input: draft });
+    await submitEvent(db, { userId, organizer: org, eventId: created.id });
+    const actor = { userId: await reviewer(), role: "events_editor" as const };
+    await decideReview(db, {
+      actor,
+      eventId: created.id,
+      revisionId: created.revisionId,
+      decision: "changes_requested",
+      organizerMessage: "Please specify the entrance.",
+      internalNote: "",
+    });
+    const updated = await saveEventDraft(db, {
+      userId,
+      organizer: org,
+      eventId: created.id,
+      input: { ...draft, venue: "Trade Centre, east entrance" },
+    });
+    expect(updated.revisionId).not.toBe(created.revisionId);
+    await submitEvent(db, { userId, organizer: org, eventId: created.id });
+    await decideReview(db, {
+      actor,
+      eventId: created.id,
+      revisionId: updated.revisionId,
+      decision: "approved",
+      organizerMessage: "",
+      internalNote: "",
+    });
+    const reviews = await db
+      .prepare("SELECT COUNT(*) AS count FROM event_reviews")
+      .first<{ count: number }>();
+    expect(reviews?.count).toBe(2);
+  });
   it("binds an HTTP review decision to the revision the editor opened", async () => {
     const { userId, org } = await organizer();
     const created = await saveEventDraft(db, { userId, organizer: org, input: draft });
