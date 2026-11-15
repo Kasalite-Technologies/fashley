@@ -70,6 +70,33 @@ export async function queueNotification(db: Db, intent: OutboxIntent) {
   await outboxStatement(db, intent).run();
 }
 
+/** Enumerate recipients inside the mutation transaction, not before it. */
+export function eventAudienceStatement(
+  db: Db,
+  intent: {
+    deliveryKey: string;
+    kind: NotificationKind;
+    eventId: string;
+    payload: Record<string, unknown>;
+  },
+) {
+  const now = nowMs();
+  return db
+    .prepare(
+      "INSERT INTO event_notification_outbox (id, delivery_key, kind, event_id, registration_id, recipient_email, payload_json, state, attempts, next_attempt_at, created_at, updated_at) SELECT ? || ':' || r.id, ? || ':' || r.id, ?, r.event_id, r.id, r.email, ?, 'pending', 0, ?, ?, ? FROM event_registrations r WHERE r.event_id = ? AND r.state IN ('confirmed','waitlisted')",
+    )
+    .bind(
+      newId("ntf"),
+      intent.deliveryKey,
+      intent.kind,
+      JSON.stringify(intent.payload),
+      now,
+      now,
+      now,
+      intent.eventId,
+    );
+}
+
 export async function listOutbox(db: Db, eventId: string, limit = 40) {
   const { results } = await db
     .prepare(

@@ -2,7 +2,7 @@ import type { Db } from "@/lib/tailor/server/db";
 import { err, newId } from "@/lib/tailor/server/errors";
 import { nowMs, toIso } from "@/lib/tailor/server/util";
 import { audit, type StaffActor } from "./authorization";
-import { outboxStatement } from "./notifications";
+import { eventAudienceStatement, outboxStatement } from "./notifications";
 import {
   availabilityOf,
   buildSearchText,
@@ -323,6 +323,24 @@ export async function decideReview(
           revision.id,
         ),
     );
+    if (
+      event.approved_revision_id &&
+      (event.starts_at !== revision.starts_at ||
+        event.ends_at !== revision.ends_at ||
+        event.venue !== revision.venue ||
+        event.city !== revision.city ||
+        event.country !== revision.country ||
+        event.format !== revision.format)
+    ) {
+      statements.push(
+        eventAudienceStatement(db, {
+          deliveryKey: `changed:${revision.id}`,
+          kind: "event_changed",
+          eventId: event.id,
+          payload: { eventTitle: revision.title, when: toIso(revision.starts_at) },
+        }),
+      );
+    }
   } else {
     statements.push(
       db
@@ -420,29 +438,19 @@ export async function setPublication(
   const statements = [
     db
       .prepare(
-        "UPDATE events SET publication = ?, lifecycle = ?, registration_closed = ?, version = version + 1, updated_at = ? WHERE id = ?",
+        "UPDATE events SET publication = ?, lifecycle = ?, registration_closed = ?, version = ?, updated_at = ? WHERE id = ?",
       )
-      .bind(next.publication, next.lifecycle, next.closed, now, event.id),
+      .bind(next.publication, next.lifecycle, next.closed, event.version + 1, now, event.id),
   ];
   if (notifyKind) {
-    const regs = await db
-      .prepare(
-        "SELECT id, email FROM event_registrations WHERE event_id = ? AND state IN ('confirmed','waitlisted')",
-      )
-      .bind(event.id)
-      .all<{ id: string; email: string }>();
-    for (const r of regs.results) {
-      statements.push(
-        outboxStatement(db, {
-          deliveryKey: `${notifyKind}:${event.id}:${r.id}:${now}`,
-          kind: notifyKind,
-          eventId: event.id,
-          registrationId: r.id,
-          recipientEmail: r.email,
-          payload: { eventTitle: event.title, message: params.reason },
-        }),
-      );
-    }
+    statements.push(
+      eventAudienceStatement(db, {
+        deliveryKey: `${notifyKind}:${event.id}:${event.version}`,
+        kind: notifyKind,
+        eventId: event.id,
+        payload: { eventTitle: event.title, message: params.reason },
+      }),
+    );
   }
   await db.batch(statements);
   await audit(db, params.actor.userId, `event.${params.action}`, "event", event.id, {

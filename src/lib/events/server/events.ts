@@ -15,7 +15,7 @@ import {
 } from "./store";
 import { availabilityOf } from "./store";
 import { wallClockToUtcMs, utcMsToWallClock, isSupportedTimeZone } from "./time";
-import { outboxStatement } from "./notifications";
+import { eventAudienceStatement, outboxStatement } from "./notifications";
 import {
   slugify,
   type DraftEventInput,
@@ -364,8 +364,7 @@ export async function saveEventDraft(
   const current = await latestRevision(db, event.id);
   // Only a working revision is edited in place. Approved, rejected, withdrawn
   // and submitted revisions are history, so a change starts a new one.
-  const editableRevision =
-    current && (current.review_state === "draft" || current.review_state === "changes_requested");
+  const editableRevision = current && current.review_state === "draft";
   const revisionId = editableRevision ? current.id : newId("rev");
   const revisionNo = editableRevision ? current.revision_no : (current?.revision_no ?? 0) + 1;
   // Content columns, in the order both statements below expect.
@@ -708,28 +707,18 @@ export async function cancelOwnedEvent(
   const event = await ownedEventRow(db, params.organizer.id, params.eventId);
   if (event.lifecycle === "cancelled") return { ok: true };
   const now = nowMs();
-  const regs = await db
-    .prepare(
-      "SELECT id, email, display_name FROM event_registrations WHERE event_id = ? AND state = 'confirmed'",
-    )
-    .bind(event.id)
-    .all<{ id: string; email: string; display_name: string }>();
   const statements = [
     db
       .prepare(
-        "UPDATE events SET lifecycle = 'cancelled', registration_closed = 1, version = version + 1, updated_at = ? WHERE id = ?",
+        "UPDATE events SET lifecycle = 'cancelled', registration_closed = 1, version = ?, updated_at = ? WHERE id = ?",
       )
-      .bind(now, event.id),
-    ...regs.results.map((r) =>
-      outboxStatement(db, {
-        deliveryKey: `cancel:${event.id}:${r.id}`,
-        kind: "event_cancelled",
-        eventId: event.id,
-        registrationId: r.id,
-        recipientEmail: r.email,
-        payload: { eventTitle: event.title, message: params.reason },
-      }),
-    ),
+      .bind(event.version + 1, now, event.id),
+    eventAudienceStatement(db, {
+      deliveryKey: `cancel:${event.id}:${event.version}`,
+      kind: "event_cancelled",
+      eventId: event.id,
+      payload: { eventTitle: event.title, message: params.reason },
+    }),
   ];
   await db.batch(statements);
   await audit(db, params.userId, "event.cancel", "event", event.id, { reason: params.reason });
