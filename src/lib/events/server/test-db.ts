@@ -95,6 +95,7 @@ export async function createTestDb(): Promise<{
     "0004_credits_receipts_audit.sql",
     "0005_studio_designs.sql",
     "0006_events.sql",
+    "0007_event_report_rate_limits.sql",
   ];
   for (const file of files) {
     const sql = readFileSync(join(process.cwd(), "migrations", "tailor", file), "utf8");

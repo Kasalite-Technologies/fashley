@@ -22,6 +22,12 @@ Not delivered: paid tickets, QR encoding, assigned door-staff management, offlin
 
 ## Validation
 
+### Anonymous report abuse control
+
+The report POST now consumes a D1-backed quota before parsing the body or looking up an event: five attempts per Cloudflare caller IP per ten minutes, shared across event slugs and Worker instances. A conditional UPSERT enforces the quota atomically; excess requests return `429 RATE_LIMITED`. Missing caller identity returns `503` rather than falling back to client-controlled forwarded headers. Only a SHA-256-derived bucket identifier is stored, not the raw IP. Expired buckets are removed in indexed batches of at most 100 on incoming report attempts; cleanup is traffic-driven, not a scheduled retention guarantee. This is per-caller containment, not protection against distributed abuse.
+
+Before deploying this fix, apply additive migration `0007_event_report_rate_limits.sql` to the Events D1 database with owner approval. The SQLite-backed HTTP regression tests cover concurrent bursts, cross-slug/email/header bypass attempts, separate callers, exact expiry, invalid requests, missing identity, and bounded counter cleanup. Use CI as the validation gate; these tests were not executed in the local credential-bearing workspace.
+
 Earlier development runs passed the Events tests, typecheck and production build, with a stale unrelated brand-label test failing in the full suite. That assertion is updated to the existing brand label in a separate commit.
 
 The review corrections add regression coverage for stale cancellations, waitlist closure, capacity reductions, duplicate reviews, revision-bound HTTP decisions, approved-cover immutability, explicit verification and cross-site mutations. Final validation is the PR's Node 24 CI matrix (`test`, `typecheck`, `lint`, `build`). Earlier results do not validate the review corrections.
